@@ -15,8 +15,10 @@ namespace EntrePatasAPI.Data.Contrato
 
         Vacuna Registrar(VacunaDTO vacuna);
 
+        Vacuna Actualizar(int id, VacunaDTO vacuna);
 
-     
+        bool Eliminar(int id);
+
 
 
 
