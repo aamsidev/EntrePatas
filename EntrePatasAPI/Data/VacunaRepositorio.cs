@@ -2,6 +2,7 @@
 using EntrePatasAPI.Models;
 using EntrePatasAPI.Models.DTO;
 using Microsoft.Data.SqlClient;
+using Microsoft.Identity.Client;
 using System.Data;
 
 namespace EntrePatasAPI.Data
@@ -131,7 +132,6 @@ namespace EntrePatasAPI.Data
                 }
             }
 
-            // Solo buscamos el usuario si obtuvimos un ID válido
             if (nuevoID > 0)
                 nuevaVacuna = ObtenerVacunaPorId(nuevoID);
 
@@ -145,5 +145,43 @@ namespace EntrePatasAPI.Data
 
 
         }
+
+        public Vacuna Actualizar(int id, VacunaDTO vacuna)
+        {
+            using (var conexion = new SqlConnection(cadenaConexion))
+            {
+                conexion.Open();
+                using (var command = new SqlCommand("sp_ActualizarVacuna", conexion))
+                {
+                    command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@IdVacuna", id);
+                    command.Parameters.AddWithValue("@Nombre", vacuna.Nombre);
+                    command.Parameters.AddWithValue("@Descripcion", vacuna.Descripcion);
+                    command.Parameters.AddWithValue("@Precio", vacuna.Precio);
+                    int filasAfectadas = command.ExecuteNonQuery();
+                    if (filasAfectadas == 0)
+                    {
+                        throw new Exception("No se pudo actualizar la vacuna.");
+                    }
+                }
+                return ObtenerVacunaPorId(id);
+            }
+        }
+
+            public bool Eliminar(int id)
+            {
+                using (var conexion = new SqlConnection(cadenaConexion))
+                {
+                    conexion.Open();
+                    using (var command = new SqlCommand("sp_EliminarVacuna", conexion))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@IdVacuna", id);
+                        int filasAfectadas = command.ExecuteNonQuery();
+                        return filasAfectadas > 0;
+                    }
+                }
+        }
     }
+
 }

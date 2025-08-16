@@ -464,18 +464,46 @@ AS
 BEGIN
     SET NOCOUNT ON;
 
-    -- Validar campos obligatorios
     IF (@IdSolicitud IS NULL OR @IdVacuna IS NULL OR @Cantidad <= 0)
     BEGIN
-        SELECT -1 AS Resultado; -- Faltan datos
+        SELECT -1 AS Resultado; 
         RETURN;
     END
 
-    -- Insertar solicitud vacuna
+
     INSERT INTO SolicitudVacuna (IdSolicitud, IdVacuna, Cantidad)
     VALUES (@IdSolicitud, @IdVacuna, @Cantidad);
 
-    -- Devolver ID
     SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
 END;
 GO
+
+CREATE PROCEDURE sp_ActualizarVacuna
+    @IdVacuna    INT,
+    @Nombre      VARCHAR(100),
+    @Descripcion VARCHAR(100),
+    @Precio      MONEY
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    UPDATE Vacuna
+    SET Nombre = @Nombre,
+        Descripcion = @Descripcion,
+        Precio = @Precio
+    WHERE IdVacuna = @IdVacuna;
+END;
+GO
+
+
+CREATE PROCEDURE sp_EliminarVacuna
+    @IdVacuna INT
+AS
+BEGIN
+    SET NOCOUNT ON;
+
+    DELETE FROM Vacuna
+    WHERE IdVacuna = @IdVacuna;
+END;
+GO
+

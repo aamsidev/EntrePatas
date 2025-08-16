@@ -48,7 +48,25 @@ namespace EntrePatasAPI.Controllers
         }
 
 
+        [HttpPut("{id}")]
+        public IActionResult Actualizar(int id, VacunaDTO vacuna)
+        {
+            if (id != vacuna.IdVacuna)
+                return BadRequest("El ID de la vacuna no coincide.");
+            var vacunaActualizada = vacunaDATA.Actualizar(id, vacuna);
+            if (vacunaActualizada == null)
+                return NotFound("Vacuna no encontrada.");
+            return Ok(vacunaActualizada);
+        }
 
+        [HttpDelete("{id}")]
+        public IActionResult Eliminar(int id)
+        {
+            var exito = vacunaDATA.Eliminar(id);
+            if (!exito)
+                return NotFound("Vacuna no encontrada o no se pudo eliminar.");
+            return NoContent();
+        }
 
 
     }
