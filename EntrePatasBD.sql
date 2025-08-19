@@ -1,509 +1,688 @@
 ﻿create database EntrePatas
 drop database EntrePatas
 use EntrePatas
-go
-CREATE TABLE Usuario (
+
+-- ===========================================
+-- CREACIÓN DE TABLAS
+-- ===========================================
+
+CREATE TABLE Usuario(
     IdUsuario INT PRIMARY KEY IDENTITY(1,1),
-    Nombre VARCHAR(100) NOT NULL,
-    Apellido VARCHAR(100) NOT NULL,
-    Correo VARCHAR(150) NOT NULL UNIQUE,
-    Contrasena VARCHAR(255) NOT NULL,
-    FechaRegistro DATETIME DEFAULT GETDATE(),
-    TipoUsuario VARCHAR(50) NOT NULL DEFAULT 'Cliente'
+    Nombre NVARCHAR(100) NOT NULL,
+    Apellido NVARCHAR(100) NOT NULL,
+    Email NVARCHAR(150) UNIQUE NOT NULL,
+    Telefono NVARCHAR(20),
+    Direccion NVARCHAR(255) NOT NULL,
+    Contrasena NVARCHAR(255) NOT NULL,
+    TipoUsuario NVARCHAR(50) NOT NULL CHECK (TipoUsuario IN ('Administrador','Cliente','Veterinario')),
+    FechaRegistro DATETIME DEFAULT GETDATE() NOT NULL
 );
-go
-CREATE TABLE Denuncia (
-    IdDenuncia INT PRIMARY KEY IDENTITY(1,1),
-    FechaDenuncia DATETIME DEFAULT GETDATE(),
-    Descripcion VARCHAR(500) NOT NULL,
-    Evidencia VARCHAR(255),
-    Ubicacion VARCHAR(255),
+
+CREATE TABLE Mascota(
+    IdMascota INT PRIMARY KEY IDENTITY(1,1),
     IdUsuario INT NOT NULL,
+    Nombre NVARCHAR(100) NOT NULL,
+    Especie NVARCHAR(50) NOT NULL,
+    Raza NVARCHAR(50),
+    Edad INT,
+	FechaRegistro DATETIME DEFAULT GETDATE() NOT NULL,
     FOREIGN KEY (IdUsuario) REFERENCES Usuario(IdUsuario)
 );
-go
-CREATE TABLE Animal(
-    IdAnimal INT PRIMARY KEY IDENTITY(1,1),
-    Nombre VARCHAR(100) NOT NULL,
-    Especie VARCHAR(100) NOT NULL,
-    Raza VARCHAR(100) NOT NULL,
-    Edad INT NOT NULL,
-    EstadoSalud VARCHAR(50) NOT NULL CHECK (EstadoSalud IN ('Sano', 'Herido', 'Enfermo', 'Crítico')),
-    Estado VARCHAR(100) NOT NULL CHECK (Estado IN ('Disponible', 'Adoptado', 'Bajo observación')),
-    FechaRegistro DATETIME DEFAULT GETDATE() -- Agregamos la fecha de registro con la fecha y hora actual
-);
-
-go
-
-CREATE TABLE SolicitudAdopcion(
-IdSolicitud INT PRIMARY KEY IDENTITY(1,1),
-FechaSolicitud DATETIME DEFAULT GETDATE(),
-Evidencia VARCHAR(100)NOT NULL,
-Ubicacion VARCHAR(100)NOT NULL,
-IdUsuario INT NOT NULL,
-IdAnimal INT NOT NULL,
-FOREIGN KEY (IdUsuario) REFERENCES Usuario(IdUsuario),
-FOREIGN KEY (IdAnimal) REFERENCES Animal(IdAnimal),
-);
-
-GO
 
 CREATE TABLE Vacuna(
-IdVacuna  INT PRIMARY KEY IDENTITY(1,1),
-Nombre VARCHAR(100)NOT NULL,
-Descripcion VARCHAR(100)NOT NULL,
-Precio Money NOT NULL
+    IdVacuna INT PRIMARY KEY IDENTITY(1,1),
+    Nombre NVARCHAR(100) NOT NULL,
+    Descripcion NVARCHAR(255),
+    Precio MONEY NOT NULL
 );
 
+CREATE TABLE Solicitud(
+    IdSolicitud INT PRIMARY KEY IDENTITY(1,1),
+    IdUsuario INT NOT NULL,
+    IdMascota INT NOT NULL,
+    FechaSolicitud DATETIME DEFAULT GETDATE(),
+    Estado NVARCHAR(50) NOT NULL CHECK (Estado IN ('Pendiente','Aprobada','Rechazada')),
+    FOREIGN KEY (IdUsuario) REFERENCES Usuario(IdUsuario),
+    FOREIGN KEY (IdMascota) REFERENCES Mascota(IdMascota)
+);
 
 CREATE TABLE SolicitudVacuna(
-IdSolicitudVacuna INT PRIMARY KEY IDENTITY(1,1),
-IdSolicitud INT NOT NULL,
-IdVacuna INT NOT NULL,
- Cantidad INT NOT NULL,
-FOREIGN KEY (IdSolicitud) REFERENCES SolicitudAdopcion(IdSolicitud),
-FOREIGN KEY (IdVacuna) REFERENCES Vacuna(IdVacuna)
+    IdSolicitudVacuna INT PRIMARY KEY IDENTITY(1,1),
+    IdSolicitud INT NOT NULL,
+    IdVacuna INT NOT NULL,
+    Cantidad INT NOT NULL,
+    FOREIGN KEY (IdSolicitud) REFERENCES Solicitud(IdSolicitud),
+    FOREIGN KEY (IdVacuna) REFERENCES Vacuna(IdVacuna)
 );
 
+CREATE TABLE Producto(
+    IdProducto INT PRIMARY KEY IDENTITY(1,1),
+    Nombre NVARCHAR(100) NOT NULL,
+    Descripcion NVARCHAR(255),
+    Precio MONEY NOT NULL,
+    Stock INT NOT NULL
+);
 
-/*
-INSERCIONES
-*/
-INSERT INTO Usuario (Nombre, Apellido, Correo, Contrasena, TipoUsuario)
+CREATE TABLE Pedido(
+    IdPedido INT PRIMARY KEY IDENTITY(1,1),
+    IdUsuario INT NOT NULL,
+    FechaPedido DATETIME DEFAULT GETDATE(),
+    Estado VARCHAR(50) NOT NULL CHECK (Estado IN ('Pendiente','Pagado','Enviado','Completado','Cancelado')),
+    Total MONEY NOT NULL,
+    FOREIGN KEY (IdUsuario) REFERENCES Usuario(IdUsuario)
+);
+
+CREATE TABLE DetallePedido(
+    IdDetalle INT PRIMARY KEY IDENTITY(1,1),
+    IdPedido INT NOT NULL,
+    IdProducto INT NOT NULL,
+    Cantidad INT NOT NULL,
+    PrecioUnitario MONEY NOT NULL,
+    FOREIGN KEY (IdPedido) REFERENCES Pedido(IdPedido),
+    FOREIGN KEY (IdProducto) REFERENCES Producto(IdProducto)
+);
+
+CREATE TABLE Pago(
+    IdPago INT PRIMARY KEY IDENTITY(1,1),
+    IdPedido INT NOT NULL,
+    FechaPago DATETIME DEFAULT GETDATE(),
+    Monto MONEY NOT NULL,
+    MetodoPago VARCHAR(50) NOT NULL CHECK (MetodoPago IN ('Tarjeta','Yape','Plin','Transferencia','Efectivo')),
+    EstadoPago VARCHAR(50) NOT NULL CHECK (EstadoPago IN ('Pendiente','Completado','Fallido')),
+    FOREIGN KEY (IdPedido) REFERENCES Pedido(IdPedido)
+);
+
+CREATE TABLE Envio(
+    IdEnvio INT PRIMARY KEY IDENTITY(1,1),
+    IdPedido INT NOT NULL,
+    DireccionEnvio VARCHAR(255) NOT NULL,
+    EstadoEnvio VARCHAR(50) NOT NULL CHECK (EstadoEnvio IN ('Pendiente','En camino','Entregado','Devuelto')),
+    FechaEnvio DATETIME DEFAULT GETDATE(),
+    FOREIGN KEY (IdPedido) REFERENCES Pedido(IdPedido)
+);
+go 
+-- ========================================
+-- INSERTS DE USUARIO
+-- ========================================
+INSERT INTO Usuario (Nombre, Apellido, Email, Telefono, Direccion, Contrasena, TipoUsuario)
+VALUES 
+('Juan', 'Pérez', 'juan.perez@mail.com', '987654321', 'Av. Siempre Viva 123', 'HASH123', 'Cliente'),
+('María', 'García', 'maria.garcia@mail.com', '999888777', 'Calle Falsa 456', 'HASH456', 'Veterinario'),
+('Carlos', 'López', 'carlos.lopez@mail.com', '955666444', 'Jr. Las Flores 789', 'HASH789', 'Administrador');
+-- ========================================
+-- INSERTS DE MASCOTA
+-- ========================================
+INSERT INTO Mascota (IdUsuario, Nombre, Especie, Raza, Edad)
 VALUES
-('Juan', 'Pérez', 'juan.perez@example.com', '1234abcd', 'Administrador'),
-('María', 'López', 'maria.lopez@example.com', 'abcd1234', 'Cliente'),
-('Carlos', 'García', 'carlos.garcia@example.com', 'pass1234', 'Cliente');
+(1, 'Firulais', 'Perro', 'Labrador', 3),
+(1, 'Michi', 'Gato', 'Siames', 2),
+(2, 'Rocky', 'Perro', 'Bulldog', 4);
 
-GO
+-- ========================================
+-- INSERTS DE VACUNA
+-- ========================================
+INSERT INTO Vacuna (Nombre, Descripcion, Precio)
+VALUES
+('Antirrábica', 'Protección contra la rabia', 50.00),
+('Triple Felina', 'Protección contra rinotraqueítis, calicivirus y panleucopenia', 80.00),
+('Parvovirus', 'Prevención de parvovirosis canina', 60.00);
 
-INSERT INTO Denuncia (FechaDenuncia, Descripcion, Evidencia, Ubicacion, IdUsuario)
-VALUES 
-('2024-05-10', 'Perro herido en la pata cerca del mercado', 'perro_herido.jpg', 'Mercado Municipal - Av. Grau', 1),
-('2024-06-21', 'Perro perdido con collar rojo', 'perro_collar_rojo.jpg', 'Plaza San Martin', 2),
-('2024-07-03', 'Cachorro abandonado en la calle', 'cachorro_abandonado.jpg', 'Jr. Los Pinos 456', 1);
+-- ========================================
+-- INSERTS DE SOLICITUD
+-- ========================================
+INSERT INTO Solicitud (IdUsuario, IdMascota, Estado)
+VALUES
+(1, 1, 'Pendiente'),
+(1, 2, 'Pendiente'),
+(2, 3, 'Aprobada');
+
+-- ========================================
+-- INSERTS DE SOLICITUDVACUNA
+-- ========================================
+INSERT INTO SolicitudVacuna (IdSolicitud, IdVacuna, Cantidad)
+VALUES
+(1, 1, 1), -- Firulais → Antirrábica
+(2, 2, 1), -- Michi → Triple Felina
+(3, 3, 2); -- Rocky → 2 dosis Parvovirus
+
+-- ========================================
+-- INSERTS DE PRODUCTO
+-- ========================================
+INSERT INTO Producto (Nombre, Descripcion, Precio, Stock)
+VALUES
+('Croquetas Dog Chow', 'Alimento balanceado para perros adultos', 120.00, 50),
+('Arena Sanitaria', 'Arena absorbente para gatos', 35.00, 100),
+('Juguete Pelota', 'Pelota mordedora resistente', 20.00, 200),
+('Vitaminas Caninas', 'Suplemento vitamínico para perros', 75.00, 40);
+
+-- ========================================
+-- INSERTS DE PEDIDO
+-- ========================================
+INSERT INTO Pedido (IdUsuario, Estado, Total)
+VALUES
+(1, 'Pendiente', 140.00),
+(2, 'Pagado', 35.00);
+
+-- ========================================
+-- INSERTS DE DETALLEPEDIDO
+-- ========================================
+INSERT INTO DetallePedido (IdPedido, IdProducto, Cantidad, PrecioUnitario)
+VALUES
+(1, 1, 1, 120.00), -- Croquetas
+(1, 3, 1, 20.00),  -- Pelota
+(2, 2, 1, 35.00);  -- Arena
+
+-- ========================================
+-- INSERTS DE PAGO
+-- ========================================
+INSERT INTO Pago (IdPedido, Monto, MetodoPago, EstadoPago)
+VALUES
+(1, 140.00, 'Tarjeta', 'Pendiente'),
+(2, 35.00, 'Yape', 'Completado');
+
+-- ========================================
+-- INSERTS DE ENVIO
+-- ========================================
+INSERT INTO Envio (IdPedido, DireccionEnvio, EstadoEnvio)
+VALUES
+(1, 'Av. Siempre Viva 123', 'Pendiente'),
+(2, 'Calle Falsa 456', 'En camino');
+
+
+
+
+
+
+
+
+
+
+
 
 go
+-- ===========================================
+-- PROCEDIMIENTOS ALMACENADOS
+-- ===========================================
 
-INSERT INTO Animal (Nombre, Especie, Raza, Edad , EstadoSalud, Estado)
-VALUES 
-    ('Luna', 'Perro', 'Labrador', 3 ,'Sano','Disponible' ),
-    ('Max', 'Gato', 'Siames', 2,'Sano','Disponible' ),
-    ('Bella', 'Perro', 'Bulldog', 5,'Sano','Disponible'),
-    ('Oliver', 'Gato', 'Persa', 4,'Sano','Disponible'),
-    ('Rocky', 'Perro', 'Pastor Alemán', 6,'Sano','Disponible');
-
-
-
-INSERT INTO SolicitudAdopcion (Evidencia, Ubicacion, IdUsuario, IdAnimal)
-VALUES 
-    ('Evidencia de adopción para el perro', 'Ciudad A', 1, 1),
-    ('Evidencia de adopción para el gato', 'Ciudad B', 2, 2),
-    ('Evidencia de adopción para el conejo', 'Ciudad C', 3, 3);
-	
-	go
-
-	INSERT INTO Vacuna (Nombre, Descripcion, Precio)
-VALUES 
-    ('Vacuna Parvovirus', 'Vacuna para prevenir el parvovirus en perros', 250.00),
-    ('Vacuna Rabia', 'Vacuna para prevenir la rabia en perros y gatos', 150.00),
-    ('Vacuna Leptospirosis', 'Vacuna para prevenir la leptospirosis en perros', 200.00),
-    ('Vacuna Hepatitis Canina', 'Vacuna para prevenir la hepatitis canina', 220.00),
-    ('Vacuna Bordetella', 'Vacuna para prevenir la tos de las perreras', 180.00);
-
-	go
-
-	INSERT INTO SolicitudVacuna (IdSolicitud, IdVacuna, Cantidad)
-VALUES 
-    (1, 1, 2),  -- Solicitud 1, Vacuna 1, Cantidad 2
-    (1, 2, 1),  -- Solicitud 1, Vacuna 2, Cantidad 1
-    (2, 1, 3);  -- Solicitud 2, Vacuna 1, Cantidad 3
-
-	go
-/*
-PROSEGURES USUARIO
-*/
-
-CREATE PROCEDURe sp_ObtenerUsuarios
-as
-begin
-select * from Usuario 
-end;
-
-go
-
-Create procedure sp_ObtenerUsuariosPorId
-@IdUsuario INT 
-as
-begin select * from Usuario where IdUsuario=@IdUsuario;
-end;
-go
-
-
-CREATE OR ALTER PROC sp_InsertarUsuario
-    @Nombre       VARCHAR(100),
-    @Apellido     VARCHAR(100),
-    @Correo       VARCHAR(150),
-    @Contrasena   VARCHAR(255)
+-- INSERTAR USUARIO
+CREATE PROCEDURE sp_InsertarUsuario
+    @Nombre NVARCHAR(100),
+    @Apellido NVARCHAR(100),
+    @Email NVARCHAR(150),
+    @Telefono NVARCHAR(20),
+    @Direccion NVARCHAR(255),
+    @Contrasena NVARCHAR(255),
+    @TipoUsuario NVARCHAR(50)
 AS
 BEGIN
-    SET NOCOUNT ON;
+    INSERT INTO Usuario(Nombre, Apellido, Email, Telefono, Direccion, Contrasena, TipoUsuario)
+    VALUES(@Nombre, @Apellido, @Email, @Telefono, @Direccion, @Contrasena, @TipoUsuario);
 
-    -- Validar campos obligatorios
-    IF (@Nombre IS NULL OR LTRIM(RTRIM(@Nombre)) = '' OR
-        @Apellido IS NULL OR LTRIM(RTRIM(@Apellido)) = '' OR
-        @Correo IS NULL OR LTRIM(RTRIM(@Correo)) = '' OR
-        @Contrasena IS NULL OR LTRIM(RTRIM(@Contrasena)) = '')
-    BEGIN
-        SELECT -1 AS Resultado; -- Faltan datos
-        RETURN;
-    END
-
-    -- Validar correo duplicado
-    IF EXISTS (SELECT 1 FROM Usuario WHERE Correo = @Correo)
-    BEGIN
-        SELECT -2 AS Resultado; -- Correo ya existe
-        RETURN;
-    END
-
-    -- Insertar usuario con tipo por defecto 'Ciudadano'
-    INSERT INTO Usuario (Nombre, Apellido, Correo, Contrasena)
-    VALUES (@Nombre, @Apellido, @Correo, @Contrasena);
-
-    -- Devolver ID
-    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
-END;
-
-go
-
-
-CREATE OR ALTER PROC sp_InsertarAdmin
-    @Nombre       VARCHAR(100),
-    @Apellido     VARCHAR(100),
-    @Correo       VARCHAR(150),
-    @Contrasena   VARCHAR(255),
-    @TipoUsuario  VARCHAR(50)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Solo permitir 'Administrador'
-    IF (@TipoUsuario <> 'Administrador')
-    BEGIN
-        SELECT -3 AS Resultado; -- Tipo inválido
-        RETURN;
-    END
-
-    -- Validar campos obligatorios
-    IF (@Nombre IS NULL OR LTRIM(RTRIM(@Nombre)) = '' OR
-        @Apellido IS NULL OR LTRIM(RTRIM(@Apellido)) = '' OR
-        @Correo IS NULL OR LTRIM(RTRIM(@Correo)) = '' OR
-        @Contrasena IS NULL OR LTRIM(RTRIM(@Contrasena)) = '')
-    BEGIN
-        SELECT -1 AS Resultado;
-        RETURN;
-    END
-
-    -- Validar correo duplicado
-    IF EXISTS (SELECT 1 FROM Usuario WHERE Correo = @Correo)
-    BEGIN
-        SELECT -2 AS Resultado;
-        RETURN;
-    END
-
-    -- Insertar admin
-    INSERT INTO Usuario (Nombre, Apellido, Correo, Contrasena, TipoUsuario)
-    VALUES (@Nombre, @Apellido, @Correo, @Contrasena, @TipoUsuario);
-
-    -- Devolver ID
-    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
-END;
-
-
-
-
-/*fin */
-go
-/*Prosegure Denuncias*/
-
-CREATE PROCEDURe sp_ObtenerDenuncias
-as
-begin
-select * from Denuncia 
-end;
-go
-
-Create procedure sp_ObtenerDenunciasPorId
-@IdDenuncia INT 
-as
-begin select * from Denuncia where IdDenuncia=@IdDenuncia
-end;
-go
-
-CREATE  PROC sp_InsertarDenuncia
-    @Descripcion   VARCHAR(500),
-    @Evidencia     VARCHAR(255) = NULL,
-    @Ubicacion     VARCHAR(255) = NULL,
-    @IdUsuario     INT
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Validar campos obligatorios
-    IF (@Descripcion IS NULL OR LTRIM(RTRIM(@Descripcion)) = '' OR
-        @IdUsuario IS NULL OR @IdUsuario <= 0)
-    BEGIN
-        SELECT -1 AS Resultado; -- Faltan datos
-        RETURN;
-    END
-
-    -- Validar que el usuario exista
-    IF NOT EXISTS (SELECT 1 FROM Usuario WHERE IdUsuario = @IdUsuario)
-    BEGIN
-        SELECT -2 AS Resultado; -- Usuario no encontrado
-        RETURN;
-    END
-
-    -- Insertar la denuncia
-    INSERT INTO Denuncia (Descripcion, Evidencia, Ubicacion, IdUsuario)
-    VALUES (@Descripcion, @Evidencia, @Ubicacion, @IdUsuario);
-
-    -- Retornar el ID recién creado
-    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
-END;
-GO
-/*Procegure Animal*/
-
-CREATE PROCEDURE sp_ObtenerAnimales
-as
-begin
-select * from Animal
-end;
-go
-
-Create  procedure sp_ObtenerAnimalesPorId
-@IdAnimal INT 
-as
-begin select * from Animal where IdAnimal=@IdAnimal;
-end;
-go
-
-CREATE  PROC sp_InsertarAnimal
-    @Nombre        VARCHAR(100),
-    @Especie       VARCHAR(100),
-    @Raza          VARCHAR(100),
-    @Edad          INT,
-    @EstadoSalud   VARCHAR(50),
-    @Estado        VARCHAR(100)
-AS
-BEGIN
-    SET NOCOUNT ON;
-
-    -- Validar campos obligatorios
-    IF (@Nombre IS NULL OR LTRIM(RTRIM(@Nombre)) = '' OR
-        @Especie IS NULL OR LTRIM(RTRIM(@Especie)) = '' OR
-        @Raza IS NULL OR LTRIM(RTRIM(@Raza)) = '' OR
-        @Edad IS NULL OR @Edad <= 0 OR
-        @EstadoSalud IS NULL OR LTRIM(RTRIM(@EstadoSalud)) = '' OR
-        @Estado IS NULL OR LTRIM(RTRIM(@Estado)) = '')
-    BEGIN
-        SELECT -1 AS Resultado; -- Faltan datos
-        RETURN;
-    END
-
-    -- Validar que el estado de salud sea uno de los valores permitidos
-    IF (@EstadoSalud NOT IN ('Sano', 'Herido', 'Enfermo', 'Crítico'))
-    BEGIN
-        SELECT -2 AS Resultado; -- Estado de salud no válido
-        RETURN;
-    END
-	IF (@Estado NOT IN ('Disponible', 'Adoptado', 'Bajo observación'))
-    BEGIN
-        SELECT -3 AS Resultado; -- Estado no válido
-        RETURN;
-    END
-
-    -- Insertar el animal
-    INSERT INTO Animal (Nombre, Especie, Raza, Edad, EstadoSalud, Estado)
-    VALUES (@Nombre, @Especie, @Raza, @Edad, @EstadoSalud, @Estado);
-
-    -- Retornar el ID recién creado
     SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
 END;
 GO
 
-
-/*Procegure SolicitudAdopcion*/
-
-
-CREATE PROCEDURe sp_ObtenerSolicitudAdopcion
-as
-begin
-select * from SolicitudAdopcion
-end;
-go
-
-Create procedure sp_ObtenerSolicitudPorId
-@IdSolicitud INT 
-as
-begin select * from SolicitudAdopcion where IdSolicitud=@IdSolicitud;
-end;
-
-go
-
-CREATE  PROC sp_InsertarSolicitudAdopcion
-    @Evidencia     VARCHAR(100),
-    @Ubicacion     VARCHAR(100),
-    @IdUsuario     INT,
-    @IdAnimal      INT
+-- LISTAR USUARIOS
+CREATE PROCEDURE sp_ListarUsuarios
 AS
 BEGIN
-    SET NOCOUNT ON;
+    SELECT *
+    FROM Usuario;
+    
+END;
+GO
 
-    -- Validar campos obligatorios
-    IF (@Evidencia IS NULL OR LTRIM(RTRIM(@Evidencia)) = '' OR
-        @Ubicacion IS NULL OR LTRIM(RTRIM(@Ubicacion)) = '' OR
-        @IdUsuario IS NULL OR @IdUsuario <= 0 OR
-        @IdAnimal IS NULL OR @IdAnimal <= 0)
-    BEGIN
-        SELECT -1 AS Resultado; -- Faltan datos
-        RETURN;
-    END
+-- OBTENER USUARIO POR ID
+CREATE PROCEDURE sp_ObtenerUsuarioPorId
+    @IdUsuario INT
+AS
+BEGIN
+    SELECT * FROM Usuario 
+    WHERE IdUsuario = @IdUsuario;
+    -- No devolvemos Contraseña
+END;
+GO
 
-    -- Validar que el usuario exista
-    IF NOT EXISTS (SELECT 1 FROM Usuario WHERE IdUsuario = @IdUsuario)
-    BEGIN
-        SELECT -2 AS Resultado; -- Usuario no encontrado
-        RETURN;
-    END
+-- ACTUALIZAR USUARIO
+CREATE PROCEDURE sp_ActualizarUsuario
+    @IdUsuario INT,
+    @Nombre NVARCHAR(100),
+    @Apellido NVARCHAR(100),
+    @Email NVARCHAR(150),
+    @Telefono NVARCHAR(20),
+    @Direccion NVARCHAR(255),
+    @Contrasena NVARCHAR(255),
+    @TipoUsuario NVARCHAR(50)
+AS
+BEGIN
+    UPDATE Usuario
+    SET Nombre = @Nombre,
+        Apellido = @Apellido,
+        Email = @Email,
+        Telefono = @Telefono,
+        Direccion = @Direccion,
+        Contrasena = @Contrasena,
+        TipoUsuario = @TipoUsuario
+    WHERE IdUsuario = @IdUsuario;
+END;
+GO
 
-    -- Validar que el animal exista
-    IF NOT EXISTS (SELECT 1 FROM Animal WHERE IdAnimal = @IdAnimal)
-    BEGIN
-        SELECT -3 AS Resultado; -- Animal no encontrado
-        RETURN;
-    END
+-- ELIMINAR USUARIO
+CREATE PROCEDURE sp_EliminarUsuario
+    @IdUsuario INT
+AS
+BEGIN
+    DELETE FROM Usuario WHERE IdUsuario = @IdUsuario;
+END;
+GO
 
-    -- Insertar la solicitud de adopción
-    INSERT INTO SolicitudAdopcion (Evidencia, Ubicacion, IdUsuario, IdAnimal)
-    VALUES (@Evidencia, @Ubicacion, @IdUsuario, @IdAnimal);
-
-    -- Retornar el ID recién creado
+-- MASCOTA
+CREATE  PROCEDURE sp_InsertarMascota
+    @IdUsuario INT,
+    @Nombre NVARCHAR(100),
+    @Especie NVARCHAR(50),
+    @Raza NVARCHAR(50),
+    @Edad INT
+AS
+BEGIN
+    INSERT INTO Mascota(IdUsuario,Nombre,Especie,Raza,Edad)
+    VALUES(@IdUsuario,@Nombre,@Especie,@Raza,@Edad);
     SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
 END;
 GO
 
+CREATE  PROCEDURE sp_ListarMascotas
+AS
+BEGIN
+    SELECT * FROM Mascota;
+END;
+GO
 
-/*Procedure Vacuna*/
+CREATE  PROCEDURE sp_ObtenerMascotaPorId
+    @IdMascota INT
+AS
+BEGIN
+    SELECT * FROM Mascota WHERE IdMascota=@IdMascota;
+END;
+GO
 
-CREATE PROCEDURE sp_ObtenerVacunas
+CREATE  PROCEDURE sp_ActualizarMascota
+    @IdMascota INT,
+    @Nombre NVARCHAR(100),
+    @Especie NVARCHAR(50),
+    @Raza NVARCHAR(50),
+    @Edad INT
+AS
+BEGIN
+    UPDATE Mascota
+    SET Nombre=@Nombre,Especie=@Especie,Raza=@Raza,Edad=@Edad
+    WHERE IdMascota=@IdMascota;
+END;
+GO
+
+CREATE  PROCEDURE sp_EliminarMascota
+    @IdMascota INT
+AS
+BEGIN
+    DELETE FROM Mascota WHERE IdMascota=@IdMascota;
+END;
+GO
+
+-- VACUNA
+CREATE  PROCEDURE sp_InsertarVacuna
+    @Nombre NVARCHAR(100),
+    @Descripcion NVARCHAR(255),
+    @Precio MONEY
+AS
+BEGIN
+    INSERT INTO Vacuna(Nombre,Descripcion,Precio)
+    VALUES(@Nombre,@Descripcion,@Precio);
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
+END;
+GO
+
+CREATE  PROCEDURE sp_ListarVacunas
 AS
 BEGIN
     SELECT * FROM Vacuna;
 END;
 GO
 
-
 CREATE PROCEDURE sp_ObtenerVacunaPorId
     @IdVacuna INT
 AS
 BEGIN
-    SELECT * FROM Vacuna WHERE IdVacuna = @IdVacuna;
+    SELECT * FROM Vacuna WHERE IdVacuna=@IdVacuna;
 END;
 GO
 
-CREATE  PROCEDURE sp_InsertarVacuna
-    @Nombre       VARCHAR(100),
-    @Descripcion  VARCHAR(100),
-    @Precio       MONEY
+CREATE PROCEDURE sp_ActualizarVacuna
+    @IdVacuna INT,
+    @Nombre NVARCHAR(100),
+    @Descripcion NVARCHAR(255),
+    @Precio MONEY
 AS
 BEGIN
-    SET NOCOUNT ON;
+    UPDATE Vacuna
+    SET Nombre=@Nombre,Descripcion=@Descripcion,Precio=@Precio
+    WHERE IdVacuna=@IdVacuna;
+END;
+GO
 
-    -- Validar campos obligatorios
-    IF (@Nombre IS NULL OR LTRIM(RTRIM(@Nombre)) = '' OR
-        @Descripcion IS NULL OR LTRIM(RTRIM(@Descripcion)) = '' OR
-        @Precio IS NULL)
-    BEGIN
-        SELECT -1 AS Resultado; -- Faltan datos
-        RETURN;
-    END
+CREATE PROCEDURE sp_EliminarVacuna
+    @IdVacuna INT
+AS
+BEGIN
+    DELETE FROM Vacuna WHERE IdVacuna=@IdVacuna;
+END;
+GO
 
-    -- Insertar vacuna
-    INSERT INTO Vacuna (Nombre, Descripcion, Precio)
-    VALUES (@Nombre, @Descripcion, @Precio);
-
-    -- Devolver ID
+-- SOLICITUD
+CREATE PROCEDURE sp_InsertarSolicitud
+    @IdUsuario INT,
+    @IdMascota INT,
+    @Estado NVARCHAR(50)
+AS
+BEGIN
+    INSERT INTO Solicitud(IdUsuario,IdMascota,Estado)
+    VALUES(@IdUsuario,@IdMascota,@Estado);
     SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
 END;
 GO
 
+CREATE  PROCEDURE sp_ListarSolicitudes
+AS
+BEGIN
+    SELECT * FROM Solicitud;
+END;
+GO
 
-/*PROCEDURE SOLICITUDVACUNA*/
+CREATE  PROCEDURE sp_ObtenerSolicitudPorId
+    @IdSolicitud INT
+AS
+BEGIN
+    SELECT * FROM Solicitud WHERE IdSolicitud=@IdSolicitud;
+END;
+GO
 
-CREATE PROCEDURE sp_ObtenerSolicitudVacunas
+CREATE PROCEDURE sp_ActualizarSolicitud
+    @IdSolicitud INT,
+    @Estado NVARCHAR(50)
+AS
+BEGIN
+    UPDATE Solicitud SET Estado=@Estado WHERE IdSolicitud=@IdSolicitud;
+END;
+GO
+
+CREATE  PROCEDURE sp_EliminarSolicitud
+    @IdSolicitud INT
+AS
+BEGIN
+    DELETE FROM Solicitud WHERE IdSolicitud=@IdSolicitud;
+END;
+GO
+
+-- SOLICITUD VACUNA
+CREATE PROCEDURE sp_InsertarSolicitudVacuna
+    @IdSolicitud INT,
+    @IdVacuna INT,
+    @Cantidad INT
+AS
+BEGIN
+    IF (@IdSolicitud IS NULL OR @IdVacuna IS NULL OR @Cantidad <= 0)
+    BEGIN
+        SELECT -1 AS Resultado;
+        RETURN;
+    END
+    INSERT INTO SolicitudVacuna(IdSolicitud,IdVacuna,Cantidad)
+    VALUES(@IdSolicitud,@IdVacuna,@Cantidad);
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
+END;
+GO
+
+CREATE  PROCEDURE sp_ListarSolicitudVacunas
 AS
 BEGIN
     SELECT * FROM SolicitudVacuna;
 END;
 GO
 
-CREATE PROCEDURE sp_ObtenerSolicitudVacunaPorId
+CREATE  PROCEDURE sp_ObtenerSolicitudVacunaPorId
     @IdSolicitudVacuna INT
 AS
 BEGIN
-    SELECT * FROM SolicitudVacuna WHERE IdSolicitudVacuna = @IdSolicitudVacuna;
-END
+    SELECT * FROM SolicitudVacuna WHERE IdSolicitudVacuna=@IdSolicitudVacuna;
+END;
 GO
 
-CREATE  PROCEDURE sp_InsertarSolicitudVacuna
-    @IdSolicitud INT,
-    @IdVacuna INT,
-    @Cantidad INT
+CREATE  PROCEDURE sp_EliminarSolicitudVacuna
+    @IdSolicitudVacuna INT
 AS
 BEGIN
-    SET NOCOUNT ON;
+    DELETE FROM SolicitudVacuna WHERE IdSolicitudVacuna=@IdSolicitudVacuna;
+END;
+GO
 
-    IF (@IdSolicitud IS NULL OR @IdVacuna IS NULL OR @Cantidad <= 0)
-    BEGIN
-        SELECT -1 AS Resultado; 
-        RETURN;
-    END
-
-
-    INSERT INTO SolicitudVacuna (IdSolicitud, IdVacuna, Cantidad)
-    VALUES (@IdSolicitud, @IdVacuna, @Cantidad);
-
+-- PRODUCTO
+CREATE  PROCEDURE sp_InsertarProducto
+    @Nombre NVARCHAR(100),
+    @Descripcion NVARCHAR(255),
+    @Precio MONEY,
+    @Stock INT
+AS
+BEGIN
+    INSERT INTO Producto(Nombre,Descripcion,Precio,Stock)
+    VALUES(@Nombre,@Descripcion,@Precio,@Stock);
     SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
 END;
 GO
 
-CREATE PROCEDURE sp_ActualizarVacuna
-    @IdVacuna    INT,
-    @Nombre      VARCHAR(100),
-    @Descripcion VARCHAR(100),
-    @Precio      MONEY
+CREATE  PROCEDURE sp_ListarProductos
 AS
 BEGIN
-    SET NOCOUNT ON;
-
-    UPDATE Vacuna
-    SET Nombre = @Nombre,
-        Descripcion = @Descripcion,
-        Precio = @Precio
-    WHERE IdVacuna = @IdVacuna;
+    SELECT * FROM Producto;
 END;
 GO
 
-
-CREATE PROCEDURE sp_EliminarVacuna
-    @IdVacuna INT
+CREATE  PROCEDURE sp_ObtenerProductoPorId
+    @IdProducto INT
 AS
 BEGIN
-    SET NOCOUNT ON;
-
-    DELETE FROM Vacuna
-    WHERE IdVacuna = @IdVacuna;
+    SELECT * FROM Producto WHERE IdProducto=@IdProducto;
 END;
 GO
 
+CREATE  PROCEDURE sp_ActualizarProducto
+    @IdProducto INT,
+    @Nombre NVARCHAR(100),
+    @Descripcion NVARCHAR(255),
+    @Precio MONEY,
+    @Stock INT
+AS
+BEGIN
+    UPDATE Producto
+    SET Nombre=@Nombre,Descripcion=@Descripcion,Precio=@Precio,Stock=@Stock
+    WHERE IdProducto=@IdProducto;
+END;
+GO
+
+CREATE  PROCEDURE sp_EliminarProducto
+    @IdProducto INT
+AS
+BEGIN
+    DELETE FROM Producto WHERE IdProducto=@IdProducto;
+END;
+GO
+
+-- PEDIDO
+CREATE  PROCEDURE sp_InsertarPedido
+    @IdUsuario INT,
+    @Estado VARCHAR(50),
+    @Total MONEY
+AS
+BEGIN
+    INSERT INTO Pedido(IdUsuario,FechaPedido,Estado,Total)
+    VALUES(@IdUsuario,GETDATE(),@Estado,@Total);
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
+END;
+GO
+
+CREATE  PROCEDURE sp_ListarPedidos
+AS
+BEGIN
+    SELECT * FROM Pedido;
+END;
+GO
+
+CREATE  PROCEDURE sp_ObtenerPedidoPorId
+    @IdPedido INT
+AS
+BEGIN
+    SELECT * FROM Pedido WHERE IdPedido=@IdPedido;
+END;
+GO
+
+CREATE  PROCEDURE sp_ActualizarPedido
+    @IdPedido INT,
+    @Estado VARCHAR(50),
+    @Total MONEY
+AS
+BEGIN
+    UPDATE Pedido SET Estado=@Estado,Total=@Total WHERE IdPedido=@IdPedido;
+END;
+GO
+
+CREATE  PROCEDURE sp_EliminarPedido
+    @IdPedido INT
+AS
+BEGIN
+    DELETE FROM Pedido WHERE IdPedido=@IdPedido;
+END;
+GO
+
+-- DETALLE PEDIDO
+CREATE  PROCEDURE sp_InsertarDetallePedido
+    @IdPedido INT,
+    @IdProducto INT,
+    @Cantidad INT,
+    @PrecioUnitario MONEY
+AS
+BEGIN
+    INSERT INTO DetallePedido(IdPedido,IdProducto,Cantidad,PrecioUnitario)
+    VALUES(@IdPedido,@IdProducto,@Cantidad,@PrecioUnitario);
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
+END;
+GO
+
+CREATE  PROCEDURE sp_ListarDetallesPedido
+AS
+BEGIN
+    SELECT * FROM DetallePedido;
+END;
+GO
+
+CREATE  PROCEDURE sp_ObtenerDetallePedidoPorId
+    @IdDetalle INT
+AS
+BEGIN
+    SELECT * FROM DetallePedido WHERE IdDetalle=@IdDetalle;
+END;
+GO
+
+CREATE  PROCEDURE sp_EliminarDetallePedido
+    @IdDetalle INT
+AS
+BEGIN
+    DELETE FROM DetallePedido WHERE IdDetalle=@IdDetalle;
+END;
+GO
+
+-- PAGO
+CREATE  PROCEDURE sp_InsertarPago
+    @IdPedido INT,
+    @MetodoPago VARCHAR(50),
+    @Monto MONEY,
+    @EstadoPago VARCHAR(50)
+AS
+BEGIN
+    IF (@Monto <= 0)
+    BEGIN
+        SELECT -1 AS Resultado;
+        RETURN;
+    END
+    INSERT INTO Pago(IdPedido,MetodoPago,Monto,EstadoPago)
+    VALUES(@IdPedido,@MetodoPago,@Monto,@EstadoPago);
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
+END;
+GO
+
+CREATE  PROCEDURE sp_ListarPagos
+AS
+BEGIN
+    SELECT * FROM Pago;
+END;
+GO
+
+CREATE  PROCEDURE sp_ObtenerPagoPorId
+    @IdPago INT
+AS
+BEGIN
+    SELECT * FROM Pago WHERE IdPago=@IdPago;
+END;
+GO
+
+CREATE  PROCEDURE sp_EliminarPago
+    @IdPago INT
+AS
+BEGIN
+    DELETE FROM Pago WHERE IdPago=@IdPago;
+END;
+GO
+
+-- ENVIO
+CREATE  PROCEDURE sp_InsertarEnvio
+    @IdPedido INT,
+    @DireccionEnvio VARCHAR(255),
+    @EstadoEnvio VARCHAR(50)
+AS
+BEGIN
+    INSERT INTO Envio(IdPedido,DireccionEnvio,EstadoEnvio)
+    VALUES(@IdPedido,@DireccionEnvio,@EstadoEnvio);
+    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
+END;
+GO
+
+CREATE  PROCEDURE sp_ListarEnvios
+AS
+BEGIN
+    SELECT * FROM Envio;
+END;
+GO
+
+CREATE  PROCEDURE sp_ObtenerEnvioPorId
+    @IdEnvio INT
+AS
+BEGIN
+    SELECT * FROM Envio WHERE IdEnvio=@IdEnvio;
+END;
+GO
+
+CREATE  PROCEDURE sp_ActualizarEnvio
+    @IdEnvio INT,
+    @DireccionEnvio VARCHAR(255),
+    @EstadoEnvio VARCHAR(50)
+AS
+BEGIN
+    UPDATE Envio
+    SET DireccionEnvio=@DireccionEnvio,EstadoEnvio=@EstadoEnvio
+    WHERE IdEnvio=@IdEnvio;
+END;
+GO
+
+CREATE  PROCEDURE sp_EliminarEnvio
+    @IdEnvio INT
+AS
+BEGIN
+    DELETE FROM Envio WHERE IdEnvio=@IdEnvio;
+END;
+GO
