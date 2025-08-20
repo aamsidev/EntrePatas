@@ -12,7 +12,7 @@ namespace EntrePatasWEB.Controllers
         {
             _config = config;
         }
-        private async Task<List<AnimalDTO>> obtenerListadoAnimalAsync()
+        private async Task<List<AnimalDTO>> ObtenerListadoAnimalAsync()
         {
             var listado = new List<AnimalDTO>();
     
@@ -30,38 +30,98 @@ namespace EntrePatasWEB.Controllers
             }
             return listado;
         }
-        private async Task<AnimalDTO> obtenerAnimalPorID(int id)
+        private async Task<AnimalDTO> ObtenerAnimalId(int id)
         {
             var animal = new AnimalDTO();
             using (var clienteHTTP = new HttpClient())
             {
                 clienteHTTP.BaseAddress = new Uri(_config["Services:URL_API"]);
-                var mensaje = await clienteHTTP.GetAsync($"animal/{id}");
+                var mensaje = await clienteHTTP.GetAsync($"Animal/{id}");
                 var data = await mensaje.Content.ReadAsStringAsync();
                 animal = JsonConvert.DeserializeObject<AnimalDTO>(data);
             }
             return animal;
         }
-        private async Task<AnimalDTO> registrarAnimal(AnimalDTO animal)
+        private async Task<AnimalDTO> RegistrarAnimal(AnimalDTO animal)
 
         {
-            AnimalDTO nuevoAnimal;
-            using (var clienteHTTP = new HttpClient())
+            var nuevoAnimal = new AnimalDTO();
+            try
             {
-                clienteHTTP.BaseAddress = new Uri(_config["Services:URL_API"]);
-                StringContent contenido = new StringContent(JsonConvert.SerializeObject(animal),
-                    System.Text.Encoding.UTF8, "application/json");
-                var mensaje = await clienteHTTP.PostAsync("animal", contenido);
-                var data = await mensaje.Content.ReadAsStringAsync();
-                nuevoAnimal = JsonConvert.DeserializeObject<AnimalDTO>(data);
+                using (var httpCliente = new HttpClient())
+                {
+                    httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+                    StringContent contenido = new StringContent(JsonConvert.SerializeObject(animal), System.Text.Encoding.UTF8, "application/json");
+                    var respuesta = await httpCliente.PostAsync("Animal/registrar", contenido);
+                    var data = await respuesta.Content.ReadAsStringAsync();
+                    nuevoAnimal = JsonConvert.DeserializeObject<AnimalDTO>(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
             }
             return nuevoAnimal;
         }
 
+
+        private async Task<AnimalDTO> UpdateAnimal(int id, AnimalDTO animal)
+        {
+            try
+            {
+                using (var httpCliente = new HttpClient())
+                {
+                    httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+
+                    var contenido = new StringContent(
+                        JsonConvert.SerializeObject(animal),
+                        System.Text.Encoding.UTF8,
+                        "application/json"
+                    );
+
+                    // Consumimos el endpoint PUT
+                    var respuesta = await httpCliente.PutAsync($"Animal/update/{id}", contenido);
+
+                    if (!respuesta.IsSuccessStatusCode)
+                        return null;
+
+                    var data = await respuesta.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<AnimalDTO>(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
+
+        private async Task<bool> EliminarAnimalAsync(int id)
+        {
+            using (var clienteHttp = new HttpClient())
+            {
+                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
+                var response = await clienteHttp.DeleteAsync($"Animal/{id}");
+
+                return response.IsSuccessStatusCode;
+            }
+        }
+
+
         public IActionResult Index()
         {
-            var listado = obtenerListadoAnimalAsync().Result;
+            var listado = ObtenerListadoAnimalAsync().Result;
             return View(listado);
+        }
+
+        public IActionResult Details(int id)
+        {
+
+            AnimalDTO animal = ObtenerAnimalId(id).Result;
+            return View(animal);
+
+
         }
 
         public IActionResult Create()
@@ -72,10 +132,69 @@ namespace EntrePatasWEB.Controllers
         [HttpPost]
         public IActionResult Create(AnimalDTO animal)
         {
-            AnimalDTO nuevoAnimal = registrarAnimal(animal).Result;
+            AnimalDTO nuevoAnimal = RegistrarAnimal(animal).Result;
 
            
-            return RedirectToAction("Details", new { id = nuevoAnimal.ID });
+            return RedirectToAction("Details", new { id = nuevoAnimal.IdAnimal});
         }
+
+
+
+
+        public IActionResult Edit(int id)
+        {
+
+            var Animal = ObtenerAnimalId(id).Result;
+
+            if (Animal == null)
+                return NotFound();
+
+            return View(Animal);
+
+        }
+
+        // POST: Usuario/Edit/5
+        [HttpPost]
+        public IActionResult Edit(int id, AnimalDTO animal)
+        {
+            if (!ModelState.IsValid)
+                return View(animal);
+
+            var animalEditado = UpdateAnimal(id, animal).Result;
+
+            if (animalEditado == null)
+            {
+                ModelState.AddModelError("", "No se pudo actualizar el usuario");
+                return View(animal);
+            }
+
+            return RedirectToAction("Index", new { id = animalEditado.IdAnimal });
+        }
+
+
+        public IActionResult Delete(int id)
+        {
+            AnimalDTO animal = ObtenerAnimalId(id).Result;
+            return View(animal);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            bool eliminado = EliminarAnimalAsync(id).Result;
+
+            if (eliminado)
+            {
+                TempData["Mensaje"] = "Animal eliminado correctamente";
+            }
+            else
+            {
+                TempData["Error"] = "No se pudo eliminar el animal";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
     }
 }

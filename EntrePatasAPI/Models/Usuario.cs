@@ -7,10 +7,14 @@
 
         public String? Apellido { get; set; }
         public String? Correo { get; set; }
+
+        public String Telefono { get; set; }
+        public String? Direccion { get; set; }
         public String?  Contrasena { get; set; }
 
+        public String? TipoUsuario { get; set; }
         public DateTime FechaRegistro { get; set; }
 
-        public String? TipoUsuario { get; set; }
+
     }
 }

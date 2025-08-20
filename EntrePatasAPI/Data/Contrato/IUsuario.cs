@@ -13,8 +13,10 @@ namespace EntrePatasAPI.Data.Contrato
 
         Usuario Registrar(UsuarioDTO usuario);
 
+        Usuario Editar(int id, UsuarioDTO usuario);
 
-        Usuario RegistrarAdmin(UsuarioDTO usuario);
+        bool Eliminar(int id);
+
 
     }
 }

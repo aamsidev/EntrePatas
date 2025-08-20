@@ -37,37 +37,43 @@ namespace EntrePatasAPI.Controllers
         }
 
 
-
-        [HttpPost]
+        [HttpPost("Registrar")]
         public IActionResult Registrar(VacunaDTO vacuna)
         {
-            var nuevaVacuna = vacunaDATA.Registrar(vacuna);
-            if (nuevaVacuna == null)
-        return BadRequest("No se pudo registrar la vacuna.");
-            return CreatedAtAction(nameof(ObtenerPorId), new { id = nuevaVacuna.IdVacuna }, nuevaVacuna);
+            var nuevoVacuna = vacunaDATA.Registrar(vacuna);
+            if (nuevoVacuna == null)
+                return NotFound();
+            return Ok(nuevoVacuna);
         }
 
 
-        [HttpPut("{id}")]
-        public IActionResult Actualizar(int id, VacunaDTO vacuna)
+
+        [Route("update/{id}")]
+        [HttpPut]
+        public IActionResult Editar(int id, VacunaDTO c)
         {
-            if (id != vacuna.IdVacuna)
-                return BadRequest("El ID de la vacuna no coincide.");
-            var vacunaActualizada = vacunaDATA.Actualizar(id, vacuna);
-            if (vacunaActualizada == null)
-                return NotFound("Vacuna no encontrada.");
-            return Ok(vacunaActualizada);
+            try
+            {
+                var vacuna = vacunaDATA.Actualizar(id, c);
+                return Ok(vacuna);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest();
+            }
         }
+
+
 
         [HttpDelete("{id}")]
-        public IActionResult Eliminar(int id)
+        public IActionResult EliminarVacuna(int id)
         {
-            var exito = vacunaDATA.Eliminar(id);
-            if (!exito)
-                return NotFound("Vacuna no encontrada o no se pudo eliminar.");
-            return NoContent();
+            var result = vacunaDATA.Eliminar(id);
+            if (result)
+                return Ok(new { mensaje = "Usuario eliminado correctamente" });
+            else
+                return NotFound(new { mensaje = "Usuario no encontrado" });
         }
-
-
     }
 }

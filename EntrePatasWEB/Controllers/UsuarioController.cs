@@ -1,0 +1,216 @@
+﻿using EntrePatasWEB.Models;
+using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
+
+namespace EntrePatasWEB.Controllers
+{
+    public class UsuarioController : Controller
+    {
+
+
+        private readonly IConfiguration _config;
+
+        public UsuarioController(IConfiguration config)
+        {
+            _config = config;
+        }
+
+
+        private async Task<List<UsuarioDTO>> obtenerListadoUsuarioAsync()
+        {
+            var listado = new List<UsuarioDTO>();
+
+            using (var clienteHttp = new HttpClient())
+            {
+
+                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
+
+                var mensaje = await clienteHttp.GetAsync("Usuario");
+
+                var data = await mensaje.Content.ReadAsStringAsync();
+
+
+                listado = JsonConvert.DeserializeObject<List<UsuarioDTO>>(data);
+            }
+            return listado;
+        }
+
+        private async Task<UsuarioDTO> ObtenerUsuarioId(int id)
+        {
+            var usuario = new UsuarioDTO();
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.BaseAddress = new Uri(_config["Services:Url_API"]);
+                    var mensaje = await httpClient.GetAsync($"Usuario/{id}");
+                    var data = await mensaje.Content.ReadAsStringAsync();
+                    usuario = JsonConvert.DeserializeObject<UsuarioDTO>(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return usuario;
+        }
+
+        private async Task<UsuarioDTO> createUsuario(UsuarioDTO cliente)
+        {
+            var nuevoUsuario = new UsuarioDTO();
+            try
+            {
+                using (var httpCliente = new HttpClient())
+                {
+                    httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+                    StringContent contenido = new StringContent(JsonConvert.SerializeObject(cliente), System.Text.Encoding.UTF8, "application/json");
+                    var respuesta = await httpCliente.PostAsync("Usuario/registrar", contenido);
+                    var data = await respuesta.Content.ReadAsStringAsync();
+                    nuevoUsuario = JsonConvert.DeserializeObject<UsuarioDTO>(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return nuevoUsuario;
+        }
+
+
+        private async Task<UsuarioDTO> UpdateUsuario(int id, UsuarioDTO usuario)
+        {
+            try
+            {
+                using (var httpCliente = new HttpClient())
+                {
+                    httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+
+                    var contenido = new StringContent(
+                        JsonConvert.SerializeObject(usuario),
+                        System.Text.Encoding.UTF8,
+                        "application/json"
+                    );
+
+                    // Consumimos el endpoint PUT
+                    var respuesta = await httpCliente.PutAsync($"Usuario/update/{id}", contenido);
+
+                    if (!respuesta.IsSuccessStatusCode)
+                        return null;
+
+                    var data = await respuesta.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<UsuarioDTO>(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
+
+        private async Task<bool> EliminarUsuarioAsync(int id)
+        {
+            using (var clienteHttp = new HttpClient())
+            {
+                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
+                var response = await clienteHttp.DeleteAsync($"Usuario/{id}");
+
+                return response.IsSuccessStatusCode;
+            }
+        }
+
+
+
+
+
+
+
+        public IActionResult Index()
+        {
+            var listado = obtenerListadoUsuarioAsync().Result;
+            return View(listado);
+        }
+
+
+        public IActionResult Details(int id )
+        {
+
+            UsuarioDTO usuario = ObtenerUsuarioId(id).Result;
+            return View(usuario);
+       
+        
+        }
+
+        public IActionResult Create() {
+
+            return View(new UsuarioDTO());
+        }
+
+        [HttpPost]
+        public IActionResult Create(UsuarioDTO create) {
+
+            UsuarioDTO nuevoUsuario = createUsuario(create).Result;
+            return RedirectToAction("Details", new { id = nuevoUsuario.IdUsuario});
+        }
+
+        public IActionResult Edit(int id)
+        {
+            var usuario = ObtenerUsuarioId(id).Result;
+
+            if (usuario == null)
+                return NotFound();
+
+            return View(usuario);
+        }
+
+        // POST: Usuario/Edit/5
+        [HttpPost]
+        public IActionResult Edit(int id, UsuarioDTO usuario)
+        {
+            if (!ModelState.IsValid)
+                return View(usuario);
+            
+            var usuarioEditado = UpdateUsuario(id, usuario).Result;
+
+            if (usuarioEditado == null)
+            {
+                ModelState.AddModelError("", "No se pudo actualizar el usuario");
+                return View(usuario);
+            }
+
+            return RedirectToAction("Index", new { id = usuarioEditado.IdUsuario });
+        }
+
+
+        public IActionResult Delete(int id)
+        {
+            UsuarioDTO usuario = ObtenerUsuarioId(id).Result;
+            return View(usuario);
+        }
+
+        [HttpPost, ActionName("Delete")]
+        public IActionResult DeleteConfirmed(int id)
+        {
+            bool eliminado = EliminarUsuarioAsync(id).Result;
+
+            if (eliminado)
+            {
+                TempData["Mensaje"] = "Usuario eliminado correctamente";
+            }
+            else
+            {
+                TempData["Error"] = "No se pudo eliminar el usuario";
+            }
+
+            return RedirectToAction("Index");
+        }
+
+
+
+
+
+
+
+    }
+}

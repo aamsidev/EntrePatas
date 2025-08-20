@@ -48,7 +48,34 @@ namespace EntrePatasAPI.Controllers
             return Ok(nuevaSolicitud);
         }
 
-       
+        [Route("update/{id}")]
+        [HttpPut]
+        public IActionResult Editar(int id, SolicitudVacunaDTO c)
+        {
+            try
+            {
+                var solicitud = solicitudDATA.Editar(id, c);
+                return Ok(solicitud);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest();
+            }
+        }
+
+        [HttpDelete("{id}")]
+        public IActionResult EliminarSolicitud(int id)
+        {
+            var result = solicitudDATA.Eliminar(id);
+            if (result)
+                return Ok(new { mensaje = "Solicitud eliminado correctamente" });
+            else
+                return NotFound(new { mensaje = "Solicitud no encontrado" });
+        }
+
+
+
 
 
 

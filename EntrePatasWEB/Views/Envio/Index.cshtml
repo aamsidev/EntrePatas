@@ -1,0 +1,59 @@
+﻿@model IEnumerable<EntrePatasWEB.Models.EnvioDTO>
+
+@{
+    ViewData["Title"] = "Index";
+}
+
+<h1>Index</h1>
+
+<p>
+    <a asp-action="Create">Create New</a>
+</p>
+<table class="table">
+    <thead>
+        <tr>
+            <th>
+                @Html.DisplayNameFor(model => model.IdEnvio)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.IdPedido)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.DireccionEnvio)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.EstadoEnvio)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.FechaEnvio)
+            </th>
+            <th></th>
+        </tr>
+    </thead>
+    <tbody>
+@foreach (var item in Model) {
+        <tr>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdEnvio)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.IdPedido)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.DireccionEnvio)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.EstadoEnvio)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.FechaEnvio)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new { id=item.IdEnvio}) |
+                @Html.ActionLink("Details", "Details", new {  id=item.IdEnvio  }) |
+                @Html.ActionLink("Delete", "Delete", new {  id=item.IdEnvio  })
+            </td>
+        </tr>
+}
+    </tbody>
+</table>

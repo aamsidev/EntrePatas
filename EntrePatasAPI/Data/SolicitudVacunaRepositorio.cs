@@ -6,7 +6,7 @@ using System.Data;
 
 namespace EntrePatasAPI.Data
 {
-    public class SolicitudVacunaRepositorio :ISolicitudVacuna
+    public class SolicitudVacunaRepositorio : ISolicitudVacuna
     {
 
         private readonly string cadenaConexion;
@@ -14,6 +14,37 @@ namespace EntrePatasAPI.Data
         public SolicitudVacunaRepositorio(IConfiguration config)
         {
             cadenaConexion = config["ConnectionStrings:DB"] ?? "valor_predeterminado";
+
+        }
+
+ 
+        public bool Eliminar(int id)
+        {
+            bool eliminado = false;
+
+            try
+            {
+                using (var cnx = new SqlConnection(cadenaConexion))
+                {
+                    cnx.Open();
+                    using (var command = new SqlCommand("sp_EliminarSolicitudVacuna", cnx))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@IdSolicitudVacuna", id);
+
+                        var result = Convert.ToInt32(command.ExecuteScalar());
+                        eliminado = result == 1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return eliminado;
+
+
 
         }
 
@@ -25,7 +56,7 @@ namespace EntrePatasAPI.Data
             {
                 conexion.Open();
 
-                using (var command = new SqlCommand("sp_ObtenerSolicitudVacunas", conexion))
+                using (var command = new SqlCommand("sp_ListarSolicitudVacunas", conexion))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
@@ -42,7 +73,7 @@ namespace EntrePatasAPI.Data
                                     IdVacuna = reader.GetInt32(2),
                                     Cantidad = reader.GetInt32(3)
 
-            
+
 
                                 });
                             }
@@ -58,7 +89,7 @@ namespace EntrePatasAPI.Data
 
 
 
-      
+
         public SolicitudVacuna ObtenerSolicitudVacunaPorId(int id)
         {
 
@@ -115,7 +146,7 @@ namespace EntrePatasAPI.Data
                 using (var command = new SqlCommand("sp_InsertarSolicitudVacuna", conexion))
                 {
                     command.CommandType = CommandType.StoredProcedure;
-                  
+
                     command.Parameters.AddWithValue("@IdSolicitud", solicitud.IdSolicitud);
                     command.Parameters.AddWithValue("@IdVacuna", solicitud.IdVacuna);
                     command.Parameters.AddWithValue("@Cantidad", solicitud.Cantidad);
@@ -155,13 +186,51 @@ namespace EntrePatasAPI.Data
 
 
 
+        public SolicitudVacuna Editar(int id, SolicitudVacunaDTO solicitudVacu)
+        {
+
+            SolicitudVacuna editarSolicitudVacu = null;
+            int newId = 0;
+            try
+            {
+                using (var cnx = new SqlConnection(cadenaConexion))
+                {
+                    cnx.Open();
+                    using (var command = new SqlCommand("sp_ActualizarSolicitudVacuna", cnx))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@IdSolicitudVacuna", id);
+                        command.Parameters.AddWithValue("@IdSolicitud", solicitudVacu.IdSolicitud);
+                        command.Parameters.AddWithValue("@IdVacuna", solicitudVacu.IdVacuna);
+                        command.Parameters.AddWithValue("@Cantidad", solicitudVacu.Cantidad);
 
 
 
+
+                        var result = Convert.ToInt32(command.ExecuteScalar()); // 1 o 0
+                        if (result == 1)
+                        {
+                            // ✅ Se actualizó, obtengo el usuario editado
+                            editarSolicitudVacu = ObtenerSolicitudVacunaPorId(id);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return editarSolicitudVacu;
+
+
+
+        }
 
 
 
     }
+
+    
 
 
 

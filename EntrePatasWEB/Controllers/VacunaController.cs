@@ -19,19 +19,111 @@ namespace EntrePatasWEB.Controllers
 
             using (var clienteHttp = new HttpClient())
             {
+
                 clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
 
                 var mensaje = await clienteHttp.GetAsync("Vacuna");
 
-                if (mensaje.IsSuccessStatusCode)
-                {
-                    var data = await mensaje.Content.ReadAsStringAsync();
-                    listado = JsonConvert.DeserializeObject<List<VacunaDTO>>(data);
-                }
-            }
+                var data = await mensaje.Content.ReadAsStringAsync();
 
+
+                listado = JsonConvert.DeserializeObject<List<VacunaDTO>>(data);
+            }
             return listado;
         }
+
+        private async Task<VacunaDTO> ObtenerVacunaId(int id)
+        {
+            var usuario = new VacunaDTO();
+            try
+            {
+                using (var httpClient = new HttpClient())
+                {
+                    httpClient.BaseAddress = new Uri(_config["Services:Url_API"]);
+                    var mensaje = await httpClient.GetAsync($"Vacuna/{id}");
+                    var data = await mensaje.Content.ReadAsStringAsync();
+                    usuario = JsonConvert.DeserializeObject<VacunaDTO>(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return usuario;
+        }
+
+        private async Task<VacunaDTO> createVacuna(VacunaDTO vacuna)
+        {
+            var nuevoVacuna = new VacunaDTO();
+            try
+            {
+                using (var httpCliente = new HttpClient())
+                {
+                    httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+                    StringContent contenido = new StringContent(JsonConvert.SerializeObject(vacuna), System.Text.Encoding.UTF8, "application/json");
+                    var respuesta = await httpCliente.PostAsync("Vacuna/registrar", contenido);
+                    var data = await respuesta.Content.ReadAsStringAsync();
+                    nuevoVacuna = JsonConvert.DeserializeObject<VacunaDTO>(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return nuevoVacuna;
+        }
+
+
+        private async Task<VacunaDTO> UpdateVacuna(int id, VacunaDTO vacuna)
+        {
+            try
+            {
+                using (var httpCliente = new HttpClient())
+                {
+                    httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+
+                    var contenido = new StringContent(
+                        JsonConvert.SerializeObject(vacuna),
+                        System.Text.Encoding.UTF8,
+                        "application/json"
+                    );
+
+                    // Consumimos el endpoint PUT
+                    var respuesta = await httpCliente.PutAsync($"Vacuna/update/{id}", contenido);
+
+                    if (!respuesta.IsSuccessStatusCode)
+                        return null;
+
+                    var data = await respuesta.Content.ReadAsStringAsync();
+                    return JsonConvert.DeserializeObject<VacunaDTO>(data);
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return null;
+            }
+        }
+
+
+
+        private async Task<bool> EliminarVacunaAsync(int id)
+        {
+            using (var clienteHttp = new HttpClient())
+            {
+                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
+                var response = await clienteHttp.DeleteAsync($"Vacuna/{id}");
+
+                return response.IsSuccessStatusCode;
+            }
+        }
+
+
+
+
+
+
+
 
         public IActionResult Index()
         {
@@ -39,123 +131,87 @@ namespace EntrePatasWEB.Controllers
             return View(listado);
         }
 
-        public async Task<IActionResult> Details(int id)
+
+        public IActionResult Details(int id)
         {
-            VacunaDTO vacuna = null;
 
-            using (var clienteHttp = new HttpClient())
-            {
-                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
-
-                var mensaje = await clienteHttp.GetAsync($"Vacuna/{id}");
-
-                if (mensaje.IsSuccessStatusCode)
-                {
-                    var data = await mensaje.Content.ReadAsStringAsync();
-                    vacuna = JsonConvert.DeserializeObject<VacunaDTO>(data);
-                }
-            }
-
-            if (vacuna == null)
-                return NotFound();
-
+            VacunaDTO vacuna = ObtenerVacunaId(id).Result;
             return View(vacuna);
+
+
         }
 
         public IActionResult Create()
         {
-            return View();
+
+            return View(new VacunaDTO());
         }
 
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create(VacunaDTO vacuna)
+        public IActionResult Create(VacunaDTO create)
         {
-            if (!ModelState.IsValid)
-                return View(vacuna);
 
-            using (var clienteHttp = new HttpClient())
-            {
-                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
-
-                var contenido = new StringContent(JsonConvert.SerializeObject(vacuna), System.Text.Encoding.UTF8, "application/json");
-                var respuesta = await clienteHttp.PostAsync("Vacuna", contenido);
-
-                if (respuesta.IsSuccessStatusCode)
-                    return RedirectToAction(nameof(Index));
-            }
-
-            ModelState.AddModelError("", "Error al registrar la vacuna.");
-            return View(vacuna);
+            VacunaDTO nuevoVacuna = createVacuna(create).Result;
+            return RedirectToAction("Details", new { id = nuevoVacuna.IdVacuna });
         }
 
-        public async Task<IActionResult> Edit(int id)
+
+
+        public IActionResult Edit(int id)
         {
-            VacunaDTO vacuna = null;
-            using (var clienteHttp = new HttpClient())
-            {
-                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
-                var mensaje = await clienteHttp.GetAsync($"Vacuna/{id}");
-                if (mensaje.IsSuccessStatusCode)
-                {
-                    var data = await mensaje.Content.ReadAsStringAsync();
-                    vacuna = JsonConvert.DeserializeObject<VacunaDTO>(data);
-                }
-            }
+            var vacuna = ObtenerVacunaId(id).Result;
+
             if (vacuna == null)
                 return NotFound();
+
             return View(vacuna);
         }
 
+        // POST: Usuario/Edit/5
         [HttpPost]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, VacunaDTO vacuna)
+        public IActionResult Edit(int id, VacunaDTO vacuna)
         {
-            if (id != vacuna.IdVacuna)
-                return NotFound();
             if (!ModelState.IsValid)
                 return View(vacuna);
-            using (var clienteHttp = new HttpClient())
+
+            var vacunaEditado = UpdateVacuna(id, vacuna).Result;
+
+            if (vacunaEditado == null)
             {
-                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
-                var contenido = new StringContent(JsonConvert.SerializeObject(vacuna), System.Text.Encoding.UTF8, "application/json");
-                var respuesta = await clienteHttp.PutAsync($"Vacuna/{id}", contenido);
-                if (respuesta.IsSuccessStatusCode)
-                    return RedirectToAction(nameof(Index));
+                ModelState.AddModelError("", "No se pudo actualizar el usuario");
+                return View(vacuna);
             }
-            ModelState.AddModelError("", "Error al actualizar la vacuna.");
-            return View(vacuna);
+
+            return RedirectToAction("Index", new { id = vacunaEditado.IdVacuna });
         }
 
-        public async Task<IActionResult> Delete(int id)
+
+
+
+        public IActionResult Delete(int id)
         {
-            using (var clienteHttp = new HttpClient())
-            {
-                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
-                var mensaje = await clienteHttp.GetAsync($"Vacuna/{id}");
-                if (mensaje.IsSuccessStatusCode)
-                {
-                    var data = await mensaje.Content.ReadAsStringAsync();
-                    var vacuna = JsonConvert.DeserializeObject<VacunaDTO>(data);
-                    return View(vacuna);
-                }
-            }
-            return NotFound();
+            VacunaDTO vacuna = ObtenerVacunaId(id).Result;
+            return View(vacuna);
         }
 
         [HttpPost, ActionName("Delete")]
-        [ValidateAntiForgeryToken]
-        public async Task<IActionResult> DeleteConfirmed(int id)
+        public IActionResult DeleteConfirmed(int id)
         {
-            using (var clienteHttp = new HttpClient())
+            bool eliminado = EliminarVacunaAsync(id).Result;
+
+            if (eliminado)
             {
-                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
-                var mensaje = await clienteHttp.DeleteAsync($"Vacuna/{id}");
-                if (mensaje.IsSuccessStatusCode)
-                    return RedirectToAction(nameof(Index));
+                TempData["Mensaje"] = "Vacuna eliminado correctamente";
             }
-            ModelState.AddModelError("", "Error al eliminar la vacuna.");
-            return View();
+            else
+            {
+                TempData["Error"] = "No se pudo eliminar el Vacuna";
+            }
+
+            return RedirectToAction("Index");
         }
+
+
+
     }
 }

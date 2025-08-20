@@ -16,6 +16,77 @@ namespace EntrePatasAPI.Data
 
         }
 
+        public Animal Editar(int id, AnimalDTO animal)
+        {
+
+            Animal editarAnimal = null;
+            int newId = 0;
+            try
+            {
+                using (var cnx = new SqlConnection(cadenaConexion))
+                {
+                    cnx.Open();
+                    using (var command = new SqlCommand("sp_ActualizarAnimal", cnx))
+                    {
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@IdAnimal", id);
+                        command.Parameters.AddWithValue("@IdUsuario", animal.IdUsuario);
+                        command.Parameters.AddWithValue("@Nombre", animal.Nombre);
+                        command.Parameters.AddWithValue("@Especie", animal.Especie);
+                        command.Parameters.AddWithValue("@Raza", animal.Raza);
+                        command.Parameters.AddWithValue("@Edad", animal.Edad);
+                        command.Parameters.AddWithValue("@Estado", animal.Estado);
+                        var result = Convert.ToInt32(command.ExecuteScalar()); // 1 o 0
+                        if (result == 1)
+                        {
+                            // ✅ Se actualizó, obtengo el usuario editado
+                            editarAnimal = ObtenerAnimalPorId(id);
+                        }
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return editarAnimal;
+
+
+
+        }
+
+        public bool Eliminar(int id)
+        {
+
+            bool eliminado = false;
+
+            try
+            {
+                using (var cnx = new SqlConnection(cadenaConexion))
+                {
+                    cnx.Open();
+                    using (var command = new SqlCommand("sp_EliminarAnimal", cnx))
+                    {
+                        command.CommandType = CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@IdAnimal", id);
+
+                        var result = Convert.ToInt32(command.ExecuteScalar());
+                        eliminado = result == 1;
+                    }
+                }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+
+            return eliminado;
+
+
+
+
+
+        }
 
         public List<Animal> Listado()
         {
@@ -25,7 +96,7 @@ namespace EntrePatasAPI.Data
             {
                 conexion.Open();
 
-                using (var command = new SqlCommand("sp_ObtenerAnimales", conexion))
+                using (var command = new SqlCommand("sp_ListarAnimal", conexion))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
@@ -38,16 +109,13 @@ namespace EntrePatasAPI.Data
                                 listado.Add(new Animal()
                                 {
                                     IdAnimal = reader.GetInt32(0),
-                                    Nombre = reader.GetString(1),
-                                    Especie = reader.GetString(2),
-                                    Raza = reader.GetString(3),
-                                    Edad = reader.GetInt32(4),
-                                    EstadoSalud = reader.GetString(5),
+                                    IdUsuario = reader.GetInt32(1),
+                                    Nombre = reader.GetString(2),
+                                    Especie = reader.GetString(3),
+                                    Raza = reader.GetString(4),
+                                    Edad = reader.GetInt32(5),
                                     Estado = reader.GetString(6),
                                     FechaRegistro = reader.GetDateTime(7)
-                                    
-
-
 
                                 });
                             }
@@ -67,7 +135,7 @@ namespace EntrePatasAPI.Data
             using (var conexion = new SqlConnection(cadenaConexion))
             {
                 conexion.Open();
-                using (var command = new SqlCommand("sp_ObtenerAnimalesPorId", conexion))
+                using (var command = new SqlCommand("sp_ObtenerAnimalPorId", conexion))
                 {
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@IdAnimal", id);
@@ -79,11 +147,11 @@ namespace EntrePatasAPI.Data
                             {
 
                                 IdAnimal = reader.GetInt32(0),
-                                Nombre = reader.GetString(1),
-                                Especie = reader.GetString(2),
-                                Raza = reader.GetString(3),
-                                Edad = reader.GetInt32(4),
-                                EstadoSalud = reader.GetString(5),
+                                IdUsuario = reader.GetInt32(1),
+                                Nombre = reader.GetString(2),
+                                Especie = reader.GetString(3),
+                                Raza = reader.GetString(4),
+                                Edad = reader.GetInt32(5),
                                 Estado = reader.GetString(6),
                                 FechaRegistro = reader.GetDateTime(7)
                             };
@@ -111,11 +179,11 @@ namespace EntrePatasAPI.Data
                 using (var command = new SqlCommand("sp_InsertarAnimal", conexion))
                 {
                     command.CommandType = CommandType.StoredProcedure;
+                    command.Parameters.AddWithValue("@IdUsuario", animal.IdUsuario);
                     command.Parameters.AddWithValue("@Nombre", animal.Nombre);
                     command.Parameters.AddWithValue("@Especie", animal.Especie);
                     command.Parameters.AddWithValue("@Raza", animal.Raza);
                     command.Parameters.AddWithValue("@Edad", animal.Edad);
-                    command.Parameters.AddWithValue("@EstadoSalud", animal.EstadoSalud);
                     command.Parameters.AddWithValue("@Estado", animal.Estado);
 
 

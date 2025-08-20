@@ -48,5 +48,41 @@ namespace EntrePatasAPI.Controllers
         }
 
 
+        [Route("update/{id}")]
+        [HttpPut]
+        public IActionResult Editar(int id, AnimalDTO c)
+        {
+            try
+            {
+                var animal = animalDATA.Editar(id, c);
+                return Ok(animal);
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+                return BadRequest();
+            }
+        }
+
+
+
+        [HttpDelete("{id}")]
+        public IActionResult EliminarAnimal(int id)
+        {
+            var result = animalDATA.Eliminar(id);
+            if (result)
+                return Ok(new { mensaje = "Animal eliminado correctamente" });
+            else
+                return NotFound(new { mensaje = "Animal no encontrado" });
+        }
+
+
+
+
+
+
+
+
+
     }
 }

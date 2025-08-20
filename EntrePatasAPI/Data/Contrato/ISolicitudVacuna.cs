@@ -10,9 +10,12 @@ namespace EntrePatasAPI.Data.Contrato
 
         SolicitudVacuna ObtenerSolicitudVacunaPorId(int id);
 
-        SolicitudVacuna Registrar(SolicitudVacunaDTO solicitud);
+        SolicitudVacuna Registrar(SolicitudVacunaDTO solicitudVacu);
 
 
+        SolicitudVacuna Editar(int id, SolicitudVacunaDTO solicitudVacu);
+
+        bool Eliminar(int id);
 
 
 

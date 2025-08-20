@@ -12,8 +12,9 @@ namespace EntrePatasAPI.Data.Contrato
 
         Animal Registrar(AnimalDTO animal);
 
+        Animal Editar(int id, AnimalDTO animal);
 
-
+        bool Eliminar(int id);
 
 
     }

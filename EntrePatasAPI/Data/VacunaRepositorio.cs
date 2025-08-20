@@ -27,7 +27,7 @@ namespace EntrePatasAPI.Data
             {
                 conexion.Open();
 
-                using (var command = new SqlCommand("sp_ObtenerVacunas", conexion))
+                using (var command = new SqlCommand("sp_ListarVacunas", conexion))
                 {
                     command.CommandType = CommandType.StoredProcedure;
 
@@ -148,27 +148,40 @@ namespace EntrePatasAPI.Data
 
         public Vacuna Actualizar(int id, VacunaDTO vacuna)
         {
-            using (var conexion = new SqlConnection(cadenaConexion))
+            Vacuna editarVacuna = null;
+            int newId = 0;
+            try
             {
-                conexion.Open();
-                using (var command = new SqlCommand("sp_ActualizarVacuna", conexion))
+                using (var cnx = new SqlConnection(cadenaConexion))
                 {
-                    command.CommandType = CommandType.StoredProcedure;
-                    command.Parameters.AddWithValue("@IdVacuna", id);
-                    command.Parameters.AddWithValue("@Nombre", vacuna.Nombre);
-                    command.Parameters.AddWithValue("@Descripcion", vacuna.Descripcion);
-                    command.Parameters.AddWithValue("@Precio", vacuna.Precio);
-                    int filasAfectadas = command.ExecuteNonQuery();
-                    if (filasAfectadas == 0)
+                    cnx.Open();
+                    using (var command = new SqlCommand("sp_ActualizarVacuna", cnx))
                     {
-                        throw new Exception("No se pudo actualizar la vacuna.");
+                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.Parameters.AddWithValue("@IdVacuna", id);
+                        command.Parameters.AddWithValue("@Nombre", vacuna.Nombre);
+                        command.Parameters.AddWithValue("@Descripcion", vacuna.Descripcion);
+                        command.Parameters.AddWithValue("@Precio", vacuna.Precio);
+                        var result = Convert.ToInt32(command.ExecuteScalar()); // 1 o 0
+                        if (result == 1)
+                        {
+                            // ✅ Se actualizó, obtengo el usuario editado
+                            editarVacuna = ObtenerVacunaPorId(id);
+                        }
                     }
                 }
-                return ObtenerVacunaPorId(id);
             }
+            catch (Exception ex)
+            {
+                Console.WriteLine(ex.Message);
+            }
+            return editarVacuna;
+
+
+
         }
 
-            public bool Eliminar(int id)
+        public bool Eliminar(int id)
             {
                 using (var conexion = new SqlConnection(cadenaConexion))
                 {
