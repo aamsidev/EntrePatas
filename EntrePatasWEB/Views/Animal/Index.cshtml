@@ -36,6 +36,12 @@
             <th>
                 @Html.DisplayNameFor(model => model.FechaRegistro)
             </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Foto)
+            </th>
+            <th>
+                @Html.DisplayNameFor(model => model.Descripcion)
+            </th>
             <th></th>
         </tr>
     </thead>
@@ -67,9 +73,15 @@
                 @Html.DisplayFor(modelItem => item.FechaRegistro)
             </td>
             <td>
-                @Html.ActionLink("Edit", "Edit", new {  id=item.IdAnimal  }) |
-                @Html.ActionLink("Details", "Details", new {  id=item.IdAnimal  }) |
-                @Html.ActionLink("Delete", "Delete", new {  id=item.IdAnimal  })
+                @Html.DisplayFor(modelItem => item.Foto)
+            </td>
+            <td>
+                @Html.DisplayFor(modelItem => item.Descripcion)
+            </td>
+            <td>
+                @Html.ActionLink("Edit", "Edit", new {  id=item.IdAnimal }) |
+                @Html.ActionLink("Details", "Details", new { id=item.IdAnimal  }) |
+                @Html.ActionLink("Delete", "Delete", new { id=item.IdAnimal  })
             </td>
         </tr>
 }

@@ -114,7 +114,7 @@ namespace EntrePatasAPI.Data
                     command.CommandType = CommandType.StoredProcedure;
                     command.Parameters.AddWithValue("@Nombre", usuario.Nombre);
                     command.Parameters.AddWithValue("@Apellido", usuario.Apellido);
-                    command.Parameters.AddWithValue("@Email", usuario.Correo);
+                    command.Parameters.AddWithValue("@Correo", usuario.Correo);
                     command.Parameters.AddWithValue("@Telefono", usuario.Telefono);
                     command.Parameters.AddWithValue("@Direccion", usuario.Direccion);
                     command.Parameters.AddWithValue("@Contrasena", usuario.Contrasena);
@@ -169,7 +169,7 @@ namespace EntrePatasAPI.Data
                         command.Parameters.AddWithValue("@IdUsuario", id);
                         command.Parameters.AddWithValue("@Nombre", usuario.Nombre);
                         command.Parameters.AddWithValue("@Apellido", usuario.Apellido);
-                        command.Parameters.AddWithValue("@Email", usuario.Correo);
+                        command.Parameters.AddWithValue("@Correo", usuario.Correo);
                         command.Parameters.AddWithValue("@Telefono", usuario.Telefono);
                         command.Parameters.AddWithValue("@Direccion", usuario.Direccion);
                         command.Parameters.AddWithValue("@Contrasena", usuario.Contrasena);
@@ -216,6 +216,47 @@ namespace EntrePatasAPI.Data
             }
 
             return eliminado;
+        }
+
+
+       
+
+        Usuario IUsuario.VerificarLogin(string correo, string contrasena)
+        {
+            // Aquí haces la consulta SQL o llamas al SP
+            using (var conexion = new SqlConnection(cadenaConexion))
+            {
+                conexion.Open();
+                var cmd = new SqlCommand("sp_VerificarLogin", conexion);
+                cmd.CommandType = CommandType.StoredProcedure;
+                cmd.Parameters.AddWithValue("@Correo", correo);
+                cmd.Parameters.AddWithValue("@Contrasena", contrasena);
+
+                using (var reader = cmd.ExecuteReader())
+                {
+                    if (reader.Read())
+                    {
+                        return new Usuario
+                        {
+                            IdUsuario = reader.GetInt32(reader.GetOrdinal("IdUsuario")),
+                            Nombre = reader.GetString(reader.GetOrdinal("Nombre")),
+                            Apellido = reader.GetString(reader.GetOrdinal("Apellido")),
+                            Correo = reader.GetString(reader.GetOrdinal("Correo")),
+                            Telefono = reader.IsDBNull(reader.GetOrdinal("Telefono")) ? null : reader.GetString(reader.GetOrdinal("Telefono")),
+                            Direccion = reader.IsDBNull(reader.GetOrdinal("Direccion")) ? null : reader.GetString(reader.GetOrdinal("Direccion")),
+                            Contrasena = reader.IsDBNull(reader.GetOrdinal("Contrasena")) ? null : reader.GetString(reader.GetOrdinal("Contrasena")),
+                            TipoUsuario = reader.GetString(reader.GetOrdinal("TipoUsuario")),
+                            FechaRegistro = reader.GetDateTime(reader.GetOrdinal("FechaRegistro"))
+
+                        };
+                    }
+                }
+            }
+            return null;
+
+
+
+            
         }
     }
 }

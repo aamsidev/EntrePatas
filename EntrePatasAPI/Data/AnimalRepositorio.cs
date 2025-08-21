@@ -36,6 +36,8 @@ namespace EntrePatasAPI.Data
                         command.Parameters.AddWithValue("@Raza", animal.Raza);
                         command.Parameters.AddWithValue("@Edad", animal.Edad);
                         command.Parameters.AddWithValue("@Estado", animal.Estado);
+                        command.Parameters.AddWithValue("@Foto", animal.Foto);
+                        command.Parameters.AddWithValue("@Descripcion", animal.Descripcion);
                         var result = Convert.ToInt32(command.ExecuteScalar()); // 1 o 0
                         if (result == 1)
                         {
@@ -115,7 +117,9 @@ namespace EntrePatasAPI.Data
                                     Raza = reader.GetString(4),
                                     Edad = reader.GetInt32(5),
                                     Estado = reader.GetString(6),
-                                    FechaRegistro = reader.GetDateTime(7)
+                                    FechaRegistro = reader.GetDateTime(7),
+                                    Foto = reader.GetString(8),
+                                    Descripcion = reader.GetString(9)
 
                                 });
                             }
@@ -153,7 +157,9 @@ namespace EntrePatasAPI.Data
                                 Raza = reader.GetString(4),
                                 Edad = reader.GetInt32(5),
                                 Estado = reader.GetString(6),
-                                FechaRegistro = reader.GetDateTime(7)
+                                FechaRegistro = reader.GetDateTime(7),
+                                Foto = reader.GetString(8),
+                                Descripcion = reader.GetString(9)
                             };
                         }
                     }
@@ -185,6 +191,8 @@ namespace EntrePatasAPI.Data
                     command.Parameters.AddWithValue("@Raza", animal.Raza);
                     command.Parameters.AddWithValue("@Edad", animal.Edad);
                     command.Parameters.AddWithValue("@Estado", animal.Estado);
+                    command.Parameters.AddWithValue("@Foto", animal.Foto);
+                    command.Parameters.AddWithValue("@Descripcion", animal.Descripcion);
 
 
                     // Capturamos el resultado del SP

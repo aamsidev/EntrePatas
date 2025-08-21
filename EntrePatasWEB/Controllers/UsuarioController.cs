@@ -1,4 +1,5 @@
-﻿using EntrePatasWEB.Models;
+﻿using System.Text;
+using EntrePatasWEB.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -16,6 +17,50 @@ namespace EntrePatasWEB.Controllers
         }
 
 
+
+
+        private async Task<UsuarioDTO?> VerificarLoginAsync(UsuarioDTO usuario)
+        {
+            UsuarioDTO? loginResponse = null;
+
+            try
+            {
+                using (var httpCliente = new HttpClient())
+                {
+                    httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+
+                    var contenidoJson = JsonConvert.SerializeObject(usuario);
+                    var contenido = new StringContent(contenidoJson, Encoding.UTF8, "application/json");
+
+                    var respuesta = await httpCliente.PostAsync("Usuario/login", contenido);
+
+                    if (!respuesta.IsSuccessStatusCode)
+                        return null;
+
+                    var data = await respuesta.Content.ReadAsStringAsync();
+                    loginResponse = JsonConvert.DeserializeObject<UsuarioDTO>(data);
+
+                    if (loginResponse == null)
+                        return null;
+                }
+            }
+            catch (Exception ex)
+            {
+                // Si quieres dejar esto para ver errores en producción, puedes mantenerlo
+                Console.WriteLine($"Excepción: {ex.Message}");
+            }
+
+            return loginResponse;
+        }
+
+
+
+
+
+
+
+
+
         private async Task<List<UsuarioDTO>> obtenerListadoUsuarioAsync()
         {
             var listado = new List<UsuarioDTO>();
@@ -23,7 +68,7 @@ namespace EntrePatasWEB.Controllers
             using (var clienteHttp = new HttpClient())
             {
 
-                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
+                clienteHttp.BaseAddress = new Uri(_config["Services:Url_API"]);
 
                 var mensaje = await clienteHttp.GetAsync("Usuario");
 
@@ -113,7 +158,7 @@ namespace EntrePatasWEB.Controllers
         {
             using (var clienteHttp = new HttpClient())
             {
-                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
+                clienteHttp.BaseAddress = new Uri(_config["Services:Url_API"]);
                 var response = await clienteHttp.DeleteAsync($"Usuario/{id}");
 
                 return response.IsSuccessStatusCode;
@@ -206,9 +251,7 @@ namespace EntrePatasWEB.Controllers
             return RedirectToAction("Index");
         }
 
-
-
-
+   
 
 
 

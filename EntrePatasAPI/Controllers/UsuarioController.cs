@@ -1,4 +1,5 @@
-﻿using EntrePatasAPI.Data.Contrato;
+﻿using EntrePatasAPI.Data;
+using EntrePatasAPI.Data.Contrato;
 using EntrePatasAPI.Models.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -73,6 +74,21 @@ public IActionResult EliminarUsuario(int id)
             else
                 return NotFound(new { mensaje = "Usuario no encontrado" });
         }
+
+
+
+        [HttpPost("login")]
+        public IActionResult Login([FromBody] UsuarioDTO usuario)
+        {
+            var user = usuarioDATA.VerificarLogin(usuario.Correo, usuario.Contrasena);
+
+            if (user == null)
+                return Unauthorized(new { mensaje = "Credenciales inválidas" });
+
+            return Ok(user); // devuelve UsuarioDTO con TipoUsuario
+        }
+
+
 
 
 

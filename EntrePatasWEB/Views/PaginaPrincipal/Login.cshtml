@@ -1,0 +1,59 @@
+﻿@*
+    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
+*@
+@{
+}
+@model EntrePatasWEB.Models.UsuarioDTO
+
+@{
+    ViewData["Title"] = "Iniciar Sesión";
+    Layout = "~/Views/Shared/_Layout.cshtml"; // si tienes layout, sino quítalo
+}
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-4">
+            <div class="card shadow-lg rounded-3">
+                <div class="card-body">
+                    <h2 class="text-center mb-4">Iniciar Sesión</h2>
+
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger text-center">
+                            @ViewBag.Error
+                        </div>
+                    }
+                    @if (Model != null)
+                    {
+                        <div>
+                            <strong>Correo desde el modelo:</strong> @Model.Correo <br />
+                            <strong>Contraseña desde el modelo:</strong> @Model.Contrasena
+                        </div>
+                    }
+                    <form asp-action="Login" method="post">
+                        @Html.AntiForgeryToken()
+                        <div class="form-group mb-3">
+                            <label asp-for="Correo"></label>
+                            <input asp-for="Correo" class="form-control" placeholder="ejemplo@correo.com" />
+                            <span asp-validation-for="Correo" class="text-danger"></span>
+                        </div>
+
+                        <div class="form-group mb-3">
+                            <label asp-for="Contrasena"></label>
+                            <input asp-for="Contrasena" type="password" class="form-control" placeholder="********" />
+                            <span asp-validation-for="Contrasena" class="text-danger"></span>
+                        </div>
+
+                        <button type="submit" class="btn btn-primary w-100">Ingresar</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

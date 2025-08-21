@@ -17,6 +17,6 @@ namespace EntrePatasAPI.Data.Contrato
 
         bool Eliminar(int id);
 
-
+        Usuario VerificarLogin(string correo, string contrasena);
     }
 }
