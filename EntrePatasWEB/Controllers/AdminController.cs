@@ -6,6 +6,11 @@ namespace EntrePatasWEB.Controllers
     {
         public IActionResult Index()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Login", "PaginaPrincipal");
+
             return View();
         }
     }

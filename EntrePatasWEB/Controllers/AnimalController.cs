@@ -195,10 +195,5 @@ namespace EntrePatasWEB.Controllers
             return RedirectToAction("Index");
         }
 
-
-
-
-        
-
     }
 }

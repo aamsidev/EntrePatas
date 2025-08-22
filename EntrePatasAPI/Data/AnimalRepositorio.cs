@@ -168,7 +168,7 @@ namespace EntrePatasAPI.Data
 
             if (animal == null)
             {
-                throw new Exception("Animal no encontrada");
+                throw new Exception("Animal no encontrado");
             }
             return animal;
         }
@@ -194,8 +194,6 @@ namespace EntrePatasAPI.Data
                     command.Parameters.AddWithValue("@Foto", animal.Foto);
                     command.Parameters.AddWithValue("@Descripcion", animal.Descripcion);
 
-
-                    // Capturamos el resultado del SP
                     object result = command.ExecuteScalar();
                     if (result != null && result != DBNull.Value)
                     {
@@ -213,7 +211,6 @@ namespace EntrePatasAPI.Data
                     }
                 }
 
-                // Solo buscamos el usuario si obtuvimos un ID válido
                 if (nuevoID > 0)
                     nuevoAnimal = ObtenerAnimalPorId(nuevoID);
 

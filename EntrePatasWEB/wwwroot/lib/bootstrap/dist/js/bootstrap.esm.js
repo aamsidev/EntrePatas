@@ -237,7 +237,7 @@ const isRTL = () => document.documentElement.dir === 'rtl';
 const defineJQueryPlugin = plugin => {
   onDOMContentLoaded(() => {
     const $ = getjQuery();
-    /* istanbul ignore if */
+    
 
     if ($) {
       const name = plugin.NAME;
@@ -696,7 +696,7 @@ class BaseComponent {
   _queueCallback(callback, element, isAnimated = true) {
     executeAfterTransition(callback, element, isAnimated);
   }
-  /** Static */
+  
 
 
   static getInstance(element) {

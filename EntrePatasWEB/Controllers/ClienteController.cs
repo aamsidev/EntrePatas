@@ -81,6 +81,7 @@ namespace EntrePatasWEB.Controllers
         }
 
 
+
         public IActionResult Index()
         {
             var nombre = HttpContext.Session.GetString("NombreUsuario");

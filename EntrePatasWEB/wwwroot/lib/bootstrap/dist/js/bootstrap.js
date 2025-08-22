@@ -29,7 +29,7 @@
     return Object.freeze(n);
   }
 
-  var Popper__namespace = /*#__PURE__*/_interopNamespace(Popper);
+  var Popper__namespace = _interopNamespace(Popper);
 
   /**
    * --------------------------------------------------------------------------
@@ -263,7 +263,7 @@
   const defineJQueryPlugin = plugin => {
     onDOMContentLoaded(() => {
       const $ = getjQuery();
-      /* istanbul ignore if */
+      
 
       if ($) {
         const name = plugin.NAME;
@@ -722,7 +722,7 @@
     _queueCallback(callback, element, isAnimated = true) {
       executeAfterTransition(callback, element, isAnimated);
     }
-    /** Static */
+    
 
 
     static getInstance(element) {

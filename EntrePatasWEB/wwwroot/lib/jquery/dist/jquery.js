@@ -144,7 +144,7 @@ function toType( obj ) {
 		class2type[ toString.call( obj ) ] || "object" :
 		typeof obj;
 }
-/* global Symbol */
+
 // Defining this global in .eslintrc.json would create a danger of using the global
 // unguarded in another place, it seems safer to define global only for this module
 
@@ -1053,7 +1053,7 @@ function createDisabledPseudo( disabled ) {
 				return elem.isDisabled === disabled ||
 
 					// Where there is no isDisabled, check manually
-					/* jshint -W018 */
+					
 					elem.isDisabled !== !disabled &&
 					inDisabledFieldset( elem ) === disabled;
 			}
@@ -1553,10 +1553,10 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// Support: IE 11+, Edge 17 - 18+
 			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
 			// two documents; shallow comparisons work.
-			/* eslint-disable eqeqeq */
+			
 			return a == document ? -1 :
 				b == document ? 1 :
-				/* eslint-enable eqeqeq */
+				
 				aup ? -1 :
 				bup ? 1 :
 				sortInput ?
@@ -1592,10 +1592,10 @@ setDocument = Sizzle.setDocument = function( node ) {
 			// Support: IE 11+, Edge 17 - 18+
 			// IE/Edge sometimes throw a "Permission denied" error when strict-comparing
 			// two documents; shallow comparisons work.
-			/* eslint-disable eqeqeq */
+			
 			ap[ i ] == preferredDoc ? -1 :
 			bp[ i ] == preferredDoc ? 1 :
-			/* eslint-enable eqeqeq */
+			
 			0;
 	};
 
@@ -1898,7 +1898,7 @@ Expr = Sizzle.selectors = {
 
 				result += "";
 
-				/* eslint-disable max-len */
+				
 
 				return operator === "=" ? result === check :
 					operator === "!=" ? result !== check :
@@ -1908,7 +1908,7 @@ Expr = Sizzle.selectors = {
 					operator === "~=" ? ( " " + result.replace( rwhitespace, " " ) + " " ).indexOf( check ) > -1 :
 					operator === "|=" ? result === check || result.slice( 0, check.length + 1 ) === check + "-" :
 					false;
-				/* eslint-enable max-len */
+				
 
 			};
 		},
@@ -2793,7 +2793,7 @@ function matcherFromGroupMatchers( elementMatchers, setMatchers ) {
 		superMatcher;
 }
 
-compile = Sizzle.compile = function( selector, match /* Internal Use Only */ ) {
+compile = Sizzle.compile = function( selector, match  ) {
 	var i,
 		setMatchers = [],
 		elementMatchers = [],
@@ -3717,7 +3717,7 @@ jQuery.extend( {
 				},
 
 				// Keep pipe for back-compat
-				pipe: function( /* fnDone, fnFail, fnProgress */ ) {
+				pipe: function(  ) {
 					var fns = arguments;
 
 					return jQuery.Deferred( function( newDefer ) {
@@ -7469,11 +7469,11 @@ function defaultPrefilter( elem, props, opts ) {
 				showHide( [ elem ], true );
 			}
 
-			/* eslint-disable no-loop-func */
+			
 
 			anim.done( function() {
 
-				/* eslint-enable no-loop-func */
+				
 
 				// The final step of a "hide" animation is actually hiding the element
 				if ( !hidden ) {
@@ -8207,7 +8207,7 @@ if ( !support.optSelected ) {
 	jQuery.propHooks.selected = {
 		get: function( elem ) {
 
-			/* eslint no-unused-expressions: "off" */
+			
 
 			var parent = elem.parentNode;
 			if ( parent && parent.parentNode ) {
@@ -8217,7 +8217,7 @@ if ( !support.optSelected ) {
 		},
 		set: function( elem ) {
 
-			/* eslint no-unused-expressions: "off" */
+			
 
 			var parent = elem.parentNode;
 			if ( parent ) {
@@ -8575,7 +8575,7 @@ jQuery.extend( {
 				while ( i-- ) {
 					option = options[ i ];
 
-					/* eslint-disable no-cond-assign */
+					
 
 					if ( option.selected =
 						jQuery.inArray( jQuery.valHooks.option.get( option ), values ) > -1
@@ -8583,7 +8583,7 @@ jQuery.extend( {
 						optionSet = true;
 					}
 
-					/* eslint-enable no-cond-assign */
+					
 				}
 
 				// Force browsers to behave consistently when non-matching value is set

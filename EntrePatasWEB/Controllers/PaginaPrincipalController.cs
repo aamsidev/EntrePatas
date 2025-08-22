@@ -15,7 +15,7 @@ namespace EntrePatasWEB.Controllers
         }
 
 
-        /*login*/
+        
         private async Task<UsuarioDTO?> VerificarLoginAsync(UsuarioDTO usuario)
         {
             UsuarioDTO? loginResponse = null;

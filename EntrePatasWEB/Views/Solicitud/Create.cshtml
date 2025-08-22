@@ -1,45 +1,58 @@
 ﻿@model EntrePatasWEB.Models.SolicitudDTO
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Solicitud de Adopción";
 }
 
-<h1>Create</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
 
-<h4>SolicitudDTO</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-           
-            <div class="form-group">
-                <label asp-for="IdUsuario" class="control-label"></label>
-                <input asp-for="IdUsuario" class="form-control" />
-                <span asp-validation-for="IdUsuario" class="text-danger"></span>
+            <div class="card shadow-lg border-0 rounded-3">
+                <div class="card-header bg-success text-white text-center rounded-top">
+                    <h3 class="mb-0">Formulario de Adopción</h3>
+                </div>
+
+                <div class="card-body text-center">
+                    @if (Model.Animal != null)
+                    {
+                        <div class="mb-4">
+                        <img src="@Url.Content($"~/imagenes/animal/{(string.IsNullOrEmpty(Model.Animal?.Foto) ? "default-animal.jpg" : Model.Animal.Foto)}")" 
+                             alt="Foto de @Model.Animal?.Nombre"
+                             class="img-fluid rounded shadow-sm"
+                             style="max-height: 250px; object-fit: cover;" />
+                        </div>
+
+
+                        <h4 class="text-primary">@Model.Animal.Nombre</h4>
+                        <p><strong>Especie:</strong> @Model.Animal.Especie</p>
+                        <p><strong>Raza:</strong> @Model.Animal.Raza</p>
+                        <p><strong>Edad:</strong> @Model.Animal.Edad años</p>
+                    }
+                    else
+                    {
+                        <p class="text-danger">No se pudo cargar la información del animal.</p>
+                    }
+
+                    <form asp-action="Create" method="post" onsubmit="return confirmarSolicitud();">
+                        <input type="hidden" asp-for="IdAnimal" />
+                        <input type="hidden" asp-for="Estado" value="Pendiente" />
+
+                        <button type="submit" class="btn btn-success btn-lg mt-3">
+                            <i class="bi bi-check-circle"></i> Enviar Solicitud
+                        </button>
+                    </form>
+                </div>
             </div>
-            <div class="form-group">
-                <label asp-for="IdAnimal" class="control-label"></label>
-                <input asp-for="IdAnimal" class="form-control" />
-                <span asp-validation-for="IdAnimal" class="text-danger"></span>
-            </div>
-            
-            <div class="form-group">
-                <label asp-for="Estado" class="control-label"></label>
-                <input asp-for="Estado" class="form-control" />
-                <span asp-validation-for="Estado" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
-            </div>
-        </form>
+
+        </div>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    <script>
+        function confirmarSolicitud() {
+            return confirm("¿Está seguro que desea realizar esta solicitud?\n\nSerá contactado en la brevedad al correo registrado.");
+        }
+    </script>
 }

@@ -1,45 +1,50 @@
 ﻿@{
     ViewData["Title"] = "Panel de Cliente";
-    Layout = "~/Views/Shared/_Layout.cshtml"; // Asegúrate de tenerlo
-  
+    Layout = "~/Views/Shared/_Layout.cshtml";
     @model IEnumerable<EntrePatasWEB.Models.AnimalDTO>
     var productos = ViewBag.Productos as List<EntrePatasWEB.Models.ProductoDTO>;
 }
 
 
+<div class="position-relative w-100">
+    <img src="~/imagenes/banner/bannerInicio.png"
+         class="w-100"
+         style="height: 100vh; object-fit: cover; object-position: center;"
+         alt="Banner" />
 
-
-<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
-
-
-<style>
-    .carousel-inner img {
-        height: 400px;
-        width: 100%;
-        object-fit: cover;
-        object-position: center;
-    }
-</style>
-
-<div class="container mt-5">
-    <div class="text-center">
-        <h1 class="display-4">¡Bienvenido al Panel del Cliente!</h1>
-        @if (!string.IsNullOrEmpty(ViewBag.NombreUsuario))
-        {
-            <p class="lead">Hola, <strong>@ViewBag.NombreUsuario</strong> 👋</p>
-        }
-        else
-        {
-            <p class="lead">Explora mascotas para adoptar o productos para tus animales.</p>
-        }
+    <div class="position-absolute top-50 start-50 translate-middle text-center bg-dark bg-opacity-50 rounded p-4 text-white shadow-lg w-75 w-md-50">
+        <h1 class="fw-bold display-4">🐾 ¡Bienvenidos a EntrePatas!</h1>
+        <p class="fs-5 mb-0">
+            ❤️ Conectamos mascotas con familias que las aman.<br />
+            🐶 Encuentra tu compañero ideal para adoptar.<br />
+            🛒 Descubre productos pensados para su bienestar.<br />
+            🚚 Envíos rápidos y seguros.<br />
+        </p>
+        <a href="#productos" class="btn btn-success btn-lg rounded-pill mt-3 px-4 shadow">Explorar</a>
     </div>
 
-    <hr />
-    
-    <!-- 🐾 Carrusel de Adopción -->
-    <div id="adopcionCarousel" class="carousel slide" data-bs-ride="carousel">
+</div>
+
+
+<hr class="my-5" />
+
+<div class="container">
+    <h2 class="fw-bold text-secondary mb-4">🐾 Mascotas en Adopción</h2>
+
+    <div id="adopcionCarouselDark" class="carousel carousel-dark slide mb-5" data-bs-ride="carousel">
+
+        
+        <div class="carousel-indicators">
+            @if (Model != null && Model.Any())
+            {
+                for (int i = 0; i < Model.Count(); i++)
+                {
+                    <button type="button" data-bs-target="#adopcionCarouselDark" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)"></button>
+                }
+            }
+        </div>
+
+        
         <div class="carousel-inner">
             @if (Model != null && Model.Any())
             {
@@ -47,14 +52,16 @@
                 foreach (var animal in Model)
                 {
                     <div class="carousel-item @(first ? "active" : "")">
-                        <div class="d-flex justify-content-center">
+                        <div class="d-flex justify-content-center mb-3">
                             <img src="@Url.Content($"~/imagenes/animal/{(string.IsNullOrEmpty(animal.Foto) ? "default-animal.jpg" : animal.Foto)}")"
-                                 class="d-block w-50" alt="@animal.Nombre" />
+                                 class="d-block w-50 rounded shadow"
+                                 style="max-height: 400px; object-fit: cover;"
+                                 alt="@animal.Nombre" />
                         </div>
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>@animal.Nombre</h5>
-                            <p>@animal.Descripcion ?? "Mascota en adopción."</p>
-                            <a href="#" class="btn btn-success">Adoptar</a>
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                            <h5 class="fw-bold text-white">@animal.Nombre</h5>
+                            <p class="text-white" >@animal.Descripcion | "Mascota en adopción."</p>
+                            <a href="@Url.Action("Create", "Solicitud", new { idAnimal = animal.IdAnimal })" class="btn btn-primary">Adoptar</a>
                         </div>
                     </div>
                     first = false;
@@ -63,30 +70,48 @@
             else
             {
                 <div class="carousel-item active">
-                    <div class="d-flex justify-content-center">
-                        <img src="https://placedog.net/600/400?id=1" class="d-block w-50" alt="Sin mascotas" />
+                    <div class="d-flex justify-content-center mb-3">
+                        <img src="https://placedog.net/600/400?id=1"
+                             class="d-block w-50 rounded shadow"
+                             style="max-height: 400px; object-fit: cover;"
+                             alt="Sin mascotas" />
                     </div>
-                    <div class="carousel-caption d-none d-md-block">
-                        <h5>No hay mascotas para mostrar</h5>
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                        <h5 class="fw-bold">No hay mascotas para mostrar</h5>
                         <p>Vuelve más tarde.</p>
                     </div>
                 </div>
             }
         </div>
 
-        <button class="carousel-control-prev" type="button" data-bs-target="#adopcionCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
+        
+        <button class="carousel-control-prev" type="button" data-bs-target="#adopcionCarouselDark" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
         </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#adopcionCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
+        <button class="carousel-control-next" type="button" data-bs-target="#adopcionCarouselDark" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
         </button>
+
     </div>
+
 
     <hr class="my-5" />
 
-    <!-- 🛒 Carrusel de Productos -->
-    <h2 id="productos" class="mb-3">🛒 Productos Veterinarios</h2>
-    <div id="productosCarousel" class="carousel slide" data-bs-ride="carousel">
+    <h2 id="productos" class="fw-bold text-secondary mb-4">🛒 Productos Veterinarios</h2>
+
+    <div id="productosCarouselDark" class="carousel carousel-dark slide" data-bs-ride="carousel">
+        <div class="carousel-indicators">
+            @if (productos != null && productos.Any())
+            {
+                for (int i = 0; i < productos.Count; i++)
+                {
+                    <button type="button" data-bs-target="#productosCarouselDark" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)"></button>
+                }
+            }
+        </div>
+
         <div class="carousel-inner">
             @if (productos != null && productos.Any())
             {
@@ -94,14 +119,17 @@
                 foreach (var producto in productos)
                 {
                     <div class="carousel-item @(first ? "active" : "")">
-                        <div class="d-flex justify-content-center">
+                        <div class="d-flex justify-content-center mb-3">
                             <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(producto.FotoUrl) ? "default-producto.jpg" : producto.FotoUrl)}")"
-                                 class="d-block w-50" alt="@producto.Nombre" />
+                                 class="d-block w-50 rounded shadow"
+                                 style="max-height: 350px; object-fit: cover;"
+                                 alt="@producto.Nombre" />
                         </div>
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5>@producto.Nombre</h5>
-                            <p>@producto.Descripcion</p>
-                            <a href="#" class="btn btn-primary">Comprar</a>
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                            <h5 class="fw-bold text-white outli">@producto.Nombre</h5>
+                            <h5 class="fw-bold text-white">S/. @(producto.Precio.ToString("F2"))</h5>
+                            <p class="text-white">@producto.Descripcion</p>
+                            <a href="#" class="btn btn-primary rounded-pill px-4">Comprar</a>
                         </div>
                     </div>
                     first = false;
@@ -110,67 +138,59 @@
             else
             {
                 <div class="carousel-item active">
-                    <div class="d-flex justify-content-center">
-                        <img src="https://via.placeholder.com/600x400?text=Sin+productos" class="d-block w-50" alt="Sin productos" />
+                    <div class="d-flex justify-content-center mb-3">
+                        <img src="https://via.placeholder.com/600x400?text=Sin+productos"
+                             class="d-block w-50 rounded shadow"
+                             style="max-height: 350px; object-fit: cover;"
+                             alt="Sin productos" />
                     </div>
-                    <div class="carousel-caption d-none d-md-block">
-                        <h5>No hay productos disponibles</h5>
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                        <h5 class="fw-bold">No hay productos disponibles</h5>
                         <p>Vuelve más tarde para ver nuevas ofertas.</p>
                     </div>
                 </div>
             }
         </div>
 
-        <button class="carousel-control-prev" type="button" data-bs-target="#productosCarousel" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon"></span>
+        <button class="carousel-control-prev" type="button" data-bs-target="#productosCarouselDark" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Previous</span>
         </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#productosCarousel" data-bs-slide="next">
-            <span class="carousel-control-next-icon"></span>
+        <button class="carousel-control-next" type="button" data-bs-target="#productosCarouselDark" data-bs-slide="next">
+            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <span class="visually-hidden">Next</span>
         </button>
     </div>
+
 </div>
 
-<!-- Aquí insertamos la vista parcial -->
-<div id="contenedorAnimales">
+
+<div id="contenedorAnimales" class="container mt-5">
     @Html.Partial("_AnimalFiltro", Model)
 </div>
 
-
-
-
-
-
-
 @section Scripts {
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
-        $(document).ready(function () {
-            // Evento al enviar el formulario
-            $(document).on('submit', '#formFiltro', function (e) {
-                e.preventDefault(); // Evita que recargue la página
+        $(document).on('submit', '#formFiltro', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: '@Url.Action("_AnimalFiltro", "Cliente")',
+                type: 'GET',
+                data: $(this).serialize(),
+                success: function (resultado) {
+                    $('#contenedorAnimales').html(resultado);
+                },
+                error: function () {
+                    alert("Error al aplicar el filtro.");
+                }
+            });
+        });
 
-                $.ajax({
-                    url: '@Url.Action("_AnimalFiltro", "Cliente")',
-                    type: 'GET',
-                    data: $(this).serialize(), // Serializa los filtros
-                    success: function (resultado) {
-                        $('#contenedorAnimales').html(resultado); // Actualiza el parcial
-                    },
-                    error: function () {
-                        alert("Error al aplicar el filtro.");
-                    }
-                });
+        document.addEventListener('DOMContentLoaded', function () {
+            new bootstrap.Carousel(document.querySelector('#adopcionCarousel'), {
+                interval: 3000,
+                ride: 'carousel'
             });
         });
     </script>
 }
-
-<script>
-    document.addEventListener('DOMContentLoaded', function () {
-        var myCarousel = document.querySelector('#adopcionCarousel');
-        var carousel = new bootstrap.Carousel(myCarousel, {
-            interval: 3000, // Cambiar cada 3 segundos
-            ride: 'carousel'
-        });
-    });
-</script>

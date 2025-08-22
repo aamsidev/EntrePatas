@@ -16,8 +16,4 @@
     <PackageReference Include="Xamarin.UITest" Version="4.4.2" />
   </ItemGroup>
 
-  <ItemGroup>
-    <Folder Include="wwwroot\imagenes\" />
-  </ItemGroup>
-
 </Project>

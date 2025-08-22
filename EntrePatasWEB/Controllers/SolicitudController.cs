@@ -133,19 +133,54 @@ namespace EntrePatasWEB.Controllers
 
         }
 
-        public IActionResult Create()
+        public async Task<IActionResult> Create(int idAnimal)
         {
-            return View(new SolicitudDTO());
+            int? idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+            if (idUsuario == null)
+                return RedirectToAction("Login", "PaginaPrincipal");
+
+            AnimalDTO? animal = null;
+            using (var clienteHttp = new HttpClient())
+            {
+                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
+                var response = await clienteHttp.GetAsync($"Animal/{idAnimal}");
+                if (response.IsSuccessStatusCode)
+                {
+                    var data = await response.Content.ReadAsStringAsync();
+                    animal = JsonConvert.DeserializeObject<AnimalDTO>(data);
+                }
+            }
+
+            var solicitud = new SolicitudDTO
+            {
+                IdUsuario = idUsuario.Value,
+                IdAnimal = idAnimal,
+                FechaSolicitud = DateTime.Now,
+                Estado = "Pendiente",
+                Animal = animal
+            };
+
+            return View(solicitud);
         }
+
 
         [HttpPost]
         public IActionResult Create(SolicitudDTO solicitud)
         {
-            SolicitudDTO nuevoSolicitud = RegistrarSolicitud(solicitud).Result;
+            int? idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+            if (idUsuario == null)
+                return RedirectToAction("Login", "PaginaPrincipal");
 
+            solicitud.IdUsuario = idUsuario.Value;
+            solicitud.FechaSolicitud = DateTime.Now;
+            solicitud.Estado = "Pendiente";
+
+            SolicitudDTO nuevoSolicitud = RegistrarSolicitud(solicitud).Result;
 
             return RedirectToAction("Details", new { id = nuevoSolicitud.IdSolicitud });
         }
+
+
 
 
 
@@ -161,7 +196,6 @@ namespace EntrePatasWEB.Controllers
 
         }
 
-        // POST: Usuario/Edit/5
         [HttpPost]
         public IActionResult Edit(int id, SolicitudDTO solicitud)
         {
