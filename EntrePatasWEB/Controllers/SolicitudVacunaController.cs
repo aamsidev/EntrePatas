@@ -87,7 +87,6 @@ namespace EntrePatasWEB.Controllers
                         "application/json"
                     );
 
-                    // Consumimos el endpoint PUT
                     var respuesta = await httpCliente.PutAsync($"SolicitudVacuna/update/{id}", contenido);
 
                     if (!respuesta.IsSuccessStatusCode)
@@ -162,7 +161,6 @@ namespace EntrePatasWEB.Controllers
 
         }
 
-        // POST: Usuario/Edit/5
         [HttpPost]
         public IActionResult Edit(int id, SolicitudVacunaDTO solicitud)
         {

@@ -85,8 +85,44 @@ public IActionResult EliminarUsuario(int id)
             if (user == null)
                 return Unauthorized(new { mensaje = "Credenciales inválidas" });
 
-            return Ok(user); // devuelve UsuarioDTO con TipoUsuario
+            return Ok(user);
         }
+
+        [HttpPut("update-credenciales/{id}")]
+        public IActionResult ActualizarCredenciales(int id, [FromBody] UsuarioUpdateDTO data)
+        {
+            var usuario = usuarioDATA.ObtenerUsuarioPorId(id);
+
+            if (usuario == null)
+                return NotFound(new { mensaje = "Usuario no encontrado" });
+
+            string contrasenaActual = data.ContrasenaActual;
+            string nuevaContrasena = data.NuevaContrasena;
+            string correo = data.Correo;
+
+            var validacion = usuarioDATA.VerificarLogin(usuario.Correo, contrasenaActual);
+            if (validacion == null)
+                return Unauthorized(new { mensaje = "La contraseña actual es incorrecta" });
+
+            var usuarioDTO = new UsuarioDTO
+            {
+                Nombre = usuario.Nombre,
+                Apellido = usuario.Apellido,
+                Correo = correo,
+                Telefono = usuario.Telefono,
+                Direccion = usuario.Direccion,
+                Contrasena = !string.IsNullOrEmpty(nuevaContrasena) ? nuevaContrasena : usuario.Contrasena,
+                TipoUsuario = usuario.TipoUsuario
+            };
+
+            var actualizado = usuarioDATA.Editar(id, usuarioDTO);
+            return Ok(actualizado);
+        }
+
+
+
+
+
 
 
 

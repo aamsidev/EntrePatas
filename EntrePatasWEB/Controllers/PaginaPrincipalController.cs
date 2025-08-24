@@ -43,7 +43,6 @@ namespace EntrePatasWEB.Controllers
             }
             catch (Exception ex)
             {
-                // Si quieres dejar esto para ver errores en producción, puedes mantenerlo
                 Console.WriteLine($"Excepción: {ex.Message}");
             }
 
@@ -51,14 +50,11 @@ namespace EntrePatasWEB.Controllers
         }
 
 
-        // GET: Usuario/Login
         [HttpGet]
         public IActionResult Login()
         {
-            return View(); // devuelve la vista Login.cshtml vacía
-        }
+            return View();        }
 
-        // POST: Usuario/Login
         [HttpPost]
         public IActionResult Login(UsuarioDTO usuario)
         {
@@ -70,12 +66,10 @@ namespace EntrePatasWEB.Controllers
                 return View(usuario);
             }
 
-            // ✅ GUARDAR EN SESIÓN
             HttpContext.Session.SetString("NombreUsuario", resultado.Nombre);
             HttpContext.Session.SetInt32("IdUsuario", resultado.IdUsuario);
             HttpContext.Session.SetString("TipoUsuario", resultado.TipoUsuario);
 
-            // Redirige según el tipo de usuario
             return resultado.TipoUsuario switch
             {
                 "Administrador" => RedirectToAction("Index", "Admin"),

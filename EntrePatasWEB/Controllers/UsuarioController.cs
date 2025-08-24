@@ -46,7 +46,6 @@ namespace EntrePatasWEB.Controllers
             }
             catch (Exception ex)
             {
-                // Si quieres dejar esto para ver errores en producción, puedes mantenerlo
                 Console.WriteLine($"Excepción: {ex.Message}");
             }
 
@@ -136,7 +135,6 @@ namespace EntrePatasWEB.Controllers
                         "application/json"
                     );
 
-                    // Consumimos el endpoint PUT
                     var respuesta = await httpCliente.PutAsync($"Usuario/update/{id}", contenido);
 
                     if (!respuesta.IsSuccessStatusCode)
@@ -209,7 +207,6 @@ namespace EntrePatasWEB.Controllers
             return View(usuario);
         }
 
-        // POST: Usuario/Edit/5
         [HttpPost]
         public IActionResult Edit(int id, UsuarioDTO usuario)
         {
@@ -251,7 +248,90 @@ namespace EntrePatasWEB.Controllers
             return RedirectToAction("Index");
         }
 
-   
+        public IActionResult Perfil()
+        {
+            int? idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+
+            if (!idUsuario.HasValue)
+            {
+                TempData["Error"] = "No se encontró información de usuario en sesión.";
+                return RedirectToAction("Login", "PaginaPrincipal");
+            }
+
+            var usuario = ObtenerUsuarioId(idUsuario.Value).Result;
+
+            if (usuario == null)
+                return NotFound();
+
+            return View(usuario);
+        }
+
+
+        [HttpPost]
+        [HttpPost]
+        public IActionResult Perfil(UsuarioDTO usuario, string contrasenaActual, string nuevaContrasena)
+        {
+            int? idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+
+            if (!idUsuario.HasValue)
+            {
+                TempData["Error"] = "No se encontró información de usuario en sesión.";
+                return RedirectToAction("Login", "PaginaPrincipal");
+            }
+
+            var actualizado = UpdateCredencialesUsuario(
+                idUsuario.Value,
+                usuario.Correo.Trim(),
+                contrasenaActual.Trim(),
+                nuevaContrasena?.Trim()
+            ).Result;
+
+            if (actualizado == null)
+            {
+                TempData["Error"] = "No se pudo actualizar. Verifica tu contraseña actual.";
+                return View(usuario);
+            }
+
+            TempData["Mensaje"] = "Perfil actualizado correctamente.";
+            return RedirectToAction("Perfil");
+        }
+
+
+        private async Task<UsuarioDTO?> UpdateCredencialesUsuario(int id, string correo, string contrasenaActual, string nuevaContrasena)
+        {
+            using (var httpCliente = new HttpClient())
+            {
+                httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+
+                var payload = new
+                {
+                    Correo = correo,
+                    ContrasenaActual = contrasenaActual,
+                    NuevaContrasena = nuevaContrasena
+                };
+
+                var contenido = new StringContent(JsonConvert.SerializeObject(payload), Encoding.UTF8, "application/json");
+
+                var respuesta = await httpCliente.PutAsync($"Usuario/update-credenciales/{id}", contenido);
+
+                if (!respuesta.IsSuccessStatusCode)
+                    return null;
+
+                var data = await respuesta.Content.ReadAsStringAsync();
+
+                var usuarioActualizado = JsonConvert.DeserializeObject<UsuarioDTO>(data);
+
+                return usuarioActualizado;
+            }
+        }
+
+
+
+
+
+
+
+
 
 
 

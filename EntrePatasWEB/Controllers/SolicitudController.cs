@@ -86,7 +86,6 @@ namespace EntrePatasWEB.Controllers
                         "application/json"
                     );
 
-                    // Consumimos el endpoint PUT
                     var respuesta = await httpCliente.PutAsync($"Solicitud/update/{id}", contenido);
 
                     if (!respuesta.IsSuccessStatusCode)

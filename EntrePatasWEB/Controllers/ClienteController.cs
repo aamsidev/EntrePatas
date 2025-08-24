@@ -60,12 +60,10 @@ namespace EntrePatasWEB.Controllers
         {
             var listado = ObtenerListadoAnimalAsync().Result;
 
-            // Llenar combos
             ViewBag.Estados = new List<string> { "Disponible", "Adoptado", "Reservado" };
             ViewBag.Edades = listado.Select(a => a.Edad).Distinct().OrderBy(e => e).ToList();
             ViewBag.Razas = listado.Select(a => a.Raza).Where(r => !string.IsNullOrEmpty(r)).Distinct().OrderBy(r => r).ToList();
 
-            // Aplicar filtros
             if (!string.IsNullOrEmpty(estado))
                 listado = listado.Where(a => a.Estado == estado).ToList();
             if (edad.HasValue)
@@ -77,8 +75,7 @@ namespace EntrePatasWEB.Controllers
             ViewBag.EdadSeleccionada = edad;
             ViewBag.RazaSeleccionada = raza;
 
-            return PartialView("_AnimalFiltro", listado); // <- IMPORTANTE
-        }
+            return PartialView("_AnimalFiltro", listado);        }
 
 
 

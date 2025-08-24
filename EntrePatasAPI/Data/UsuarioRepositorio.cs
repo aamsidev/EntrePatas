@@ -120,8 +120,7 @@ namespace EntrePatasAPI.Data
                     command.Parameters.AddWithValue("@Contrasena", usuario.Contrasena);
                     command.Parameters.AddWithValue("@TipoUsuario", usuario.TipoUsuario);
 
-                    // Capturamos el resultado del SP
-                    object result = command.ExecuteScalar();
+                                       object result = command.ExecuteScalar();
 
                     if (result != null && result != DBNull.Value)
                     {
@@ -132,8 +131,7 @@ namespace EntrePatasAPI.Data
                         else if (codigo == -2)
                             throw new Exception("El correo ya está registrado.");
                         else
-                            nuevoID = codigo; // Guardamos el ID válido
-                    }
+                            nuevoID = codigo;                    }
                     else
                     {
                         throw new Exception("Error desconocido: no se devolvió ningún valor.");
@@ -141,8 +139,7 @@ namespace EntrePatasAPI.Data
                 }
             }
 
-            // Solo buscamos el usuario si obtuvimos un ID válido
-            if (nuevoID > 0)
+                       if (nuevoID > 0)
                 nuevoUsuario = ObtenerUsuarioPorId(nuevoID);
 
             if (nuevoUsuario == null)
@@ -174,11 +171,9 @@ namespace EntrePatasAPI.Data
                         command.Parameters.AddWithValue("@Direccion", usuario.Direccion);
                         command.Parameters.AddWithValue("@Contrasena", usuario.Contrasena);
                         command.Parameters.AddWithValue("@TipoUsuario", usuario.TipoUsuario);
-                        var result = Convert.ToInt32(command.ExecuteScalar()); // 1 o 0
-                        if (result == 1)
+                        var result = Convert.ToInt32(command.ExecuteScalar());                        if (result == 1)
                         {
-                            // ✅ Se actualizó, obtengo el usuario editado
-                            editarUsuario = ObtenerUsuarioPorId(id);
+                                                       editarUsuario = ObtenerUsuarioPorId(id);
                         }
                     }
                 }
@@ -223,8 +218,7 @@ namespace EntrePatasAPI.Data
 
         Usuario IUsuario.VerificarLogin(string correo, string contrasena)
         {
-            // Aquí haces la consulta SQL o llamas al SP
-            using (var conexion = new SqlConnection(cadenaConexion))
+                       using (var conexion = new SqlConnection(cadenaConexion))
             {
                 conexion.Open();
                 var cmd = new SqlCommand("sp_VerificarLogin", conexion);

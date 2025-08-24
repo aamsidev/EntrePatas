@@ -33,11 +33,9 @@ namespace EntrePatasAPI.Data
                         command.Parameters.AddWithValue("@DireccionEnvio", envio.DireccionEnvio);
                         command.Parameters.AddWithValue("@EstadoEnvio", envio.EstadoEnvio);
                         
-                        var result = Convert.ToInt32(command.ExecuteScalar()); // 1 o 0
-                        if (result == 1)
+                        var result = Convert.ToInt32(command.ExecuteScalar());                        if (result == 1)
                         {
-                            // ✅ Se actualizó, obtengo el usuario editado
-                            editarEnvio = ObtenerEnvioPorId(id);
+                                                       editarEnvio = ObtenerEnvioPorId(id);
                         }
                     }
                 }
@@ -179,8 +177,7 @@ namespace EntrePatasAPI.Data
 
 
 
-                    // Capturamos el resultado del SP
-                    object result = command.ExecuteScalar();
+                                       object result = command.ExecuteScalar();
                     if (result != null && result != DBNull.Value)
                     {
                         int codigo = Convert.ToInt32(result);
@@ -197,8 +194,7 @@ namespace EntrePatasAPI.Data
                     }
                 }
 
-                // Solo buscamos el usuario si obtuvimos un ID válido
-                if (nuevoID > 0)
+                               if (nuevoID > 0)
                     nuevoEnvio = ObtenerEnvioPorId(nuevoID);
 
                 if (nuevoEnvio == null)

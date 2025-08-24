@@ -112,8 +112,7 @@ namespace EntrePatasAPI.Data
                     command.Parameters.AddWithValue("@Precio", vacuna.Precio);
                    
 
-                    // Capturamos el resultado del SP
-                    object result = command.ExecuteScalar();
+                                       object result = command.ExecuteScalar();
 
                     if (result != null && result != DBNull.Value)
                     {
@@ -162,11 +161,9 @@ namespace EntrePatasAPI.Data
                         command.Parameters.AddWithValue("@Nombre", vacuna.Nombre);
                         command.Parameters.AddWithValue("@Descripcion", vacuna.Descripcion);
                         command.Parameters.AddWithValue("@Precio", vacuna.Precio);
-                        var result = Convert.ToInt32(command.ExecuteScalar()); // 1 o 0
-                        if (result == 1)
+                        var result = Convert.ToInt32(command.ExecuteScalar());                        if (result == 1)
                         {
-                            // ✅ Se actualizó, obtengo el usuario editado
-                            editarVacuna = ObtenerVacunaPorId(id);
+                                                       editarVacuna = ObtenerVacunaPorId(id);
                         }
                     }
                 }

@@ -1,11 +1,75 @@
-﻿@*
-    For more information on enabling MVC for empty projects, visit https://go.microsoft.com/fwlink/?LinkID=397860
-*@
-@{
-}
-@{
+﻿@{
     ViewData["Title"] = "Panel de Administrador";
 }
 
-<h2>Bienvenido, Administrador</h2>
-<p>Desde aquí puedes gestionar usuarios, animales, reportes, etc.</p>
+<div class="container mt-5">
+    <h2 class="text-center mb-4">Panel de Administrador</h2>
+    <p class="text-center text-muted">Bienvenido, desde aquí puedes gestionar el sistema.</p>
+
+    <!-- Fila de estadísticas -->
+    <div class="row g-4 mb-4 text-center">
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 p-3">
+                <h5>Usuarios Registrados</h5>
+                <p class="display-6">@ViewBag.TotalUsuarios</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 p-3">
+                <h5>Animales Registrados</h5>
+                <p class="display-6">@ViewBag.TotalAnimales</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 p-3">
+                <h5>Solicitudes Aprobadas</h5>
+                <p class="display-6">@ViewBag.SolicitudesAprobadas</p>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card shadow-sm h-100 p-3">
+                <h5>Solicitudes Pendientes</h5>
+                <p class="display-6">@ViewBag.SolicitudesPendientes</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tarjetas de gestión existentes -->
+    <div class="row g-4 mt-4">
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center p-3">
+                <i class="fas fa-users fa-3x text-primary mb-3"></i>
+                <h5>Usuarios</h5>
+                <p>Gestiona cuentas de usuarios y roles.</p>
+                <a href="/Usuario/Index" class="btn btn-primary">Gestionar</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center p-3">
+                <i class="fas fa-paw fa-3x text-success mb-3"></i>
+                <h5>Animales</h5>
+                <p>Administra el registro de animales.</p>
+                <a href="/Animal/Index" class="btn btn-success">Gestionar</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center p-3">
+                <i class="fas fa-file-alt fa-3x text-warning mb-3"></i>
+                <h5>Solicitudes de Adopción</h5>
+                <p>Revisa y aprueba las solicitudes.</p>
+                <a href="/Solicitud/Index" class="btn btn-warning">Gestionar</a>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="card shadow-sm h-100 text-center p-3">
+                <i class="fas fa-chart-line fa-3x text-danger mb-3"></i>
+                <h5>Reportes</h5>
+                <p>Visualiza estadísticas y reportes.</p>
+                <a href="/Reportes/Index" class="btn btn-danger">Ver reportes</a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -38,11 +38,9 @@ namespace EntrePatasAPI.Data
                         command.Parameters.AddWithValue("@Estado", animal.Estado);
                         command.Parameters.AddWithValue("@Foto", animal.Foto);
                         command.Parameters.AddWithValue("@Descripcion", animal.Descripcion);
-                        var result = Convert.ToInt32(command.ExecuteScalar()); // 1 o 0
-                        if (result == 1)
+                        var result = Convert.ToInt32(command.ExecuteScalar());                        if (result == 1)
                         {
-                            // ✅ Se actualizó, obtengo el usuario editado
-                            editarAnimal = ObtenerAnimalPorId(id);
+                                                       editarAnimal = ObtenerAnimalPorId(id);
                         }
                     }
                 }

@@ -85,7 +85,6 @@ namespace EntrePatasWEB.Controllers
                         "application/json"
                     );
 
-                    // Consumimos el endpoint PUT
                     var respuesta = await httpCliente.PutAsync($"Pago/update/{id}", contenido);
 
                     if (!respuesta.IsSuccessStatusCode)
@@ -158,7 +157,6 @@ namespace EntrePatasWEB.Controllers
 
         }
 
-        // POST: Usuario/Edit/5
         [HttpPost]
         public IActionResult Edit(int id, PagoDTO pago)
         {

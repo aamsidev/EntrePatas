@@ -1,0 +1,57 @@
+﻿@model EntrePatasWEB.Models.UsuarioDTO
+
+@{
+    ViewData["Title"] = "Mi Perfil";
+}
+
+<div class="container mt-5">
+    <h2 class="mb-4"><i class="bi bi-person-circle"></i> Mi Perfil</h2>
+
+    @if (TempData["Error"] != null)
+    {
+        <div class="alert alert-danger">@TempData["Error"]</div>
+    }
+
+    @if (TempData["Mensaje"] != null)
+    {
+        <div class="alert alert-success">@TempData["Mensaje"]</div>
+    }
+
+    <form asp-action="Perfil" method="post">
+        <div class="card p-4 shadow-sm">
+            <div class="row">
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Nombre</label>
+                    <input asp-for="Nombre" class="form-control" readonly />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Apellido</label>
+                    <input asp-for="Apellido" class="form-control" readonly />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Teléfono</label>
+                    <input asp-for="Telefono" class="form-control" readonly />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Dirección</label>
+                    <input asp-for="Direccion" class="form-control" readonly />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Correo</label>
+                    <input asp-for="Correo" class="form-control" />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Contraseña actual</label>
+                    <input type="password" name="contrasenaActual" class="form-control" required />
+                </div>
+                <div class="col-md-6 mb-3">
+                    <label class="form-label fw-bold">Nueva contraseña</label>
+                    <input type="password" name="nuevaContrasena" class="form-control" />
+                </div>
+            </div>
+            <button type="submit" class="btn btn-success mt-3">
+                <i class="bi bi-save"></i> Actualizar
+            </button>
+        </div>
+    </form>
+</div>

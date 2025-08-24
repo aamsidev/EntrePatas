@@ -151,8 +151,7 @@ namespace EntrePatasAPI.Data
                     command.Parameters.AddWithValue("@IdVacuna", solicitud.IdVacuna);
                     command.Parameters.AddWithValue("@Cantidad", solicitud.Cantidad);
 
-                    // Capturamos el resultado del SP
-                    object result = command.ExecuteScalar();
+                                       object result = command.ExecuteScalar();
 
 
                     if (result != null && result != DBNull.Value)
@@ -172,8 +171,7 @@ namespace EntrePatasAPI.Data
                 }
             }
 
-            // Solo buscamos el solicitud si obtuvimos un ID válido
-            if (nuevoID > 0)
+                       if (nuevoID > 0)
                 nuevaSolicitud = ObtenerSolicitudVacunaPorId(nuevoID);
 
             if (nuevaSolicitud == null)
@@ -207,11 +205,9 @@ namespace EntrePatasAPI.Data
 
 
 
-                        var result = Convert.ToInt32(command.ExecuteScalar()); // 1 o 0
-                        if (result == 1)
+                        var result = Convert.ToInt32(command.ExecuteScalar());                        if (result == 1)
                         {
-                            // ✅ Se actualizó, obtengo el usuario editado
-                            editarSolicitudVacu = ObtenerSolicitudVacunaPorId(id);
+                                                       editarSolicitudVacu = ObtenerSolicitudVacunaPorId(id);
                         }
                     }
                 }
