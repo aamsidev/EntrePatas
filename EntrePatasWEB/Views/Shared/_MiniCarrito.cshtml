@@ -1,0 +1,65 @@
+﻿@using EntrePatasWEB.Models
+@model List<CarritoItem>
+
+<a class="nav-link position-relative dropdown-toggle" href="#" id="miniCarritoDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+    <i class="bi bi-cart3" style="font-size:1.4rem;"></i>
+    <span class="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger">
+        @(Model?.Sum(i => i.Cantidad) ?? 0)
+    </span>
+</a>
+
+
+<div class="dropdown-menu dropdown-menu-end p-3" aria-labelledby="miniCarritoDropdown" style="min-width: 350px;">
+    <h6 class="dropdown-header">Carrito</h6>
+    <div class="table-responsive" style="max-height:200px; overflow-y:auto;">
+        <table class="table table-sm align-middle mb-0">
+            <thead>
+                <tr>
+                    <th>Imagen</th>
+                    <th>Producto</th>
+                    <th>Cant.</th>
+                    <th>Precio</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model?.Any() == true)
+                {
+                    foreach (var item in Model)
+                    {
+                        var imagenUrl = Url.Content("~/imagenes/producto/" +
+                        (string.IsNullOrEmpty(item.FotoUrl) ? "default-producto.jpg" : item.FotoUrl));
+                        <tr>
+                            <td><img src="@imagenUrl" width="40" class="rounded" /></td>
+                            <td>@item.Nombre</td>
+                            <td>@item.Cantidad</td>
+                            <td>S/ @item.Precio.ToString("F2")</td>
+                            <td>
+                                <form asp-controller="Carrito" asp-action="Eliminar" method="post">
+                                    @Html.AntiForgeryToken()
+                                    <input type="hidden" name="id" value="@item.IdProducto" />
+                                    <button type="submit" class="btn btn-sm btn-danger">&times;</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                }
+                else
+                {
+                    <tr>
+                        <td colspan="5" class="text-center text-muted">Tu carrito está vacío</td>
+                    </tr>
+                }
+
+
+            </tbody>
+        </table>
+    </div>
+    <div class="mt-2 d-flex justify-content-between">
+        <a href="/Carrito/Index" class="btn btn-primary btn-sm">Ver carrito</a>
+        <form asp-controller="Carrito" asp-action="Vaciar" method="post">
+            @Html.AntiForgeryToken()
+            <button class="btn btn-outline-danger btn-sm">Vaciar</button>
+        </form>
+    </div>
+</div>

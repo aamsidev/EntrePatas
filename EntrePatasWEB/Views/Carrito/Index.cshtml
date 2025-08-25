@@ -1,0 +1,65 @@
+﻿@model List<EntrePatasWEB.Models.CarritoItem>
+
+@{
+    ViewData["Title"] = "Carrito de Compras";
+    var total = Model.Sum(i => i.Subtotal);
+}
+
+<div class="container my-5">
+    <h2 class="fw-bold mb-4">🛒 Carrito de Compras</h2>
+
+    @if (!Model.Any())
+    {
+        <div class="alert alert-info">
+            Tu carrito está vacío. <a asp-controller="Producto" asp-action="Catalogo">Ver productos</a>.
+        </div>
+    }
+    else
+    {
+        <table class="table table-striped align-middle">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Precio</th>
+                    <th>Cantidad</th>
+                    <th>Subtotal</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(item.FotoUrl) ? "default-producto.jpg" : item.FotoUrl)}")"
+                                 alt="@item.Nombre"
+                                 style="height:60px; width:60px; object-fit:cover;" class="me-2 rounded" />
+                            @item.Nombre
+                        </td>
+                        <td>S/ @item.Precio</td>
+                        <td>
+                            <form asp-action="Actualizar" method="post" class="d-flex">
+                                <input type="hidden" name="id" value="@item.IdProducto" />
+                                <input type="number" name="cantidad" value="@item.Cantidad" min="1" class="form-control form-control-sm me-2" style="width:80px;" />
+                                <button type="submit" class="btn btn-sm btn-outline-success">✔</button>
+                            </form>
+                        </td>
+                        <td>S/ @item.Subtotal</td>
+                        <td>
+                            <a asp-action="Eliminar" asp-route-id="@item.IdProducto" class="btn btn-sm btn-outline-danger">🗑 Eliminar</a>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+
+        <div class="d-flex justify-content-end">
+            <h4>Total: <span class="text-success">S/ @total</span></h4>
+        </div>
+
+        <div class="d-flex justify-content-end mt-3">
+            <a asp-controller="Producto" asp-action="Catalogo" class="btn btn-outline-secondary me-2">← Seguir comprando</a>
+            <a asp-action="Checkout" class="btn btn-success">Finalizar compra</a>
+        </div>
+    }
+</div>

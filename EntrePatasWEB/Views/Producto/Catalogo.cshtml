@@ -1,0 +1,103 @@
+﻿@model IEnumerable<EntrePatasWEB.Models.ProductoDTO>
+
+@{
+    ViewData["Title"] = "Catálogo de Productos";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<div class="container my-5">
+    <h2 class="fw-bold text-secondary mb-4">🛒 Catálogo de Productos</h2>
+
+    <div id="productosCarousel" class="carousel slide mb-5" data-bs-ride="carousel">
+
+        <div class="carousel-indicators">
+            @if (Model != null && Model.Any())
+            {
+                for (int i = 0; i < Model.Count(); i++)
+                {
+                    <button type="button" data-bs-target="#productosCarousel" data-bs-slide-to="@i"
+                            class="@(i == 0 ? "active" : "")"
+                            aria-current="@(i == 0 ? "true" : "false")"
+                            aria-label="Slide @(i + 1)"></button>
+                }
+            }
+        </div>
+
+        <div class="carousel-inner">
+            @if (Model != null && Model.Any())
+            {
+                var first = true;
+                foreach (var producto in Model.Take(5))
+                {
+                    <div class="carousel-item @(first ? "active" : "")">
+                        <div class="d-flex justify-content-center mb-3">
+                            <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(producto.FotoUrl) ? "default-producto.jpg" : producto.FotoUrl)}")"
+                                 class="d-block w-50 rounded shadow"
+                                 style="max-height: 400px; object-fit: cover;"
+                                 alt="@producto.Nombre" />
+                        </div>
+                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                            <h5 class="fw-bold text-white">@producto.Nombre</h5>
+                            <p class="text-white">@producto.Descripcion</p>
+                            <span class="badge bg-success fs-6">S/ @(producto.Precio.ToString("F2"))</span>
+                            <div class="mt-2">
+                                <a asp-controller="Producto" asp-action="Details" asp-route-id="@producto.IdProducto"
+                                   class="btn btn-primary btn-sm">Ver más</a>
+                            </div>
+                        </div>
+                    </div>
+                    first = false;
+                }
+            }
+            else
+            {
+                <div class="carousel-item active">
+                    <div class="d-flex justify-content-center mb-3">
+                        <img src="https://via.placeholder.com/600x400?text=Sin+productos"
+                             class="d-block w-50 rounded shadow"
+                             style="max-height: 400px; object-fit: cover;"
+                             alt="Sin productos" />
+                    </div>
+                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                        <h5 class="fw-bold">No hay productos disponibles</h5>
+                        <p>Vuelve más tarde.</p>
+                    </div>
+                </div>
+            }
+        </div>
+
+        <button class="carousel-control-prev" type="button" data-bs-target="#productosCarousel" data-bs-slide="prev">
+            <span class="carousel-control-prev-icon"></span>
+            <span class="visually-hidden">Anterior</span>
+        </button>
+        <button class="carousel-control-next" type="button" data-bs-target="#productosCarousel" data-bs-slide="next">
+            <span class="carousel-control-next-icon"></span>
+            <span class="visually-hidden">Siguiente</span>
+        </button>
+    </div>
+
+    <hr class="my-5" />
+
+    <div id="contenedorProductos" class="container mt-5">
+        @Html.Partial("~/Views/Producto/_ProductoFiltro.cshtml", Model)
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        $(document).on('submit', '#formFiltro', function (e) {
+            e.preventDefault();
+            $.ajax({
+                url: '@Url.Action("_ProductoFiltro", "Producto")',
+                type: 'GET',
+                data: $(this).serialize(),
+                success: function (resultado) {
+                    $('#contenedorProductos').html(resultado);
+                },
+                error: function () {
+                    alert("Error al aplicar el filtro.");
+                }
+            });
+        });
+    </script>
+}

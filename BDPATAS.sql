@@ -66,7 +66,7 @@ CREATE TABLE SolicitudVacuna(
     IdProducto INT PRIMARY KEY IDENTITY(1,1),
     Nombre NVARCHAR(100) NOT NULL,
     Descripcion NVARCHAR(255),
-    Precio MONEY NOT NULL,
+    Precio DECIMAL(10,2) NOT NULL,
 	FotoUrl NVARCHAR(500) NULL,
     Stock INT NOT NULL
 );

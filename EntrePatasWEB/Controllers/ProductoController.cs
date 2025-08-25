@@ -121,6 +121,12 @@ namespace EntrePatasWEB.Controllers
             return View(listado);
         }
 
+        public IActionResult Catalogo()
+        {
+            var listado = ObtenerListadoProductoAsync().Result;
+            return View(listado);
+        }
+
         public IActionResult Details(int id)
         {
 

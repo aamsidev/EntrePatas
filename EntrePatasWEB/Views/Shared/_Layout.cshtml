@@ -1,5 +1,14 @@
 ﻿@using Microsoft.AspNetCore.Http
 @inject IHttpContextAccessor HttpContextAccessor
+@using Newtonsoft.Json
+
+@{
+    var carritoJson = HttpContextAccessor.HttpContext.Session.GetString("Carrito");
+    var carrito = carritoJson != null
+        ? JsonConvert.DeserializeObject<List<CarritoItem>>(carritoJson)
+        : new List<CarritoItem>();
+}
+
 
 <!DOCTYPE html>
 <html lang="es">
@@ -31,12 +40,20 @@
             </button>
 
             <div class="collapse navbar-collapse" id="navbarContent">
+
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="/" style="color:#e6f4ea;"><i class="bi bi-house-door"></i> Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Cliente/Index" style="color:#e6f4ea;"><i class="bi bi-heart"></i> Adopciones</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Home/Index" style="color:#e6f4ea;"><i class="bi bi-house-door"></i> Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Animal/Adopcion" style="color:#e6f4ea;"><i class="bi bi-heart"></i> Adopciones</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Producto/Catalogo" style="color:#e6f4ea;"><i class="bi bi-heart"></i> Productos</a></li>
                     <li class="nav-item"><a class="nav-link" href="/Contacto" style="color:#e6f4ea;"><i class="bi bi-envelope"></i> Contacto</a></li>
 
-                    @* 🔹 Opciones solo visibles si el usuario es Administrador *@
+
+
+
+
+
+
+                    @* Administrador *@
                     @if (HttpContextAccessor.HttpContext.Session.GetString("TipoUsuario") == "Administrador")
                     {
                         <li class="nav-item dropdown">
@@ -55,6 +72,11 @@
                 </ul>
 
                 <ul class="navbar-nav ms-auto">
+                    <li class="nav-item me-3">
+                        <div id="miniCarritoContainer">
+                            @await Html.PartialAsync("_MiniCarrito", carrito)
+                        </div>
+                    </li>
                     @if (HttpContextAccessor.HttpContext.Session.GetString("NombreUsuario") != null)
                     {
                         <li class="nav-item dropdown">
@@ -97,7 +119,7 @@
         @RenderBody()
     </main>
 
-    <footer class="mt-auto pt-5 pb-3"
+    <footer class="mt-5 pt-5 pb-3"
             style="background: linear-gradient(135deg, #1a1a1a, #212529); color:#cfd8dc; width:100%;">
         <div class="container-fluid px-5">
             <div class="row">
@@ -132,8 +154,38 @@
 
     <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        function actualizarMiniCarrito() {
+            $.get('/Carrito/MiniCarrito', function(html) {
+                $('#miniCarritoContainer').html(html);
+            });
+        }
+
+        $(document).on('click', '.btn-agregar-carrito', function(e) {
+            e.preventDefault();
+            const url = $(this).attr('href');
+            $.get(url, function() {
+                actualizarMiniCarrito();
+            });
+        });
+
+        $(document).on('submit', 'form', function(e) {
+            // opcional: actualizar carrito después de vaciar o eliminar sin recargar
+            // e.preventDefault();
+            // $.post($(this).attr('action'), $(this).serialize(), function() {
+            //     actualizarMiniCarrito();
+            // });
+        });
+
+        $(document).ready(function() {
+            actualizarMiniCarrito();
+        });
+
+    </script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
 
 </html>
+
+

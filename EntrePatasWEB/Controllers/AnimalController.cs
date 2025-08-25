@@ -110,7 +110,25 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Index()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             var listado = ObtenerListadoAnimalAsync().Result;
+            return View(listado);
+        }
+
+        public IActionResult Adopcion()
+        {
+            var nombre = HttpContext.Session.GetString("NombreUsuario");
+            var listado = ObtenerListadoAnimalAsync().Result;
+            ViewBag.NombreUsuario = nombre;
+
+            ViewBag.Estados = new List<string> { "Disponible", "Adoptado", "Reservado" };
+            ViewBag.Edades = listado.Select(a => a.Edad).Distinct().OrderBy(e => e).ToList();
+            ViewBag.Razas = listado.Select(a => a.Raza).Where(r => !string.IsNullOrEmpty(r)).Distinct().OrderBy(r => r).ToList();
+
             return View(listado);
         }
 
@@ -125,6 +143,11 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Create()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             return View(new AnimalDTO());
         }
 
@@ -142,6 +165,10 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Edit(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
 
             var Animal = ObtenerAnimalId(id).Result;
 
@@ -172,6 +199,11 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Delete(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             AnimalDTO animal = ObtenerAnimalId(id).Result;
             return View(animal);
         }

@@ -115,6 +115,11 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Index()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             var listado = ObtenerListadoEnvioAsync().Result;
             return View(listado);
         }
@@ -122,6 +127,10 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Details(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
 
             EnvioDTO envio = ObtenerEnvioId(id).Result;
             return View(envio);
@@ -131,6 +140,11 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Create()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             return View(new EnvioDTO());
         }
 
@@ -146,6 +160,10 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Edit(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
 
             var Envio = ObtenerEnvioId(id).Result;
 
@@ -177,6 +195,11 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Delete(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             EnvioDTO envio = ObtenerEnvioId(id).Result;
             return View(envio);
         }

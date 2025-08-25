@@ -123,12 +123,21 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Index()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             var listado = ObtenerListadoDetallePedidoAsync().Result;
             return View(listado);
         }
 
         public IActionResult Details(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
 
             DetallePedidoDTO detalle = ObtenerDetallePedidoId(id).Result;
             return View(detalle);
@@ -138,6 +147,11 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Create()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             return View(new DetallePedidoDTO());
         }
 
@@ -182,6 +196,11 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Delete(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             DetallePedidoDTO detalle = ObtenerDetallePedidoId(id).Result;
             return View(detalle);
         }

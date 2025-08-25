@@ -19,7 +19,7 @@ namespace EntrePatasWEB.Controllers
             var rol = HttpContext.Session.GetString("TipoUsuario");
 
             if (rol != "Administrador")
-                return RedirectToAction("Login", "PaginaPrincipal");
+                return RedirectToAction("Error", "Home");
 
             var usuarios = ObtenerUsuariosAsync().Result;
             var animales = ObtenerAnimalesAsync().Result;
@@ -31,6 +31,8 @@ namespace EntrePatasWEB.Controllers
             ViewBag.SolicitudesPendientes = solicitudes.Count(s => s.Estado == "Pendiente");
 
             return View();
+
+
         }
 
         private async Task<List<UsuarioDTO>> ObtenerUsuariosAsync()
