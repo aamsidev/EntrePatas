@@ -119,12 +119,12 @@ namespace EntrePatasWEB.Controllers
             return View(listado);
         }
 
-        public IActionResult Adopcion()
+        public async Task<IActionResult> Adopcion()
         {
             var nombre = HttpContext.Session.GetString("NombreUsuario");
-            var listado = ObtenerListadoAnimalAsync().Result;
-            ViewBag.NombreUsuario = nombre;
+            var listado = await ObtenerListadoAnimalAsync();
 
+            ViewBag.NombreUsuario = nombre;
             ViewBag.Estados = new List<string> { "Disponible", "Adoptado", "Reservado" };
             ViewBag.Edades = listado.Select(a => a.Edad).Distinct().OrderBy(e => e).ToList();
             ViewBag.Razas = listado.Select(a => a.Raza).Where(r => !string.IsNullOrEmpty(r)).Distinct().OrderBy(r => r).ToList();

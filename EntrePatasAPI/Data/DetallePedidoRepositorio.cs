@@ -38,9 +38,9 @@ namespace EntrePatasAPI.Data
                         command.Parameters.AddWithValue("@Cantidad", detalle.Cantidad);
                         command.Parameters.AddWithValue("@PrecioUnitario", detalle.PrecioUnitario);
 
-                        var result = Convert.ToInt32(command.ExecuteScalar());                        if (result == 1)
+                        var result = Convert.ToInt32(command.ExecuteScalar()); if (result == 1)
                         {
-                                                       editarDetalle = ObtenerDetallePedidoPorId(id);
+                            editarDetalle = ObtenerDetallePedidoPorId(id);
                         }
                     }
                 }
@@ -181,7 +181,7 @@ namespace EntrePatasAPI.Data
                     command.Parameters.AddWithValue("@PrecioUnitario", detalle.PrecioUnitario);
 
 
-                                       object result = command.ExecuteScalar();
+                    object result = command.ExecuteScalar();
                     if (result != null && result != DBNull.Value)
                     {
                         int codigo = Convert.ToInt32(result);
@@ -198,7 +198,7 @@ namespace EntrePatasAPI.Data
                     }
                 }
 
-                               if (nuevoID > 0)
+                if (nuevoID > 0)
                     nuevoDetalle = ObtenerDetallePedidoPorId(nuevoID);
 
                 if (nuevoDetalle == null)

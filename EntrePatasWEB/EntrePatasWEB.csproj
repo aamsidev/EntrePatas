@@ -16,4 +16,10 @@
     <PackageReference Include="Xamarin.UITest" Version="4.4.2" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="Views\Shared\_AnimalFiltro.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 </Project>

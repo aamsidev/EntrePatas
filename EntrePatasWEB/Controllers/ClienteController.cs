@@ -75,7 +75,7 @@ namespace EntrePatasWEB.Controllers
             ViewBag.EdadSeleccionada = edad;
             ViewBag.RazaSeleccionada = raza;
 
-            return PartialView("_AnimalFiltro", listado);        }
+            return PartialView("~/Views/Shared/_AnimalFiltro.cshtml", listado);        }
 
 
 

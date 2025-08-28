@@ -166,7 +166,7 @@
 
 
 <div id="contenedorAnimales" class="container mt-5">
-    @Html.Partial("_AnimalFiltro", Model)
+    @await Html.PartialAsync("~/Views/Shared/_AnimalFiltro.cshtml", Model)
 </div>
 
 @section Scripts {

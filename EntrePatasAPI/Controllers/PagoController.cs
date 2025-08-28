@@ -48,9 +48,12 @@ namespace EntrePatasAPI.Controllers
         public IActionResult Registrar(PagoDTO pago)
         {
             var nuevoPago = pagoDATA.Registrar(pago);
+
             if (nuevoPago == null)
-                return NotFound();
-            return Ok(nuevoPago);
+                return BadRequest("No se pudo registrar el pago");
+
+            // Devuelve 201 Created + el objeto en JSON
+            return CreatedAtAction(nameof(ObtenerPorId), new { id = nuevoPago.IdPago }, nuevoPago);
         }
 
         [Route("update/{id}")]

@@ -24,47 +24,65 @@
         }
 </style>
 
-<h3 class="mb-4">Productos Disponibles</h3>
+<
 
-<form id="formFiltro" method="get" asp-action="_ProductoFiltro" class="row g-3 mb-4">
-    <div class="col-md-4">
-        <label for="nombre" class="form-label">Buscar por nombre</label>
-        <input type="text" id="nombre" name="nombre" class="form-control" placeholder="Ej. alimento, collar..." />
-    </div>
-    <div class="col-md-4">
-        <label for="precioMin" class="form-label">Precio mínimo</label>
-        <input type="number" id="precioMin" name="precioMin" class="form-control" min="0" />
-    </div>
-    <div class="col-md-4">
-        <label for="precioMax" class="form-label">Precio máximo</label>
-        <input type="number" id="precioMax" name="precioMax" class="form-control" min="0" />
-    </div>
-    <div class="col-12 d-flex justify-content-end">
-        <button type="submit" class="btn btn-primary">Filtrar</button>
-    </div>
-</form>
-
+<!-- Contenedor dinámico donde se cargan los productos -->
 <div class="row row-cols-1 row-cols-md-3 g-4">
-    @foreach (var item in Model)
+    @if (Model != null && Model.Any())
     {
-        <div class="col">
-            <div class="card card-producto shadow-sm">
-                <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(item.FotoUrl) ? "default-producto.jpg" : item.FotoUrl)}")"
-                     class="card-img-top img-producto"
-                     alt="Imagen de @item.Nombre" />
-                <div class="card-body">
-                    <h5 class="card-title">@item.Nombre</h5>
-                    <p class="card-text">@item.Descripcion</p>
-                    <p class="fw-bold text-success">S/ @(item.Precio.ToString("F2"))</p>
-                    <p class="text-muted">Stock: @item.Stock</p>
-                </div>
-                <div class="card-footer text-center">
-                    <a asp-controller="Producto" asp-action="Details" asp-route-id="@item.IdProducto"
-                       class="btn btn-outline-primary btn-sm">
-                        Ver detalles
-                    </a>
+        foreach (var item in Model)
+        {
+            <div class="col">
+                <div class="card card-producto shadow-sm">
+                    <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(item.FotoUrl) ? "default-producto.jpg" : item.FotoUrl)}")"
+                         class="card-img-top img-producto"
+                         alt="Imagen de @item.Nombre" />
+                    <div class="card-body">
+                        <h5 class="card-title">@item.Nombre</h5>
+                        <p class="card-text">@item.Descripcion</p>
+                        <p class="fw-bold text-success">S/ @(item.Precio.ToString("F2"))</p>
+                        <p class="text-muted">Stock: @item.Stock</p>
+                    </div>
+                    <div class="card-footer text-center">
+                        <a asp-controller="Producto" asp-action="Details" asp-route-id="@item.IdProducto"
+                           class="btn btn-outline-primary btn-sm">
+                            Ver detalles
+                        </a>
+                    </div>
                 </div>
             </div>
+        }
+    }
+    else
+    {
+        <div class="col">
+            <div class="alert alert-warning">No se encontraron productos.</div>
         </div>
     }
 </div>
+
+@section Scripts {
+    <script>
+        let timer;
+
+        // Dispara la búsqueda automáticamente al escribir
+        $(document).on("input", "#nombre, #precioMin, #precioMax", function () {
+            clearTimeout(timer);
+            timer = setTimeout(filtrarProductos, 300); // espera 300ms tras dejar de escribir
+        });
+
+        function filtrarProductos() {
+            $.ajax({
+                url: '@Url.Action("_ProductoFiltro", "Producto")',
+                type: 'GET',
+                data: $("#formFiltro").serialize(),
+                success: function (resultado) {
+                    $("#contenedorProductos").html(resultado);
+                },
+                error: function () {
+                    alert("Error al aplicar el filtro.");
+                }
+            });
+        }
+    </script>
+}
