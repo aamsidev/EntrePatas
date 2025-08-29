@@ -1,0 +1,44 @@
+﻿@model List<EntrePatasWEB.Models.AnimalDTO>
+
+<h2>Reporte de Animal</h2>
+
+<form method="get" asp-action="Reporte">
+    <div class="form-group">
+        <label for="fechaInicio">Fecha Inicio:</label>
+        <input type="date" id="fechaInicio" name="fechaInicio" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="fechaFin">Fecha Fin:</label>
+        <input type="date" id="fechaFin" name="fechaFin" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <button type="button" class="btn btn-success" onclick="window.print()">Imprimir</button>
+</form>
+
+<hr />
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Especie</th>
+            <th>Fecha Registro</th>
+            <th>Raza</th>
+            <th>Edad</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var animal in Model)
+        {
+            <tr>
+                <td>@animal.IdAnimal</td>
+                <td>@animal.Nombre</td>
+                <td>@animal.Especie</td>
+                <td>@animal.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                <td>@animal.Raza</td>
+                <td>@animal.Edad</td>
+            </tr>
+        }
+    </tbody>
+</table>

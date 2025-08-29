@@ -9,29 +9,38 @@
     <!-- Fila de estadísticas -->
     <div class="row g-4 mb-4 text-center">
         <div class="col-md-3">
-            <div class="card shadow-sm h-100 p-3">
-                <h5>Usuarios Registrados</h5>
-                <p class="display-6">@ViewBag.TotalUsuarios</p>
-            </div>
+            <a href="/Usuario/Reporte" class="text-decoration-none text-dark">
+                <div class="card shadow-sm h-100 p-3 hover-card">
+                    <h5>Usuarios Registrados</h5>
+                    <p class="display-6">@ViewBag.TotalUsuarios</p>
+                </div>
+            </a>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm h-100 p-3">
-                <h5>Animales Registrados</h5>
-                <p class="display-6">@ViewBag.TotalAnimales</p>
-            </div>
+            <a href="/Animal/Reporte" class="text-decoration-none text-dark">
+                <div class="card shadow-sm h-100 p-3 hover-card">
+                    <h5>Animales Registrados</h5>
+                    <p class="display-6">@ViewBag.TotalAnimales</p>
+                </div>
+            </a>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm h-100 p-3">
-                <h5>Solicitudes Aprobadas</h5>
-                <p class="display-6">@ViewBag.SolicitudesAprobadas</p>
-            </div>
+            <a href="/Animal/Index" class="text-decoration-none text-dark">
+                <div class="card shadow-sm h-100 p-3 hover-card">
+                    <h5>Solitudes Pendientes</h5>
+                    <p class="display-6">@ViewBag.SolicitudesPendientes</p>
+                </div>
+            </a>
         </div>
         <div class="col-md-3">
-            <div class="card shadow-sm h-100 p-3">
-                <h5>Solicitudes Pendientes</h5>
-                <p class="display-6">@ViewBag.SolicitudesPendientes</p>
-            </div>
+            <a href="/Solicitud/Index" class="text-decoration-none text-dark">
+                <div class="card shadow-sm h-100 p-3 hover-card">
+                    <h5>Solitudes Pendientes</h5>
+                    <p class="display-6">@ViewBag.SolicitudesPendientes</p>
+                </div>
+            </a>
         </div>
+       
     </div>
 
     <!-- Tarjetas de gestión existentes -->

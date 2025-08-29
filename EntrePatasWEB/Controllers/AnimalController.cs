@@ -107,6 +107,26 @@ namespace EntrePatasWEB.Controllers
             }
         }
 
+        public async Task<IActionResult> Reporte(DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
+            var animales = await ObtenerListadoAnimalAsync();
+
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                animales = animales
+                    .Where(a => a.FechaRegistro.Date >= fechaInicio.Value.Date
+                             && a.FechaRegistro.Date <= fechaFin.Value.Date)
+                    .ToList();
+            }
+
+            return View(animales);
+        }
+
 
         public IActionResult Index()
         {
