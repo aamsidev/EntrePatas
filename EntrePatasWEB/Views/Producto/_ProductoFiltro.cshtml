@@ -5,26 +5,110 @@
 }
 
 <style>
-    .img-producto {
-        height: 220px;
+    .card {
+        --font-color: #323232;
+        --font-color-sub: #666;
+        --bg-color: #fff;
+        --main-color: #323232;
+        --main-focus: #2d8cf0;
         width: 100%;
-        object-fit: cover;
-        border-radius: 0.5rem 0.5rem 0 0;
-        background-color: #f8f9fa;
-    }
-
-    .card-producto {
-        min-height: 420px;
+        max-width: 280px;
+        height: 360px;
+        background: var(--bg-color);
+        border: 2px solid var(--main-color);
+        box-shadow: 4px 4px var(--main-color);
+        border-radius: 8px;
         display: flex;
         flex-direction: column;
+        justify-content: flex-start;
+        padding: 15px;
+        gap: 10px;
+        margin: auto;
     }
 
-        .card-producto .card-body {
-            flex-grow: 1;
-        }
-</style>
+    .card-img {
+        transition: all 0.5s;
+        display: flex;
+        justify-content: center;
+    }
 
-<
+        .card-img img {
+            width: 100%;
+            max-height: 150px;
+            object-fit: cover;
+            border-radius: 5px;
+        }
+
+    .card-title {
+        font-size: 18px;
+        font-weight: 600;
+        text-align: center;
+        color: var(--font-color);
+    }
+
+    .card-subtitle {
+        font-size: 14px;
+        font-weight: 400;
+        color: var(--font-color-sub);
+        text-align: center;
+    }
+
+    .card-divider {
+        width: 100%;
+        border: 1px solid var(--main-color);
+        border-radius: 50px;
+    }
+
+    .card-footer {
+        display: flex;
+        flex-direction: row;
+        justify-content: space-between;
+        align-items: center;
+    }
+
+    .card-price {
+        font-size: 18px;
+        font-weight: 600;
+        color: var(--font-color);
+    }
+
+        .card-price span {
+            font-size: 16px;
+            color: var(--font-color-sub);
+        }
+
+    .card-btn {
+        height: 35px;
+        background: var(--bg-color);
+        border: 2px solid var(--main-color);
+        border-radius: 5px;
+        padding: 0 12px;
+        transition: all 0.3s;
+    }
+
+        .card-btn svg {
+            width: 20px;
+            height: 20px;
+            fill: var(--main-color);
+            transition: all 0.3s;
+        }
+
+        .card-btn:hover {
+            border: 2px solid var(--main-focus);
+        }
+
+            .card-btn:hover svg {
+                fill: var(--main-focus);
+            }
+
+        .card-btn:active {
+            transform: translateY(3px);
+        }
+
+    .card-img:hover {
+        transform: translateY(-3px);
+    }
+</style>
 
 <!-- Contenedor dinámico donde se cargan los productos -->
 <div class="row row-cols-1 row-cols-md-3 g-4">
@@ -32,21 +116,24 @@
     {
         foreach (var item in Model)
         {
-            <div class="col">
-                <div class="card card-producto shadow-sm">
-                    <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(item.FotoUrl) ? "default-producto.jpg" : item.FotoUrl)}")"
-                         class="card-img-top img-producto"
-                         alt="Imagen de @item.Nombre" />
-                    <div class="card-body">
-                        <h5 class="card-title">@item.Nombre</h5>
-                        <p class="card-text">@item.Descripcion</p>
-                        <p class="fw-bold text-success">S/ @(item.Precio.ToString("F2"))</p>
-                        <p class="text-muted">Stock: @item.Stock</p>
+            <div class="col d-flex justify-content-center">
+                <div class="card">
+                    <div class="card-img">
+                        <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(item.FotoUrl) ? "default-producto.jpg" : item.FotoUrl)}")"
+                             alt="Imagen de @item.Nombre" />
                     </div>
-                    <div class="card-footer text-center">
-                        <a asp-controller="Producto" asp-action="Details" asp-route-id="@item.IdProducto"
-                           class="btn btn-outline-primary btn-sm">
-                            Ver detalles
+                    <div class="card-title">@item.Nombre</div>
+                    <div class="card-subtitle">@item.Descripcion</div>
+                    <hr class="card-divider" />
+                    <div class="card-footer">
+                        <div class="card-price"><span>S/</span> @item.Precio.ToString("F2")</div>
+                        <a asp-controller="Producto" asp-action="Details" asp-route-id="@item.IdProducto" class="card-btn">
+                            <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512">
+                                <path d="m397.78 316h-205.13a15 15 0 0 1 -14.65-11.67l-34.54-150.48a15 15 0 0 1 14.62-18.36h274.27a15 15 0 0 1 14.65 18.36l-34.6 150.48a15 15 0 0 1 -14.62 11.67zm-193.19-30h181.25l27.67-120.48h-236.6z"></path>
+                                <path d="m222 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z"></path>
+                                <path d="m368.42 450a57.48 57.48 0 1 1 57.48-57.48 57.54 57.54 0 0 1 -57.48 57.48zm0-84.95a27.48 27.48 0 1 0 27.48 27.47 27.5 27.5 0 0 0 -27.48-27.47z"></path>
+                                <path d="m158.08 165.49a15 15 0 0 1 -14.23-10.26l-25.71-77.23h-47.44a15 15 0 1 1 0-30h58.3a15 15 0 0 1 14.23 10.26l29.13 87.49a15 15 0 0 1 -14.23 19.74z"></path>
+                            </svg>
                         </a>
                     </div>
                 </div>
@@ -60,29 +147,3 @@
         </div>
     }
 </div>
-
-@section Scripts {
-    <script>
-        let timer;
-
-        // Dispara la búsqueda automáticamente al escribir
-        $(document).on("input", "#nombre, #precioMin, #precioMax", function () {
-            clearTimeout(timer);
-            timer = setTimeout(filtrarProductos, 300); // espera 300ms tras dejar de escribir
-        });
-
-        function filtrarProductos() {
-            $.ajax({
-                url: '@Url.Action("_ProductoFiltro", "Producto")',
-                type: 'GET',
-                data: $("#formFiltro").serialize(),
-                success: function (resultado) {
-                    $("#contenedorProductos").html(resultado);
-                },
-                error: function () {
-                    alert("Error al aplicar el filtro.");
-                }
-            });
-        }
-    </script>
-}
