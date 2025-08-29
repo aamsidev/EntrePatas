@@ -73,7 +73,7 @@ namespace EntrePatasWEB.Controllers
             return resultado.TipoUsuario switch
             {
                 "Administrador" => RedirectToAction("Index", "Admin"),
-                "Cliente" => RedirectToAction("Index", "Cliente"),
+                "Cliente" => RedirectToAction("Index", "Home"),
                 "Veterinario" => RedirectToAction("Index", "Veterinario"),
                 _ => RedirectToAction("Index", "Usuario")
             };
@@ -85,6 +85,52 @@ namespace EntrePatasWEB.Controllers
             HttpContext.Session.Clear();
             return RedirectToAction("Login", "PaginaPrincipal");
         }
+
+
+
+
+        [HttpGet]
+        public IActionResult Registro()
+        {
+            return View();
+        }
+
+        [HttpPost]
+        public IActionResult Registro(UsuarioDTO usuario)
+        {
+            if (!ModelState.IsValid)
+                return View(usuario);
+
+            try
+            {
+                using (var httpCliente = new HttpClient())
+                {
+                    httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+                    var contenidoJson = JsonConvert.SerializeObject(usuario);
+                    var contenido = new StringContent(contenidoJson, Encoding.UTF8, "application/json");
+
+                    var respuesta = httpCliente.PostAsync("Usuario/Registrar", contenido).Result;
+
+                    if (!respuesta.IsSuccessStatusCode)
+                    {
+                        ViewBag.Error = "No se pudo registrar el usuario. Intenta nuevamente.";
+                        return View(usuario);
+                    }
+
+                    // Registro exitoso, redirigimos al login
+                    return RedirectToAction("Login");
+                }
+            }
+            catch (Exception ex)
+            {
+                ViewBag.Error = $"Error: {ex.Message}";
+                return View(usuario);
+            }
+        }
+
+
+
+
 
 
 

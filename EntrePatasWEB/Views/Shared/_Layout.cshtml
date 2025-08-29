@@ -7,8 +7,10 @@
     var carrito = carritoJson != null
         ? JsonConvert.DeserializeObject<List<CarritoItem>>(carritoJson)
         : new List<CarritoItem>();
-}
 
+    var nombreUsuario = HttpContextAccessor.HttpContext.Session.GetString("NombreUsuario");
+    var tipoUsuario = HttpContextAccessor.HttpContext.Session.GetString("TipoUsuario"); // Administrador o Cliente
+}
 
 <!DOCTYPE html>
 <html lang="es">
@@ -17,47 +19,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1" />
     <title>@ViewData["Title"] - EntrePatas</title>
 
-    <!-- Bootstrap -->
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet" />
-
-    <!-- Bootstrap Icons -->
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
-
-    <!-- FontAwesome (si aún lo necesitas) -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" />
 </head>
+<body class="d-flex flex-column min-vh-100" style="margin:0; padding:0; background: linear-gradient(135deg, #d7f0d7, #a8e6a3);">
 
-<body class="d-flex flex-column min-vh-100" style="margin:0; padding:0;">
-
-    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm"
-         style="background: linear-gradient(90deg, #2b7a2b, #28a745); box-shadow: 0 4px 15px rgba(0,0,0,0.15); transition: all 0.3s ease-in-out; width:100%;">
+    <!-- NAVBAR -->
+    <nav class="navbar navbar-expand-lg navbar-dark shadow-sm position-relative"
+         style="background: linear-gradient(90deg, #1e7a33, #14532d); border-radius: 15px; transition: all 0.3s ease-in-out;">
         <div class="container-fluid">
-            <a class="navbar-brand fw-bold" href="/" style="font-size:1.6rem; letter-spacing:1px; color:#fff;">
-                <i class="bi bi-paw"></i> EntrePatas
+            <a class="navbar-brand d-flex align-items-center" href="/" style="font-size:1.6rem; color:#fff;">
+                <img src="~/imagenes/logo/logo1.png" alt="Logo EntrePatas" style="height:70px; width:auto; margin-right:0.5rem; transition: transform 0.3s;">
             </a>
+
             <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarContent">
                 <span class="navbar-toggler-icon"></span>
             </button>
 
             <div class="collapse navbar-collapse" id="navbarContent">
-
                 <ul class="navbar-nav me-auto mb-2 mb-lg-0">
-                    <li class="nav-item"><a class="nav-link" href="/Home/Index" style="color:#e6f4ea;"><i class="bi bi-house-door"></i> Inicio</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Animal/Adopcion" style="color:#e6f4ea;"><i class="bi bi-heart"></i> Adopciones</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Producto/Catalogo" style="color:#e6f4ea;"><i class="bi bi-heart"></i> Productos</a></li>
-                    <li class="nav-item"><a class="nav-link" href="/Contacto" style="color:#e6f4ea;"><i class="bi bi-envelope"></i> Contacto</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Home/Index"><i class="bi bi-house-door"></i> Inicio</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Animal/Adopcion"><i class="bi bi-heart"></i> Adopciones</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Producto/Catalogo"><i class="bi bi-bag"></i> Productos</a></li>
+                    <li class="nav-item"><a class="nav-link" href="/Contacto"><i class="bi bi-envelope"></i> Contacto</a></li>
 
-
-
-
-
-
-
-                    @* Administrador *@
-                    @if (HttpContextAccessor.HttpContext.Session.GetString("TipoUsuario") == "Administrador")
+                    @* Mostrar dropdown de administrador si el usuario es administrador *@
+                    @if (!string.IsNullOrEmpty(tipoUsuario) && tipoUsuario == "Administrador")
                     {
                         <li class="nav-item dropdown">
-                            <a class="nav-link dropdown-toggle" href="#" role="button" data-bs-toggle="dropdown" style="color:#ffeb3b;">
+                            <a class="nav-link dropdown-toggle text-warning" href="#" role="button" data-bs-toggle="dropdown">
                                 <i class="bi bi-gear"></i> Administración
                             </a>
                             <ul class="dropdown-menu">
@@ -71,72 +62,128 @@
                     }
                 </ul>
 
-                <ul class="navbar-nav ms-auto">
+                <ul class="navbar-nav ms-auto align-items-center">
                     <li class="nav-item me-3">
                         <div id="miniCarritoContainer">
                             @await Html.PartialAsync("_MiniCarrito", carrito)
                         </div>
                     </li>
-                    @if (HttpContextAccessor.HttpContext.Session.GetString("NombreUsuario") != null)
+                    @if (!string.IsNullOrEmpty(nombreUsuario))
                     {
                         <li class="nav-item dropdown">
                             <a class="nav-link dropdown-toggle text-light" href="#" role="button" data-bs-toggle="dropdown">
-                                <i class="bi bi-person-circle"></i> @HttpContextAccessor.HttpContext.Session.GetString("NombreUsuario")
+                                <i class="bi bi-person-circle"></i> @nombreUsuario
                             </a>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li>
-                                    <a class="dropdown-item" href="/Usuario/Perfil">
-                                        <i class="bi bi-pencil-square"></i> Editar perfil
-                                    </a>
-                                </li>
-                                <li>
-                                    <hr class="dropdown-divider" />
-                                </li>
-                                <li>
-                                    <a class="dropdown-item text-danger" href="/PaginaPrincipal/Logout">
-                                        <i class="bi bi-box-arrow-right"></i> Cerrar sesión
-                                    </a>
-                                </li>
+                                <li><a class="dropdown-item" href="/Usuario/Perfil"><i class="bi bi-pencil-square"></i> Editar perfil</a></li>
+                                <li><hr class="dropdown-divider" /></li>
+                                <li><a class="dropdown-item text-danger" href="/PaginaPrincipal/Logout"><i class="bi bi-box-arrow-right"></i> Cerrar sesión</a></li>
                             </ul>
                         </li>
                     }
                     else
                     {
                         <li class="nav-item">
-                            <a class="nav-link" href="/PaginaPrincipal/Login"
-                               style="background:#000; color:#fff; border:none; border-radius:50px; padding:0.35rem 1rem; font-weight:500; transition:0.2s;">
+                            <a class="nav-link btn-login" href="/PaginaPrincipal/Login">
                                 <i class="bi bi-box-arrow-in-right"></i> Iniciar sesión
                             </a>
                         </li>
                     }
                 </ul>
+            </div>
 
+            <!-- GIF animado dentro del navbar -->
+            <div class="gif-piso-container">
+                <img src="~/imagenes/gif/gif5.gif" alt="Piso animado" class="gif-piso">
             </div>
         </div>
     </nav>
+
+    <style>
+        .navbar-brand img:hover {
+            transform: scale(1.1);
+        }
+
+        .navbar-nav .nav-link {
+            color: #e6f4ea;
+            font-weight: 500;
+            transition: color 0.3s, text-shadow 0.3s;
+        }
+
+            .navbar-nav .nav-link:hover {
+                color: #ffd700;
+                text-shadow: 1px 1px 5px rgba(0,0,0,0.3);
+            }
+
+        .btn-login {
+            background: #000;
+            color: #fff;
+            border-radius: 50px;
+            padding: 0.35rem 1rem;
+            transition: 0.3s ease;
+        }
+
+            .btn-login:hover {
+                background: #28a745;
+                color: #fff;
+                box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+                transform: translateY(-2px);
+            }
+
+        .dropdown-menu li a:hover {
+            background-color: #28a74533;
+        }
+
+        /* GIF animado dentro del navbar */
+        .gif-piso-container {
+            position: absolute;
+            bottom: 0;
+            left: 0;
+            width: 100%;
+            height: 40px;
+            overflow: hidden;
+            pointer-events: none;
+            z-index: 2000;
+        }
+
+            .gif-piso-container img {
+                height: 40px;
+                width: auto;
+                animation: run-navbar 6s linear infinite;
+            }
+        @@keyframes run-navbar {
+            0%
+
+        {
+            transform: translateX(-3100%);
+        }
+
+        100% {
+            transform: translateX(3100%);
+        }
+
+        }
+    </style>
 
     <main class="flex-grow-1">
         @RenderBody()
     </main>
 
-    <footer class="mt-5 pt-5 pb-3"
-            style="background: linear-gradient(135deg, #1a1a1a, #212529); color:#cfd8dc; width:100%;">
+    <footer class="mt-5 pt-5 pb-3" style="background: linear-gradient(135deg, #1a1a1a, #212529); color:#cfd8dc; width:100%;">
         <div class="container-fluid px-5">
             <div class="row">
                 <div class="col-md-4 mb-3">
                     <h5 style="color:#fff; font-weight:600;"><i class="bi bi-paw"></i> EntrePatas</h5>
                     <p>Adopta, cuida y ama. Somos tu clínica veterinaria y centro de adopciones de confianza.</p>
                 </div>
-
                 <div class="col-md-4 mb-3">
                     <h5 style="color:#fff; font-weight:600;">Enlaces útiles</h5>
                     <ul class="list-unstyled">
-                        <li><a href="/Cliente/Index" style="color:#b2dfdb;"><i class="bi bi-heart"></i> Ver mascotas</a></li>
-                        <li><a href="/Productos" style="color:#b2dfdb;"><i class="bi bi-bag"></i> Productos</a></li>
+                        <li><a href="/Animal/Adopcion" style="color:#b2dfdb;"><i class="bi bi-heart"></i> Ver mascotas</a></li>
+                        <li><a href="/Producto/Catalogo" style="color:#b2dfdb;"><i class="bi bi-bag"></i> Productos</a></li>
                         <li><a href="/Contacto" style="color:#b2dfdb;"><i class="bi bi-telephone"></i> Contáctanos</a></li>
                     </ul>
                 </div>
-
                 <div class="col-md-4 mb-3">
                     <h5 style="color:#fff; font-weight:600;">Síguenos</h5>
                     <div>
@@ -146,7 +193,6 @@
                     </div>
                 </div>
             </div>
-
             <hr style="background:#ccc;" />
             <p class="text-center mb-0">© @DateTime.Now.Year - EntrePatas. Todos los derechos reservados.</p>
         </div>
@@ -160,32 +206,13 @@
                 $('#miniCarritoContainer').html(html);
             });
         }
-
         $(document).on('click', '.btn-agregar-carrito', function(e) {
             e.preventDefault();
-            const url = $(this).attr('href');
-            $.get(url, function() {
-                actualizarMiniCarrito();
-            });
+            $.get($(this).attr('href'), function() { actualizarMiniCarrito(); });
         });
-
-        $(document).on('submit', 'form', function(e) {
-            // opcional: actualizar carrito después de vaciar o eliminar sin recargar
-            // e.preventDefault();
-            // $.post($(this).attr('action'), $(this).serialize(), function() {
-            //     actualizarMiniCarrito();
-            // });
-        });
-
-        $(document).ready(function() {
-            actualizarMiniCarrito();
-        });
-
+        $(document).ready(function() { actualizarMiniCarrito(); });
     </script>
     <script src="~/js/site.js" asp-append-version="true"></script>
     @await RenderSectionAsync("Scripts", required: false)
 </body>
-
 </html>
-
-

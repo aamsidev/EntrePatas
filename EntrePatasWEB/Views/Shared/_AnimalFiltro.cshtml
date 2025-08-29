@@ -13,27 +13,66 @@
 }
 
 <style>
+    .card-animal {
+        min-height: 440px; 
+        display: flex;
+        flex-direction: column;
+        border-radius: 1rem;
+        overflow: hidden;
+        transition: transform 0.3s, box-shadow 0.3s;
+    }
+
+    .card-animal:hover {
+        transform: translateY(-5px);
+        box-shadow: 0 12px 25px rgba(0,0,0,0.15);
+    }
+
     .img-animal {
         height: 220px;
         width: 100%;
         object-fit: cover;
-        border-radius: 0.5rem 0.5rem 0 0;
-        background-color: #f8f9fa;
+        transition: transform 0.3s;
     }
 
-    .card-animal {
-        min-height: 420px; 
-        display: flex;
-        flex-direction: column;
+    .card-animal:hover .img-animal {
+        transform: scale(1.05);
     }
 
-        .card-animal .card-body {
-            flex-grow: 1; 
-        }
+    .card-body {
+        flex-grow: 1; 
+    }
+
+    /* Etiqueta Disponible */
+    .label-disponible {
+        position: absolute;
+        top: 10px;
+        left: 10px;
+        background-color: #28a745;
+        color: white;
+        padding: 0.3rem 0.6rem;
+        border-radius: 0.5rem;
+        font-weight: bold;
+        font-size: 0.9rem;
+        animation: pulse 1.5s infinite;
+        box-shadow: 0 0 8px rgba(40,167,69,0.7);
+    }
+
+    @@keyframes pulse {
+        0% { transform: scale(1); opacity: 1; }
+        50% { transform: scale(1.1); opacity: 0.8; }
+        100% { transform: scale(1); opacity: 1; }
+    }
+
+    .card-footer a {
+        transition: transform 0.2s;
+    }
+
+    .card-footer a:hover {
+        transform: scale(1.05);
+    }
 </style>
 
 <h2 class="mb-4">Animales en Adopción</h2>
-
 
 <form id="formFiltro" method="get" asp-action="_AnimalFiltro" class="row g-3 mb-4">
     <div class="col-md-4">
@@ -42,14 +81,7 @@
             <option value="">-- Todos --</option>
             @foreach (var e in estados)
             {
-                if (estadoSel == e)
-                {
-                    <option value="@e" selected>@e</option>
-                }
-                else
-                {
-                    <option value="@e">@e</option>
-                }
+                <option value="@e" @@(estadoSel == e ? "selected" : "")>@e</option>
             }
         </select>
     </div>
@@ -60,14 +92,7 @@
             <option value="">-- Todas --</option>
             @foreach (var e in edades)
             {
-                if (edadSel.HasValue && edadSel.Value == e)
-                {
-                    <option value="@e" selected>@e año(s)</option>
-                }
-                else
-                {
-                    <option value="@e">@e año(s)</option>
-                }
+                <option value="@e" @@(edadSel.HasValue && edadSel.Value == e ? "selected" : "")>@e año(s)</option>
             }
         </select>
     </div>
@@ -78,14 +103,7 @@
             <option value="">-- Todas --</option>
             @foreach (var r in razas)
             {
-                if (razaSel == r)
-                {
-                    <option value="@r" selected>@r</option>
-                }
-                else
-                {
-                    <option value="@r">@r</option>
-                }
+                <option value="@r" @@(razaSel == r ? "selected" : "")>@r</option>
             }
         </select>
     </div>
@@ -95,12 +113,15 @@
     </div>
 </form>
 
-
 <div class="row row-cols-1 row-cols-md-3 g-4">
     @foreach (var item in Model)
     {
-        <div class="col">
+        <div class="col position-relative">
             <div class="card card-animal shadow-sm">
+                @if (item.Estado?.ToLower() == "disponible")
+                {
+                    <div class="label-disponible">Disponible</div>
+                }
                 <img src="@Url.Content($"~/imagenes/animal/{(string.IsNullOrEmpty(item.Foto) ? "default-animal.jpg" : item.Foto)}")"
                      class="card-img-top img-animal"
                      alt="Imagen de @item.Nombre" />
@@ -111,7 +132,6 @@
                     <p><strong>Edad:</strong> @item.Edad año(s)</p>
                     <p><strong>Estado:</strong> @item.Estado</p>
                 </div>
-
                 <div class="card-footer text-center">
                     <a asp-controller="Animal" asp-action="Details" asp-route-id="@item.IdAnimal" class="btn btn-outline-primary btn-sm">
                         Ver detalles
