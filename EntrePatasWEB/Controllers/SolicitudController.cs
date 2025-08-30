@@ -122,6 +122,27 @@ namespace EntrePatasWEB.Controllers
         }
 
 
+        public async Task<IActionResult> Reporte(DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
+            var solicitud = await ObtenerListadoSolicitudAsync();
+
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                solicitud = solicitud
+                    .Where(a => a.FechaSolicitud.Date >= fechaInicio.Value.Date
+                             && a.FechaSolicitud.Date <= fechaFin.Value.Date)
+                    .ToList();
+            }
+
+            return View(solicitud);
+        }
+
+
 
         public IActionResult Details(int id)
         {
