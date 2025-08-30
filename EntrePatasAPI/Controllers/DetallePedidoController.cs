@@ -40,6 +40,16 @@ namespace EntrePatasAPI.Controllers
             return Ok(detalle);
         }
 
+        [HttpGet("porPedido/{idPedido}")]
+        public IActionResult ObtenerPorPedido(int idPedido)
+        {
+            var detalles = detalleDATA.Listado()
+                                      .Where(d => d.IdPedido == idPedido)
+                                      .ToList();
+            return Ok(detalles);
+        }
+
+
         [HttpPost("Registrar")]
         public IActionResult Registrar(DetallePedidoDTO detalle)
         {

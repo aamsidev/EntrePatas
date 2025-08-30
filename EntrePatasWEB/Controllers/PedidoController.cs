@@ -200,6 +200,103 @@ namespace EntrePatasWEB.Controllers
             return RedirectToAction("Index");
         }
 
+        private async Task<UsuarioDTO> ObtenerUsuarioPorId(int id)
+        {
+            var usuario = new UsuarioDTO();
+            using (var clienteHTTP = new HttpClient())
+            {
+                clienteHTTP.BaseAddress = new Uri(_config["Services:URL_API"]);
+                var mensaje = await clienteHTTP.GetAsync($"Usuario/{id}");
+                var data = await mensaje.Content.ReadAsStringAsync();
+                usuario = JsonConvert.DeserializeObject<UsuarioDTO>(data);
+            }
+            return usuario;
+        }
+        private async Task<List<DetallePedidoDTO>> ObtenerDetallesDePedido(int idPedido)
+        {
+            using (var clienteHttp = new HttpClient())
+            {
+                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
+                try
+                {
+                    var resp = await clienteHttp.GetAsync($"DetallePedido/porPedido/{idPedido}");
+                    if (!resp.IsSuccessStatusCode)
+                        return new List<DetallePedidoDTO>(); 
+
+                    var json = await resp.Content.ReadAsStringAsync();
+                    if (string.IsNullOrWhiteSpace(json) || json == "null")
+                        return new List<DetallePedidoDTO>();
+
+                    var lista = JsonConvert.DeserializeObject<List<DetallePedidoDTO>>(json);
+                    return lista ?? new List<DetallePedidoDTO>();
+                }
+                catch
+                {
+                    return new List<DetallePedidoDTO>();
+                }
+            }
+        }
+
+        private async Task<ProductoDTO> ObtenerProductoPorId(int idProducto)
+        {
+            var producto = new ProductoDTO();
+            using (var clienteHTTP = new HttpClient())
+            {
+                clienteHTTP.BaseAddress = new Uri(_config["Services:URL_API"]);
+                var mensaje = await clienteHTTP.GetAsync($"Producto/{idProducto}");
+                var data = await mensaje.Content.ReadAsStringAsync();
+                producto = JsonConvert.DeserializeObject<ProductoDTO>(data);
+            }
+            return producto;
+        }
+
+
+        public async Task<IActionResult> HistorialCliente()
+        {
+            var idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+            if (idUsuario == null)
+                return RedirectToAction("Login", "PaginaPrincipal"); // tu login está aquí
+
+            var cliente = await ObtenerUsuarioPorId(idUsuario.Value);
+
+            var pedidos = await ObtenerListadoPedidoAsync() ?? new List<PedidoDTO>();
+            var pedidosCliente = pedidos.Where(p => p != null && p.IdUsuario == idUsuario.Value).ToList();
+
+            var historial = new HistorialPedidosClienteVM
+            {
+                Cliente = cliente,
+                Pedidos = new List<PedidoDetallesViewModel>()
+            };
+
+            foreach (var pedido in pedidosCliente)
+            {
+                var detalles = await ObtenerDetallesDePedido(pedido.IdPedido); // ya nunca es null
+
+                // Si no hay detalles, igual agregamos el pedido con lista vacía
+                var detallesConProducto = new List<DetallePedidoConProductoVM>();
+                foreach (var det in detalles)
+                {
+                    var producto = await ObtenerProductoPorId(det.IdProducto) ?? new ProductoDTO();
+                    detallesConProducto.Add(new DetallePedidoConProductoVM
+                    {
+                        Detalle = det,
+                        Producto = producto
+                    });
+                }
+
+                historial.Pedidos.Add(new PedidoDetallesViewModel
+                {
+                    Pedido = pedido,
+                    Detalles = detallesConProducto
+                });
+            }
+
+            return View(historial);
+        }
+
+
+
+
 
 
     }

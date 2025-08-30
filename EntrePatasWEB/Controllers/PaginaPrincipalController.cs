@@ -66,7 +66,7 @@ namespace EntrePatasWEB.Controllers
                 return View(usuario);
             }
 
-            HttpContext.Session.SetString("NombreUsuario", resultado.Nombre);
+            HttpContext.Session.SetString("NombreUsuario", $"{resultado.Nombre} {resultado.Apellido}");
             HttpContext.Session.SetInt32("IdUsuario", resultado.IdUsuario);
             HttpContext.Session.SetString("TipoUsuario", resultado.TipoUsuario);
 
@@ -74,7 +74,7 @@ namespace EntrePatasWEB.Controllers
             {
                 "Administrador" => RedirectToAction("Index", "Admin"),
                 "Cliente" => RedirectToAction("Index", "Home"),
-                "Veterinario" => RedirectToAction("Index", "Veterinario"),
+                "Veterinario" => RedirectToAction("Index", "Home"),
                 _ => RedirectToAction("Index", "Usuario")
             };
         }

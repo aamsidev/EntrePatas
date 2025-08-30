@@ -1,0 +1,193 @@
+﻿@{
+    ViewData["Title"] = "Contacto";
+}
+
+<!-- Overlay con spinner moderno -->
+<div id="loaderOverlay" class="loader-overlay">
+    <div class="spinner-border text-light" style="width: 3rem; height: 3rem;"></div>
+    <p class="mt-3 text-light fs-5 fw-light">Enviando mensaje...</p>
+</div>
+
+<div class="container-fluid  py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-6 col-md-8">
+            <!-- Header con icono -->
+            <div class="text-center mb-5">
+                <div class="contact-icon mb-3">
+                    <i class="fas fa-envelope-open-text fa-3x text-primary"></i>
+                </div>
+                <h1 class="display-5 fw-bold text-gradient mb-3">Contáctanos</h1>
+                <p class="lead text-muted">
+                    ¿Tienes alguna pregunta? Estamos aquí para ayudarte. Escríbenos y te responderemos pronto.
+                </p>
+            </div>
+
+            <!-- Tarjeta del formulario -->
+            <div class="card shadow-lg border-0 rounded-3 overflow-hidden">
+                <div class="card-body p-5">
+                    <form id="contactForm" class="needs-validation" novalidate>
+                        <!-- Campo Nombre -->
+                        <div class="mb-4">
+                            <label for="nombre" class="form-label fw-semibold text-dark">
+                                <i class="fas fa-user me-2 text-primary"></i>Nombre completo
+                            </label>
+                            <input type="text" class="form-control form-control-lg border-0 bg-light rounded-3 py-3"
+                                   id="nombre" placeholder="¿Cómo te llamas?" required>
+                            <div class="invalid-feedback">Por favor ingresa tu nombre</div>
+                        </div>
+
+                        <!-- Campo Email -->
+                        <div class="mb-4">
+                            <label for="correo" class="form-label fw-semibold text-dark">
+                                <i class="fas fa-envelope me-2 text-primary"></i>Correo electrónico
+                            </label>
+                            <input type="email" class="form-control form-control-lg border-0 bg-light rounded-3 py-3"
+                                   id="correo" placeholder="tu.email@ejemplo.com" required>
+                            <div class="invalid-feedback">Por favor ingresa un email válido</div>
+                        </div>
+
+                        <!-- Campo Mensaje -->
+                        <div class="mb-4">
+                            <label for="mensaje" class="form-label fw-semibold text-dark">
+                                <i class="fas fa-comment me-2 text-primary"></i>Tu mensaje
+                            </label>
+                            <textarea class="form-control form-control-lg border-0 bg-light rounded-3"
+                                      id="mensaje" rows="5" placeholder="Cuéntanos cómo podemos ayudarte..."
+                                      required></textarea>
+                            <div class="invalid-feedback">Por favor escribe tu mensaje</div>
+                        </div>
+
+                        <!-- Botón de enviar -->
+                        <div class="text-center mt-4">
+                            <button type="submit" class="btn btn-primary btn-lg rounded-3 px-5 py-3 fw-semibold">
+                                <i class="fas fa-paper-plane me-2"></i>Enviar mensaje
+                            </button>
+                        </div>
+
+                        <!-- Mensaje de éxito -->
+                        <div id="successMessage" class="alert alert-success alert-dismissible fade show mt-4 rounded-3"
+                             style="display:none;" role="alert">
+                            <i class="fas fa-check-circle me-2"></i>
+                            <strong>¡Mensaje enviado!</strong> Te responderemos dentro de un plazo máximo de 24 horas.
+                            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+            <!-- Información de contacto adicional -->
+            <div class="text-center mt-5">
+                <p class="text-muted mb-3">También puedes contactarnos directamente:</p>
+                <div class="d-flex justify-content-center gap-4">
+                    <a href="mailto:contacto@entrepatas.com" class="text-decoration-none text-primary hover-lift">
+                        <i class="fas fa-envelope me-2"></i>contacto@entrepatas.com
+                    </a>
+                    <a href="tel:+1234567890" class="text-decoration-none text-primary hover-lift">
+                        <i class="fas fa-phone me-2"></i>+1 (234) 567-890
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<style>
+    .loader-overlay {
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: rgba(0, 0, 0, 0.8);
+        backdrop-filter: blur(5px);
+        display: none;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        z-index: 9999;
+    }
+
+    .text-gradient {
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        background-clip: text;
+    }
+
+    .contact-icon {
+        transition: transform 0.3s ease;
+    }
+
+        .contact-icon:hover {
+            transform: scale(1.1);
+        }
+
+    .card {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 1rem 3rem rgba(0, 0, 0, 0.175) !important;
+        }
+
+    .form-control {
+        transition: all 0.3s ease;
+    }
+
+        .form-control:focus {
+            transform: scale(1.02);
+            box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
+        }
+
+    .btn {
+        transition: all 0.3s ease;
+        background: linear-gradient(135deg, #007bff 0%, #0056b3 100%);
+        border: none;
+    }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 0.5rem 1rem rgba(0, 123, 255, 0.3);
+        }
+
+    .hover-lift {
+        transition: transform 0.3s ease;
+    }
+
+        .hover-lift:hover {
+            transform: translateY(-2px);
+        }
+
+    .bg-light {
+        background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    }
+</style>
+
+<script>
+    document.getElementById("contactForm").addEventListener("submit", function(e) {
+        e.preventDefault();
+
+        if (!this.checkValidity()) {
+            e.stopPropagation();
+            this.classList.add('was-validated');
+            return;
+        }
+
+        // Mostrar overlay
+        document.getElementById("loaderOverlay").style.display = "flex";
+        document.getElementById("successMessage").style.display = "none";
+
+        // Simular envío
+        setTimeout(function() {
+            // Ocultar overlay y mostrar éxito
+            document.getElementById("loaderOverlay").style.display = "none";
+            document.getElementById("successMessage").style.display = "block";
+            document.getElementById("contactForm").classList.remove('was-validated');
+            document.getElementById("contactForm").reset();
+        }, 2000);
+    });
+</script>
+
+<!-- Font Awesome para iconos -->
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">

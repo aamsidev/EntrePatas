@@ -119,12 +119,21 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Index()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             var listado = ObtenerListadoSolicitudVacunaAsync().Result;
             return View(listado);
         }
 
         public IActionResult Details(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
 
             SolicitudVacunaDTO solicitud = ObtenerSolicitudId(id).Result;
             return View(solicitud);
@@ -136,12 +145,22 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Create()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             return View(new SolicitudVacunaDTO());
         }
 
         [HttpPost]
         public IActionResult Create(SolicitudVacunaDTO solicitud)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             SolicitudVacunaDTO nuevoSolicitud = RegistrarSolicitudVacuna(solicitud).Result;
 
 
@@ -151,6 +170,10 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Edit(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
 
             var Solicitud = ObtenerSolicitudId(id).Result;
 
@@ -164,6 +187,11 @@ namespace EntrePatasWEB.Controllers
         [HttpPost]
         public IActionResult Edit(int id, SolicitudVacunaDTO solicitud)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             if (!ModelState.IsValid)
                 return View(solicitud);
 
@@ -181,6 +209,11 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Delete(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             SolicitudVacunaDTO solicitud = ObtenerSolicitudId(id).Result;
             return View(solicitud);
         }
@@ -188,6 +221,11 @@ namespace EntrePatasWEB.Controllers
         [HttpPost, ActionName("Delete")]
         public IActionResult DeleteConfirmed(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             bool eliminado = EliminarSolicitudVacunaAsync(id).Result;
 
             if (eliminado)

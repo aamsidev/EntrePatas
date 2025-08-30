@@ -126,6 +126,11 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Index()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             var listado = obtenerListadoVacunaAsync().Result;
             return View(listado);
         }
@@ -133,8 +138,12 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Details(int id)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
 
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
             VacunaDTO vacuna = ObtenerVacunaId(id).Result;
+
             return View(vacuna);
 
 
@@ -142,6 +151,10 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Create()
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
 
             return View(new VacunaDTO());
         }
@@ -149,6 +162,10 @@ namespace EntrePatasWEB.Controllers
         [HttpPost]
         public IActionResult Create(VacunaDTO create)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
 
             VacunaDTO nuevoVacuna = createVacuna(create).Result;
             return RedirectToAction("Details", new { id = nuevoVacuna.IdVacuna });
@@ -169,6 +186,11 @@ namespace EntrePatasWEB.Controllers
         [HttpPost]
         public IActionResult Edit(int id, VacunaDTO vacuna)
         {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             if (!ModelState.IsValid)
                 return View(vacuna);
 
