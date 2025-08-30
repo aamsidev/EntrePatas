@@ -107,6 +107,26 @@ namespace EntrePatasWEB.Controllers
             }
         }
 
+        public async Task<IActionResult> Reporte(DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
+            var animales = await ObtenerListadoAnimalAsync();
+
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                animales = animales
+                    .Where(a => a.FechaRegistro.Date >= fechaInicio.Value.Date
+                             && a.FechaRegistro.Date <= fechaFin.Value.Date)
+                    .ToList();
+            }
+
+            return View(animales);
+        }
+
 
         public IActionResult Index()
         {
@@ -119,12 +139,12 @@ namespace EntrePatasWEB.Controllers
             return View(listado);
         }
 
-        public IActionResult Adopcion()
+        public async Task<IActionResult> Adopcion()
         {
             var nombre = HttpContext.Session.GetString("NombreUsuario");
-            var listado = ObtenerListadoAnimalAsync().Result;
-            ViewBag.NombreUsuario = nombre;
+            var listado = await ObtenerListadoAnimalAsync();
 
+            ViewBag.NombreUsuario = nombre;
             ViewBag.Estados = new List<string> { "Disponible", "Adoptado", "Reservado" };
             ViewBag.Edades = listado.Select(a => a.Edad).Distinct().OrderBy(e => e).ToList();
             ViewBag.Razas = listado.Select(a => a.Raza).Where(r => !string.IsNullOrEmpty(r)).Distinct().OrderBy(r => r).ToList();

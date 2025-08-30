@@ -1,0 +1,78 @@
+﻿@model EntrePatasWEB.Models.UsuarioDTO
+
+@{
+    ViewData["Title"] = "Registro";
+}
+
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-md-6 col-lg-5">
+            <div class="card shadow rounded-4 border-0">
+                <div class="card-body p-4 p-md-5">
+
+                    <h2 class="text-center mb-4 fw-bold text-primary">Crear cuenta</h2>
+
+                    @if (ViewBag.Error != null)
+                    {
+                        <div class="alert alert-danger text-center rounded-3">
+                            @ViewBag.Error
+                        </div>
+                    }
+
+                    <form asp-action="Registro" method="post">
+                        @Html.AntiForgeryToken()
+
+                        <div class="mb-3">
+                            <label asp-for="Nombre" class="form-label">Nombre</label>
+                            <input asp-for="Nombre" class="form-control" placeholder="Tu nombre" />
+                            <span asp-validation-for="Nombre" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Apellido" class="form-label">Apellido</label>
+                            <input asp-for="Apellido" class="form-control" placeholder="Tu apellido" />
+                            <span asp-validation-for="Apellido" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Correo" class="form-label">Correo electrónico</label>
+                            <input asp-for="Correo" type="email"  class="form-control" placeholder="ejemplo@correo.com" />
+                            <span asp-validation-for="Correo" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Telefono" class="form-label">Teléfono</label>
+                            <input asp-for="Telefono" type="tel" class="form-control" placeholder="Número de contacto" />
+                            <span asp-validation-for="Telefono" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-3">
+                            <label asp-for="Direccion" class="form-label">Dirección</label>
+                            <input asp-for="Direccion" class="form-control" placeholder="Dirección" />
+                            <span asp-validation-for="Direccion" class="text-danger"></span>
+                        </div>
+
+                        <div class="mb-4">
+                            <label asp-for="Contrasena" class="form-label">Contraseña</label>
+                            <input asp-for="Contrasena" type="password" class="form-control" placeholder="********" />
+                            <span asp-validation-for="Contrasena" class="text-danger"></span>
+                        </div>
+
+                        <!-- Campo oculto para TipoUsuario -->
+                        <input asp-for="TipoUsuario" type="hidden" value="Cliente" />
+
+                        <button type="submit" class="btn btn-success w-100 mb-2">Registrarse</button>
+                        <a href="@Url.Action("Login", "PaginaPrincipal")" class="btn btn-outline-primary w-100">Ya tengo cuenta</a>
+                    </form>
+
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

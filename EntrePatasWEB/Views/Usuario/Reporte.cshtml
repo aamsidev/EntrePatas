@@ -1,0 +1,43 @@
+﻿@model List<EntrePatasWEB.Models.UsuarioDTO>
+
+<h2>Reporte de Usuarios</h2>
+
+<form method="get" asp-action="Reporte">
+    <div class="form-group">
+        <label for="fechaInicio">Fecha Inicio:</label>
+        <input type="date" id="fechaInicio" name="fechaInicio" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="fechaFin">Fecha Fin:</label>
+        <input type="date" id="fechaFin" name="fechaFin" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <button type="button" class="btn btn-success" onclick="window.print()">Imprimir</button>
+</form>
+
+<hr />
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>ID</th>
+            <th>Nombre</th>
+            <th>Correo</th>
+            <th>Fecha Registro</th>
+            <th>Tipo Usuario</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var usuario in Model)
+        {
+            <tr>
+                <td>@usuario.IdUsuario</td>
+                <td>@usuario.Nombre</td>
+                <td>@usuario.Correo</td>
+                <td>@usuario.FechaRegistro.ToString("dd/MM/yyyy")</td>
+                <td>@usuario.TipoUsuario</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

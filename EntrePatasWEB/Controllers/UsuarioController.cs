@@ -2,6 +2,7 @@
 using EntrePatasWEB.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
+using Rotativa;
 
 namespace EntrePatasWEB.Controllers
 {
@@ -120,7 +121,6 @@ namespace EntrePatasWEB.Controllers
             return nuevoUsuario;
         }
 
-
         private async Task<UsuarioDTO> UpdateUsuario(int id, UsuarioDTO usuario)
         {
             try
@@ -151,7 +151,6 @@ namespace EntrePatasWEB.Controllers
             }
         }
 
-
         private async Task<bool> EliminarUsuarioAsync(int id)
         {
             using (var clienteHttp = new HttpClient())
@@ -163,10 +162,26 @@ namespace EntrePatasWEB.Controllers
             }
         }
 
+        public async Task<IActionResult> Reporte(DateTime? fechaInicio, DateTime? fechaFin)
+        {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
 
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
 
+            var usuarios = await obtenerListadoUsuarioAsync();
 
+            // Aplicar filtro si hay fechas
+            if (fechaInicio.HasValue && fechaFin.HasValue)
+            {
+                usuarios = usuarios
+                    .Where(u => u.FechaRegistro.Date >= fechaInicio.Value.Date
+                             && u.FechaRegistro.Date <= fechaFin.Value.Date)
+                    .ToList();
+            }
 
+            return View(usuarios);
+        }
 
 
         public IActionResult Index()
@@ -347,6 +362,16 @@ namespace EntrePatasWEB.Controllers
                 return usuarioActualizado;
             }
         }
+
+
+
+
+
+
+
+
+
+
 
 
 

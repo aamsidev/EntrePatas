@@ -84,7 +84,7 @@
 
 
 <div id="contenedorAnimales" class="container mt-5">
-    @Html.Partial("~/Views/Animal/_AnimalFiltro.cshtml", Model)
+    @await Html.PartialAsync("~/Views/Shared/_AnimalFiltro.cshtml", Model)
 </div>
 
 @section Scripts {
@@ -92,7 +92,7 @@
         $(document).on('submit', '#formFiltro', function (e) {
             e.preventDefault();
             $.ajax({
-                url: '@Url.Action("~/Views/Animal/_AnimalFiltro.cshtml", "Cliente")',
+                url: '@Url.Action("_AnimalFiltro", "Cliente")',
                 type: 'GET',
                 data: $(this).serialize(),
                 success: function (resultado) {

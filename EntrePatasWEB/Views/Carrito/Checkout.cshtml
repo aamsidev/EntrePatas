@@ -1,0 +1,240 @@
+﻿@model EntrePatasWEB.Models.CheckoutViewModel
+
+@{
+    ViewData["Title"] = "Checkout";
+}
+
+<style>
+    /* Estilos para animación de check */
+    .checkmark-container {
+        width: 80px;
+        height: 80px;
+        margin: 0 auto;
+    }
+
+    .checkmark {
+        width: 80px;
+        height: 80px;
+        stroke: #28a745;
+        stroke-width: 4;
+        stroke-miterlimit: 10;
+        animation: scaleIn 0.5s ease-out forwards;
+    }
+
+    .checkmark-circle {
+        stroke-dasharray: 166;
+        stroke-dashoffset: 166;
+        stroke-width: 4;
+        stroke-miterlimit: 10;
+        stroke: #28a745;
+        fill: none;
+        animation: stroke 0.6s cubic-bezier(0.65, 0, 0.45, 1) forwards;
+    }
+
+    .checkmark-check {
+        transform-origin: 50% 50%;
+        stroke-dasharray: 48;
+        stroke-dashoffset: 48;
+        animation: stroke 0.3s cubic-bezier(0.65, 0, 0.45, 1) 0.6s forwards;
+    }
+
+    @@keyframes stroke {
+        100%
+
+    {
+        stroke-dashoffset: 0;
+    }
+
+    }
+
+    @@keyframes scaleIn {
+        0%
+
+    {
+        transform: scale(0);
+    }
+
+    80% {
+        transform: scale(1.1);
+    }
+
+    100% {
+        transform: scale(1);
+    }
+
+    }
+</style>
+
+<div class="container py-5">
+    <h2 class="mb-4 text-center fw-bold">Checkout</h2>
+
+    <div class="row g-4">
+        <!-- Resumen del pedido -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Resumen del Pedido</h4>
+                    <table class="table table-striped align-middle">
+                        <thead class="table-dark">
+                            <tr>
+                                <th>Foto</th>
+                                <th>Producto</th>
+                                <th>Cantidad</th>
+                                <th>Precio</th>
+                                <th>Subtotal</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var d in Model.Detalles)
+                            {
+                                <tr>
+                                    <td>
+                                        @if (!string.IsNullOrEmpty(d.Producto?.FotoUrl))
+                                        {
+                                            <img src="@Url.Content($"~/imagenes/producto/{d.Producto.FotoUrl}")"
+                                                 alt="@d.Producto.Nombre" width="60" class="rounded shadow-sm" />
+                                        }
+                                        else
+                                        {
+                                            <span class="text-muted">Sin imagen</span>
+                                        }
+                                    </td>
+                                    <td class="fw-semibold">@d.Producto?.Nombre</td>
+                                    <td>@d.Cantidad</td>
+                                    <td>@d.PrecioUnitario</td>
+                                    <td>@(d.Cantidad * d.PrecioUnitario)</td>
+                                </tr>
+                            }
+                        </tbody>
+                        <tfoot class="table-light">
+                            <tr>
+                                <th colspan="4" class="text-end">Total</th>
+                                <th class="fw-bold">@Model.Pedido.Total</th>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Formulario de Envío y Pago -->
+        <div class="col-lg-6">
+            <div class="card shadow-sm border-0">
+                <div class="card-body">
+                    <h4 class="card-title mb-3">Datos de Envío y Pago</h4>
+
+                    <form asp-action="Checkout" method="post" id="formCheckout">
+                        <!-- Envío -->
+                        <div class="mb-3">
+                            <label asp-for="Envio.DireccionEnvio" class="form-label fw-semibold">Dirección de envío</label>
+                            <input asp-for="Envio.DireccionEnvio" class="form-control form-control-lg" required />
+                            <span asp-validation-for="Envio.DireccionEnvio" class="text-danger"></span>
+                        </div>
+
+                        <!-- Pago -->
+                        <div class="mb-3">
+                            <label asp-for="Pago.MetodoPago" class="form-label fw-semibold">Método de pago</label>
+                            <select asp-for="Pago.MetodoPago" class="form-select form-select-lg" required>
+                                <option value="">Seleccione</option>
+                                <option value="Tarjeta">Tarjeta</option>
+                                <option value="Yape">Yape</option>
+                                <option value="Plin">Plin</option>
+                                <option value="Transferencia">Transferencia</option>
+                                <option value="Efectivo">Efectivo</option>
+                            </select>
+                            <span asp-validation-for="Pago.MetodoPago" class="text-danger"></span>
+                        </div>
+
+                        <!-- Hidden para Pedido -->
+                        <input type="hidden" asp-for="Pedido.IdUsuario" />
+                        <input type="hidden" asp-for="Pedido.Total" />
+                        <input type="hidden" asp-for="Pedido.Estado" />
+
+                        <button type="button" id="btnConfirmar" class="btn btn-success btn-lg w-100 mt-3">
+                            Confirmar Pedido
+                        </button>
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal de Confirmación Profesional -->
+<div id="modalConfirmacion" class="modal fade" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content text-center border-0 p-4" style="background: rgba(255,255,255,0.95); border-radius: 1rem;">
+            <div class="modal-body">
+                <div class="checkmark-container mb-3">
+                    <svg class="checkmark" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 52 52">
+                        <circle class="checkmark-circle" cx="26" cy="26" r="25" fill="none" />
+                        <path class="checkmark-check" fill="none" d="M14 27l7 7 16-16" />
+                    </svg>
+                </div>
+                <h4 class="fw-bold">¡Pedido Confirmado!</h4>
+                <p>Tu pedido se ha registrado correctamente.</p>
+            </div>
+            <div class="modal-footer justify-content-center border-0">
+                <button type="button" class="btn btn-success btn-lg" id="btnCerrarModal">Cerrar</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+
+
+
+
+    <script>
+        document.getElementById("btnConfirmar").addEventListener("click", function() {
+            var metodoPago = document.getElementById("Pago_MetodoPago").value;
+            var direccionEnvio = document.getElementById("Envio_DireccionEnvio").value.trim();
+            var valido = true;
+
+            // Validar método de pago
+            if (!metodoPago) {
+                valido = false;
+                alert("Por favor, seleccione un método de pago antes de confirmar el pedido.");
+            }
+
+            // Validar dirección de envío
+            if (!direccionEnvio) {
+                valido = false;
+                alert("Por favor, ingrese la dirección de envío antes de confirmar el pedido.");
+                // Agregar clase de error al input
+                document.getElementById("Envio_DireccionEnvio").classList.add("is-invalid");
+            } else {
+                // Remover clase de error si está bien
+                document.getElementById("Envio_DireccionEnvio").classList.remove("is-invalid");
+            }
+
+            if (!valido) {
+                // Detener ejecución si hay errores
+                return;
+            }
+
+            // Mostrar modal de confirmación
+            var modal = new bootstrap.Modal(document.getElementById('modalConfirmacion'));
+            modal.show();
+
+            // Enviar formulario después de 1.5s
+            setTimeout(function() {
+                document.getElementById("formCheckout").submit();
+            }, 1500);
+        });
+
+        // Cerrar modal
+        document.getElementById("btnCerrarModal").addEventListener("click", function() {
+            var modal = bootstrap.Modal.getInstance(document.getElementById('modalConfirmacion'));
+            modal.hide();
+        });
+    </script>
+
+
+
+}

@@ -166,7 +166,6 @@ namespace EntrePatasAPI.Data
         public Pago Registrar(PagoDTO pago)
         {
             Pago? nuevoPago = null;
-
             int nuevoID = 0;
 
             using (var conexion = new SqlConnection(cadenaConexion))
@@ -180,45 +179,36 @@ namespace EntrePatasAPI.Data
                     command.Parameters.AddWithValue("@Monto", pago.Monto);
                     command.Parameters.AddWithValue("@EstadoPago", pago.EstadoPago);
 
+                    object result = command.ExecuteScalar();
 
-
-                                       object result = command.ExecuteScalar();
                     if (result != null && result != DBNull.Value)
-                    {
-                        int codigo = Convert.ToInt32(result);
-
-                        if (result != null && result != DBNull.Value)
-                        {
-                            nuevoID = Convert.ToInt32(result);
-                        }
-                        else
-                        {
-                            throw new Exception("Error: no se devolvió ningún ID del pago .");
-                        }
-
-                    }
+                        nuevoID = Convert.ToInt32(result);
                 }
-
-                               if (nuevoID > 0)
-                    nuevoPago = ObtenerPagoPorId(nuevoID);
-
-                if (nuevoPago == null)
-                {
-                    throw new Exception("Pago no encontrada");
-                }
-                return nuevoPago;
-
             }
 
+            // Validar si devolvió ID válido
+            if (nuevoID > 0)
+            {
+                nuevoPago = ObtenerPagoPorId(nuevoID);
+            }
+            else if (nuevoID == -1)
+            {
+                throw new Exception("El monto no puede ser 0 o negativo");
+            }
 
-
-
-
-
-
-
-
+            return nuevoPago ?? throw new Exception("Pago no encontrada");
 
         }
+
+
+
+
+
+
+
+
+
+
+        
         }
 }

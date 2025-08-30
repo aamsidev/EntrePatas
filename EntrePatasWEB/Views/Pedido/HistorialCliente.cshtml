@@ -1,0 +1,38 @@
+﻿@model EntrePatasWEB.Models.HistorialPedidosClienteVM
+
+<h2>Mis pedidos</h2>
+<p>Cliente: @Model.Cliente.Nombre @Model.Cliente.Apellido</p>
+
+@foreach (var pedido in Model.Pedidos)
+{
+    <div class="card mt-3">
+        <div class="card-header">
+            Pedido N° @pedido.Pedido.IdPedido - Estado: @pedido.Pedido.Estado -
+            Fecha: @pedido.Pedido.FechaPedido.ToString("dd/MM/yyyy")
+        </div>
+        <div class="card-body">
+            <p><b>Total:</b> S/. @pedido.Pedido.Total</p>
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Producto</th>
+                        <th>Cantidad</th>
+                        <th>Precio Unitario</th>
+                        <th>Subtotal</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var det in pedido.Detalles)
+                    {
+                        <tr>
+                            <td>@det.Producto.Nombre</td>
+                            <td>@det.Detalle.Cantidad</td>
+                            <td>@det.Detalle.PrecioUnitario</td>
+                            <td>@(det.Detalle.Cantidad* det.Detalle.PrecioUnitario)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+}

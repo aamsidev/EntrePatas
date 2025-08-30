@@ -1,4 +1,6 @@
-﻿using EntrePatasWEB.Models;
+﻿using System.Text;
+using EntrePatasWEB.Models;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -7,6 +9,17 @@ namespace EntrePatasWEB.Controllers
     public class CarritoController : Controller
     {
         private const string SessionKey = "Carrito";
+
+
+
+        private readonly IConfiguration _config;
+
+        public CarritoController(IConfiguration config)
+        {
+            _config = config;
+        }
+
+
 
         private List<CarritoItem> GetCarrito()
         {
@@ -73,9 +86,184 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult MiniCarrito()
         {
-            var carrito = GetCarrito(); 
+            var carrito = GetCarrito();
             return PartialView("_MiniCarrito", carrito);
         }
 
+
+
+        public IActionResult Checkout()
+        {
+            // 1. Verificar si está logueado
+            var usuarioId = HttpContext.Session.GetInt32("IdUsuario");
+            if (usuarioId == null)
+            {
+                return RedirectToAction("Login", "PaginaPrincipal");
+            }
+
+            // 2. Recuperar carrito desde sesión
+            var carrito = GetCarrito();
+            if (carrito == null || !carrito.Any())
+            {
+                return RedirectToAction("Index", "Carrito");
+            }
+
+            // 3. Calcular total
+            var total = carrito.Sum(x => (decimal)x.Precio * x.Cantidad);
+
+            // 4. Armar el ViewModel para la vista Checkout
+            var viewModel = new CheckoutViewModel
+            {
+                Pedido = new PedidoDTO
+                {
+                    IdUsuario = usuarioId.Value,
+                    FechaPedido = DateTime.Now,
+                    Estado = "Pendiente",
+                    Total = total
+                },
+                Envio = new EnvioDTO
+                {
+                    // aquí podrías inicializar con valores por defecto si quieres
+                },
+                Pago = new PagoDTO
+                {
+                    Monto = total,           // ✅ ahora el monto ya se pasa al SP
+                    EstadoPago = "Pendiente" // opcional, inicializa estado
+                },
+                Detalles = carrito.Select(x => new DetallePedidoDTO
+                {
+
+                    IdProducto = x.IdProducto,
+                    Producto = new ProductoDTO
+                    {
+                        IdProducto = x.IdProducto,
+                        Nombre = x.Nombre,
+                        Precio = x.Precio,
+                        FotoUrl = x.FotoUrl
+                    },
+
+                    Cantidad = x.Cantidad,
+                    PrecioUnitario = (decimal)x.Precio
+                }).ToList()
+            };
+
+            // 5. Enviar a la vista
+            return View(viewModel);
+        }
+
+
+        [HttpPost]
+        public async Task<IActionResult> Checkout(CheckoutViewModel viewModel)
+        {
+            var usuarioId = HttpContext.Session.GetInt32("IdUsuario");
+            if (usuarioId == null)
+                return RedirectToAction("Login", "PaginaPrincipal");
+
+            var carrito = GetCarrito();
+            if (carrito == null || !carrito.Any())
+                return RedirectToAction("Index", "Carrito");
+
+            var total = carrito.Sum(x => (decimal)x.Precio * x.Cantidad);
+
+            // Forzar valores de Pedido y Pago
+            viewModel.Pedido.IdUsuario = usuarioId.Value;
+            viewModel.Pedido.FechaPedido = DateTime.Now;
+            viewModel.Pedido.Estado = "Pendiente";
+            viewModel.Pedido.Total = total;
+
+            viewModel.Pago.Monto = total;
+            viewModel.Pago.EstadoPago = "Pendiente";
+
+            // Validar Envio
+            if (string.IsNullOrEmpty(viewModel.Envio.DireccionEnvio))
+            {
+                ModelState.AddModelError("Envio.DireccionEnvio", "La dirección de envío es obligatoria.");
+                return View(viewModel);
+            }
+
+            // Forzar EstadoEnvio para que nunca sea null
+            viewModel.Envio.EstadoEnvio = "Pendiente";
+
+            using (var httpCliente = new HttpClient())
+            {
+                httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+
+                // Registrar Pedido
+                var pedidoJson = JsonConvert.SerializeObject(viewModel.Pedido);
+                var pedidoResp = await httpCliente.PostAsync("Pedido/Registrar",
+                    new StringContent(pedidoJson, Encoding.UTF8, "application/json"));
+
+                if (!pedidoResp.IsSuccessStatusCode)
+                {
+                    ViewBag.Error = "Error registrando el pedido";
+                    return View(viewModel);
+                }
+
+                var pedidoData = await pedidoResp.Content.ReadAsStringAsync();
+                var pedidoGuardado = JsonConvert.DeserializeObject<PedidoDTO>(pedidoData);
+                var idPedido = pedidoGuardado.IdPedido;
+
+                // Registrar Detalles
+                foreach (var detalle in carrito)
+                {
+                    var detalleDTO = new DetallePedidoDTO
+                    {
+                        IdPedido = idPedido,
+                        IdProducto = detalle.IdProducto,
+                        Cantidad = detalle.Cantidad,
+                        PrecioUnitario = (decimal)detalle.Precio
+                    };
+                    await httpCliente.PostAsync("DetallePedido/Registrar",
+                        new StringContent(JsonConvert.SerializeObject(detalleDTO), Encoding.UTF8, "application/json"));
+                }
+
+                // Registrar Envío
+                viewModel.Envio.IdPedido = idPedido;
+                var envioJson = JsonConvert.SerializeObject(viewModel.Envio);
+                var envioResp = await httpCliente.PostAsync("Envio/Registrar",
+                    new StringContent(envioJson, Encoding.UTF8, "application/json"));
+
+                if (!envioResp.IsSuccessStatusCode)
+                {
+                    ViewBag.Error = "Error registrando el envío";
+                    return View(viewModel);
+                }
+
+                // Registrar Pago
+                viewModel.Pago.IdPedido = idPedido;
+                var pagoJson = JsonConvert.SerializeObject(viewModel.Pago);
+                await httpCliente.PostAsync("Pago/Registrar",
+                    new StringContent(pagoJson, Encoding.UTF8, "application/json"));
+            }
+
+            // Vaciar carrito
+            HttpContext.Session.Remove("Carrito");
+
+            return RedirectToAction("Index", "Home");
+        }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+       
+
+
     }
 }
+
+

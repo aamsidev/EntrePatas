@@ -13,7 +13,14 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Web.CodeGeneration.Design" Version="8.0.7" />
     <PackageReference Include="Newtonsoft.Json" Version="13.0.3" />
+    <PackageReference Include="Rotativa" Version="1.7.3" />
     <PackageReference Include="Xamarin.UITest" Version="4.4.2" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Update="Views\Shared\_AnimalFiltro.cshtml">
+      <CopyToOutputDirectory>Never</CopyToOutputDirectory>
+    </Content>
   </ItemGroup>
 
 </Project>

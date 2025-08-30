@@ -1,0 +1,43 @@
+﻿@model List<EntrePatasWEB.Models.SolicitudDTO>
+
+<h2>Reporte de Solicitud</h2>
+
+<form method="get" asp-action="Reporte">
+    <div class="form-group">
+        <label for="fechaInicio">Fecha Inicio:</label>
+        <input type="date" id="fechaInicio" name="fechaInicio" class="form-control" />
+    </div>
+    <div class="form-group">
+        <label for="fechaFin">Fecha Fin:</label>
+        <input type="date" id="fechaFin" name="fechaFin" class="form-control" />
+    </div>
+    <button type="submit" class="btn btn-primary">Filtrar</button>
+    <button type="button" class="btn btn-success" onclick="window.print()">Imprimir</button>
+</form>
+
+<hr />
+
+<table class="table table-striped">
+    <thead>
+        <tr>
+            <th>IDSolicitud</th>
+            <th>Usuario</th>
+            <th>Animal</th>
+            <th>Fecha Registrada</th>
+            <th>Estado </th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var usuario in Model)
+        {
+            <tr>
+                <td>@usuario.IdSolicitud</td>
+                <td>@usuario.IdUsuario</td>
+                <td>@usuario.IdAnimal</td>
+                <td>@usuario.FechaSolicitud.ToString("dd/MM/yyyy")</td>
+                <td>@usuario.Estado</td>
+            </tr>
+        }
+    </tbody>
+</table>
+

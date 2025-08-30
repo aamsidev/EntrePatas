@@ -205,7 +205,23 @@ namespace EntrePatasWEB.Controllers
         }
 
 
+        public IActionResult _ProductoFiltro(string nombre, decimal? precioMin, decimal? precioMax)
+        {
+            var productos = ObtenerListadoProductoAsync().Result;
 
+            if (!string.IsNullOrEmpty(nombre))
+                productos = productos
+                    .Where(p => p.Nombre.Contains(nombre, StringComparison.OrdinalIgnoreCase))
+                    .ToList();
+
+            if (precioMin.HasValue)
+                productos = productos.Where(p => p.Precio >= precioMin.Value).ToList();
+
+            if (precioMax.HasValue)
+                productos = productos.Where(p => p.Precio <= precioMax.Value).ToList();
+
+            return PartialView("_ProductoFiltro", productos);
+        }
 
 
 

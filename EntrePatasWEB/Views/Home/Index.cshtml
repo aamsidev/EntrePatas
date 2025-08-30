@@ -1,109 +1,652 @@
-﻿@{
+﻿@model IEnumerable<EntrePatasWEB.Models.AnimalDTO>
+@{
     ViewData["Title"] = "Panel de Cliente";
     Layout = "~/Views/Shared/_Layout.cshtml";
-    @model IEnumerable<EntrePatasWEB.Models.AnimalDTO>
     var productos = ViewBag.Productos as List<EntrePatasWEB.Models.ProductoDTO>;
 }
 
+<style>
+    /* Tipografías y Animate.css */
+    @@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@700;800&family=Roboto:wght@400&display=swap');
+    @@import url('https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css');
 
+    /* General */
+    .hover-scale:hover {
+        transform: scale(1.1);
+        transition: transform 0.3s ease;
+    }
 
+    .section-gen, .section-donaciones {
+        padding: 4rem 1rem;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        text-align: center;
+    }
 
-<div class="position-relative w-100">
-    <img src="~/imagenes/banner/bannerInicio.png"
-         class="w-100"
-         style="height: 100vh; object-fit: cover; object-position: center;"
-         alt="Banner" />
+        .section-gen h3, .section-donaciones h3 {
+            font-size: 2.5rem;
+            font-weight: 800;
+            margin-bottom: 2rem;
+        }
 
-    <div class="position-absolute top-50 start-50 translate-middle text-center bg-dark bg-opacity-50 rounded p-4 text-white shadow-lg w-75 w-md-50">
-        <h1 class="fw-bold display-4">🐾 ¡Bienvenidos a EntrePatas!</h1>
-        <p class="fs-5 mb-0">
-            ❤️ Conectamos mascotas con familias que las aman.<br />
-            🐶 Encuentra tu compañero ideal para adoptar.<br />
-            🛒 Descubre productos pensados para su bienestar.<br />
-            🚚 Envíos rápidos y seguros.<br />
+        .section-gen p, .section-donaciones p {
+            max-width: 800px;
+            font-size: 1.2rem;
+            line-height: 1.6;
+        }
+
+    /* Banner */
+    .banner-container {
+        position: relative;
+        width: 100%;
+        height: clamp(500px, 80vh, 1000px); /* mínimo 500px, máximo 1000px, ideal 80% de altura */
+        overflow: hidden;
+    }
+
+        .banner-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: cover;
+            object-position: center center;
+        }
+
+    .banner-overlay {
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        background-color: rgba(0,0,0,0.55);
+        padding: 2rem;
+        border-radius: 1rem;
+        text-align: center;
+        color: #fff;
+    }
+
+    .carousel-item img {
+        max-height: 400px;
+        object-fit: cover;
+        margin: 0 auto;
+        transition: transform 0.3s ease;
+    }
+
+        .carousel-item img:hover {
+            transform: scale(1.05);
+        }
+
+    .carousel-caption {
+        backdrop-filter: blur(8px);
+        background-color: rgba(0,0,0,0.35) !important;
+        border-radius: 0.75rem;
+        padding: 1rem 1.5rem;
+    }
+
+    /* Cards de animales */
+    .card-animal {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .card-animal:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.3);
+        }
+
+    .animal-disponible {
+        border: 2px solid #28a745;
+        box-shadow: 0 0 15px rgba(40, 167, 69, 0.5);
+        animation: glow 1.5s infinite alternate;
+    }
+
+    @@keyframes glow {
+        from {
+            box-shadow: 0 0 5px rgba(40, 167, 69, 0.5);
+        }
+
+        to {
+            box-shadow: 0 0 20px rgba(40, 167, 69, 1);
+        }
+    }
+
+    /* Botones */
+    .btn-pastel, .btn-danger, .btn-success {
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+    }
+
+        .btn-pastel:hover, .btn-danger:hover, .btn-success:hover {
+            transform: scale(1.05);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.25);
+        }
+
+    /* Responsivo */
+    @@media (min-width: 1200px) {
+        .banner-overlay h1
+
+    {
+        font-size: 4rem;
+    }
+
+    .banner-overlay p {
+        font-size: 1.5rem;
+    }
+
+    .banner-overlay .btn-explore {
+        padding: 1rem 3rem;
+        font-size: 1.25rem;
+    }
+
+    .section-gen h3, .section-donaciones h3 {
+        font-size: 3rem;
+    }
+
+    .section-gen p, .section-donaciones p {
+        font-size: 1.25rem;
+    }
+
+    }
+
+    @@media (max-width: 767px) {
+        .banner-overlay h1
+
+    {
+        font-size: 2rem;
+    }
+
+    .banner-overlay p {
+        font-size: 1rem;
+    }
+
+    .banner-overlay .btn-explore {
+        padding: 0.5rem 2rem;
+        font-size: 0.9rem;
+    }
+
+    .carousel-item img {
+        max-height: 250px;
+    }
+
+    .carousel-caption {
+        font-size: 0.9rem;
+        padding: 0.5rem 1rem;
+    }
+
+    }
+
+    .modal-content img {
+        max-height: 400px;
+        object-fit: cover;
+    }
+</style>
+
+<!-- Banner -->
+<div class="banner-container position-relative overflow-hidden">
+    <img src="~/imagenes/banner/bannerInicio.png" alt="Banner" class="w-100 h-100" style="object-fit: cover; object-position: center; filter: brightness(0.75);">
+    <div class="position-absolute top-0 start-0 w-100 h-100" style="background: linear-gradient(180deg, rgba(0, 0, 0, 0.5), rgba(0,0,0,0.6));"></div>
+    <div class="banner-overlay text-center">
+        <h1 class="display-3 fw-bold animate__animated animate__fadeInDown mb-3" style="text-shadow: 2px 2px 8px rgba(0,0,0,0.7); font-family: 'Sitka Banner', sans-serif; color: #FFA500;">
+            ¡Adopta y cambia una vida!
+        </h1>
+        <p class="fs-4 mb-4 animate__animated animate__fadeInUp" style="text-shadow: 1px 1px 6px rgba(0,0,0,0.6); font-family: 'Sitka Banner', sans-serif;">
+            Encuentra a tu compañero ideal y dale un hogar lleno de amor.
         </p>
-        <a href="#productos" class="btn btn-success btn-lg rounded-pill mt-3 px-4 shadow">Explorar</a>
+        <a href="#productos" class="btn btn-success btn-lg rounded-pill px-5 py-3 shadow-lg animate__animated animate__pulse animate__infinite hover-scale">
+            Tu amigo fiel necesita...
+        </a>
     </div>
+</div>
+
+<!-- Conócenos -->
+<div class="section-gen position-relative" style="background: linear-gradient(135deg, #a8edea, #fed6e3);">
+    <div class="container">
+        <h3 class="animate__animated animate__fadeInDown">Conócenos</h3>
+        <div class="row align-items-center">
+            <div class="col-md-4 text-center mb-3 mb-md-0">
+                <img src="~/imagenes/gif/gif.gif" alt="Mascotas felices" class="img-fluid rounded shadow-lg animate__animated animate__fadeInLeft hover-bounce" style="max-height: 300px;">
+            </div>
+            <div class="col-md-8 text-center text-dark animate__animated animate__fadeInRight" style="background: rgba(255,255,255,0.6); padding: 2rem; border-radius: 1rem; box-shadow: 0 10px 25px rgba(0,0,0,0.1); font-family: 'Roboto', sans-serif;">
+                <p>En EntrePatas nos dedicamos a conectar mascotas con familias responsables, ofreciendo a cada animal un hogar lleno de amor y cuidado.</p>
+                <p>Nuestro compromiso es acompañarte en cada paso del proceso de adopción, asegurándonos de que encuentres a tu compañero ideal. Además, proporcionamos recursos y productos de calidad que garantizan su bienestar, para que tu mascota crezca sana y feliz.</p>
+                <a href="#adopcionCarouselDark" class="btn btn-pastel btn-lg rounded-pill mt-3 shadow-sm">Adopta!!!</a>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Sección Donaciones -->
+<div class="section-donaciones position-relative d-flex flex-column flex-md-row align-items-center justify-content-center p-4"
+     style="background: linear-gradient(135deg, #ff8c1a, #ffa64d); gap: 2rem;">
+
+    <!-- GIF al costado -->
+    <div class="donacion-gif animate__animated animate__fadeInLeft text-center">
+        <img src="~/imagenes/gif/gif1.gif" alt="Mascotas felices" class="img-fluid" style="max-width: 250px;">
+    </div>
+
+    <!-- Texto y botón -->
+    <<div class="donacion-text text-center text-md-start animate__animated animate__fadeInRight">
+        <h3>💖 Tu ex puede esperar, ¡estos peludos no!</h3>
+        <p class="mb-4">Tu donación ayuda a dar alimento, cuidados y amor a los animales que esperan un hogar. ¡Cada aporte cuenta!</p>
+
+        <!-- Botón glitch -->
+        <div class="button-wrapper d-inline-block">
+            <button type="button" class="spiderverse-button"
+                    data-bs-toggle="modal" data-bs-target="#donacionModal">
+                Dona Ahora
+                <div class="glitch-layers">
+                    <div class="glitch-layer layer-1">Dona Ahora</div>
+                    <div class="glitch-layer layer-2">Dona Ahora</div>
+                </div>
+                <div class="noise"></div>
+                <div class="glitch-slice"></div>
+            </button>
+        </div>
+    </div>
+
+    <style>
+        /* ====== BOTÓN GLITCH ====== */
+        .button-wrapper {
+            position: relative;
+            display: inline-block;
+            transform-style: preserve-3d;
+            transition: transform 0.2s ease;
+            overflow: hidden; /* 🔹 evita que el "cuadro" extra se vea */
+            border-radius: 50px; /* 🔹 mantiene la forma redonda */
+        }
+
+        .spiderverse-button {
+            position: relative;
+            padding: 15px 40px;
+            font-size: 20px;
+            font-weight: 900;
+            border: none;
+            border-radius: 50px;
+            cursor: pointer;
+            background: #ff004c;
+            color: #fff;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            transform-style: preserve-3d;
+            transition: all 0.15s ease;
+            font-family: Arial, sans-serif;
+            text-shadow: -1px -1px 0 #000, 1px -1px 0 #000, -1px 1px 0 #000, 1px 1px 0 #000;
+            z-index: 5;
+            overflow: hidden; /* 🔹 asegura que nada se salga */
+        }
+
+        .glitch-layers,
+        .glitch-layer,
+        .noise,
+        .glitch-slice {
+            border-radius: 50px; /* 🔹 todas las capas respetan forma redonda */
+        }
+
+        .glitch-layers {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+        }
+
+        .glitch-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50px;
+            opacity: 0;
+            transition: all 0.15s ease;
+            font-weight: 900;
+            font-size: 20px;
+        }
+
+        .layer-1 {
+            color: #0ff;
+        }
+
+        .layer-2 {
+            color: #f0f;
+        }
+
+        .button-wrapper:hover .layer-1 {
+            opacity: 1;
+            animation: glitchLayer1 0.4s steps(2) infinite;
+        }
+
+        .button-wrapper:hover .layer-2 {
+            opacity: 1;
+            animation: glitchLayer2 0.4s steps(2) infinite;
+        }
+
+        .button-wrapper:hover .spiderverse-button {
+            animation: buttonGlitch 0.3s steps(2) infinite;
+            box-shadow: 0 0 20px rgba(255, 255, 255, 0.5), 0 0 30px rgba(0, 255, 255, 0.5), 0 0 40px rgba(255, 0, 255, 0.5);
+        }
+
+        .noise {
+            position: absolute;
+            top: -50%;
+            left: -50%;
+            width: 200%;
+            height: 200%;
+            background: repeating-radial-gradient( circle at 50% 50%, transparent 0, rgba(0, 0, 0, 0.1) 1px, transparent 2px );
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+            animation: noise 0.2s steps(2) infinite;
+        }
+
+        .button-wrapper:hover .noise {
+            opacity: 1;
+        }
+
+        .glitch-slice {
+            position: absolute;
+            width: 120%;
+            height: 5px;
+            background: #fff;
+            opacity: 0;
+            animation: slice 3s linear infinite;
+        }
+
+        /* ====== ANIMACIONES ====== */
+        @@keyframes buttonGlitch {
+            0%
+
+        {
+            transform: translate(0) scale(1.1);
+        }
+
+        25% {
+            transform: translate(-10px, 5px) scale(1.15) skew(-5deg);
+        }
+
+        50% {
+            transform: translate(10px, -5px) scale(1.1) skew(5deg);
+        }
+
+        75% {
+            transform: translate(-15px, -5px) scale(1.05) skew(-3deg);
+        }
+
+        100% {
+            transform: translate(0) scale(1.1);
+        }
+
+        }
+
+        @@keyframes glitchLayer1 {
+            0%
+
+        {
+            transform: translate(-20px, -10px) scale(1.1) skew(-10deg);
+            clip-path: polygon(0 20%, 100% 20%, 100% 50%, 0 50%);
+        }
+
+        25% {
+            transform: translate(20px, 10px) scale(1.2) skew(10deg);
+            clip-path: polygon(0 30%, 100% 30%, 100% 60%, 0 60%);
+        }
+
+        50% {
+            transform: translate(-15px, 5px) scale(0.9) skew(-5deg);
+            clip-path: polygon(0 10%, 100% 10%, 100% 40%, 0 40%);
+        }
+
+        75% {
+            transform: translate(15px, -5px) scale(1.3) skew(5deg);
+            clip-path: polygon(0 40%, 100% 40%, 100% 70%, 0 70%);
+        }
+
+        100% {
+            transform: translate(-20px, -10px) scale(1.1) skew(-10deg);
+            clip-path: polygon(0 20%, 100% 20%, 100% 50%, 0 50%);
+        }
+
+        }
+
+        @@keyframes glitchLayer2 {
+            0%
+
+        {
+            transform: translate(20px, 10px) scale(1.1) skew(10deg);
+            clip-path: polygon(0 50%, 100% 50%, 100% 80%, 0 80%);
+        }
+
+        25% {
+            transform: translate(-20px, -10px) scale(1.2) skew(-10deg);
+            clip-path: polygon(0 60%, 100% 60%, 100% 90%, 0 90%);
+        }
+
+        50% {
+            transform: translate(15px, -5px) scale(0.9) skew(5deg);
+            clip-path: polygon(0 40%, 100% 40%, 100% 70%, 0 70%);
+        }
+
+        75% {
+            transform: translate(-15px, 5px) scale(1.3) skew(-5deg);
+            clip-path: polygon(0 70%, 100% 70%, 100% 100%, 0 100%);
+        }
+
+        100% {
+            transform: translate(20px, 10px) scale(1.1) skew(10deg);
+            clip-path: polygon(0 50%, 100% 50%, 100% 80%, 0 80%);
+        }
+
+        }
+
+        @@keyframes noise {
+            0%
+
+        {
+            transform: translate(0, 0);
+        }
+
+        20% {
+            transform: translate(10%, 5%);
+        }
+
+        40% {
+            transform: translate(-10%, 15%);
+        }
+
+        60% {
+            transform: translate(5%, -10%);
+        }
+
+        80% {
+            transform: translate(-15%, 5%);
+        }
+
+        100% {
+            transform: translate(0, 0);
+        }
+
+        }
+
+        @@keyframes slice {
+            0%
+
+        {
+            top: -10%;
+            opacity: 0;
+        }
+
+        1% {
+            opacity: 0.5;
+        }
+
+        3% {
+            opacity: 0;
+        }
+
+        50% {
+            top: 110%;
+        }
+
+        100% {
+            top: 110%;
+        }
+
+        }
+    </style>
+
+
 
 </div>
 
-
-<hr class="my-5" />
-
-<div class="container">
-    <h2 class="fw-bold text-secondary mb-4">🐾 Mascotas en Adopción</h2>
-
-    <div id="adopcionCarouselDark" class="carousel carousel-dark slide mb-5" data-bs-ride="carousel">
-
-        
-        <div class="carousel-indicators">
-            @if (Model != null && Model.Any())
-            {
-                for (int i = 0; i < Model.Count(); i++)
-                {
-                    <button type="button" data-bs-target="#adopcionCarouselDark" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)"></button>
-                }
-            }
+<!-- Modal Donaciones -->
+<div class="modal fade" id="donacionModal" tabindex="-1" aria-labelledby="donacionModalLabel" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header bg-danger text-white">
+                <h5 class="modal-title" id="donacionModalLabel">¡Gracias por tu apoyo!</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Cerrar"></button>
+            </div>
+            <div class="modal-body text-center">
+                <img src="~/imagenes/logo/yape.png" alt="Donación al refugio" class="img-fluid rounded shadow-lg mb-3">
+                <p class="fs-5">Tu contribución hará una gran diferencia en la vida de nuestros animales. ¡Gracias por ayudar!</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary rounded-pill" data-bs-dismiss="modal">Cerrar</button>
+            </div>
         </div>
-
-        
-        <div class="carousel-inner">
-            @if (Model != null && Model.Any())
-            {
-                var first = true;
-                foreach (var animal in Model)
-                {
-                    <div class="carousel-item @(first ? "active" : "")">
-                        <div class="d-flex justify-content-center mb-3">
-                            <img src="@Url.Content($"~/imagenes/animal/{(string.IsNullOrEmpty(animal.Foto) ? "default-animal.jpg" : animal.Foto)}")"
-                                 class="d-block w-50 rounded shadow"
-                                 style="max-height: 400px; object-fit: cover;"
-                                 alt="@animal.Nombre" />
-                        </div>
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
-                            <h5 class="fw-bold text-white">@animal.Nombre</h5>
-                            <p class="text-white" >@animal.Descripcion | "Mascota en adopción."</p>
-                            <a href="@Url.Action("Create", "Solicitud", new { idAnimal = animal.IdAnimal })" class="btn btn-primary">Adoptar</a>
-                        </div>
-                    </div>
-                    first = false;
-                }
-            }
-            else
-            {
-                <div class="carousel-item active">
-                    <div class="d-flex justify-content-center mb-3">
-                        <img src="https://placedog.net/600/400?id=1"
-                             class="d-block w-50 rounded shadow"
-                             style="max-height: 400px; object-fit: cover;"
-                             alt="Sin mascotas" />
-                    </div>
-                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
-                        <h5 class="fw-bold">No hay mascotas para mostrar</h5>
-                        <p>Vuelve más tarde.</p>
-                    </div>
-                </div>
-            }
-        </div>
-
-        
-        <button class="carousel-control-prev" type="button" data-bs-target="#adopcionCarouselDark" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#adopcionCarouselDark" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
-            <span class="visually-hidden">Next</span>
-        </button>
-
     </div>
+</div>
 
 
-    <hr class="my-5" />
 
-    <h2 id="productos" class="fw-bold text-secondary mb-4">🛒 Productos Veterinarios</h2>
+<div class="container mt-5">
+    <h2 class="section-title text-center mb-4">🐾 Mascotas en Adopción</h2>
 
-    <div id="productosCarouselDark" class="carousel carousel-dark slide" data-bs-ride="carousel">
+    <!-- Carrusel tipo marquee -->
+    <div class="carousel" mask style="--items:@(Model?.Count() ?? 10)">
+        @if (Model != null && Model.Any())
+        {
+            foreach (var animal in Model)
+            {
+                <article>
+                    <img src="@Url.Content($"~/imagenes/animal/{(string.IsNullOrEmpty(animal.Foto) ? "default-animal.jpg" : animal.Foto)}")"
+                         alt="@animal.Nombre" />
+
+                    <h2>@animal.Nombre</h2>
+                    <div>
+                        <p>@animal.Descripcion</p>
+                        <a href="@Url.Action("Create", "Solicitud", new { idAnimal = animal.IdAnimal })">Adoptar</a>
+                    </div>
+                </article>
+            }
+        }
+        else
+        {
+            <article>
+                <img src="https://placedog.net/600/400?id=1" alt="Sin mascotas" />
+                <h2>No hay mascotas</h2>
+                <div>
+                    <p>Vuelve más tarde.</p>
+                </div>
+            </article>
+        }
+    </div>
+</div>
+
+<!-- 🎨 Estilos del carrusel -->
+<style>
+    .section-title {
+        font-size: 2rem;
+        font-weight: bold;
+        color: #e6f2e6;
+        text-shadow: 1px 1px 2px #2c3e2c;
+    }
+
+    .carousel {
+        --items: 1; /* dinámico desde Razor */
+        --width: 250px;
+        --height: 300px;
+        --duration: 30s;
+        --delay: calc(var(--duration) / var(--items));
+        display: grid;
+        grid-auto-flow: column;
+        grid-auto-columns: var(--width);
+        align-items: center;
+        justify-items: stretch;
+        width: 100%;
+        height: var(--height);
+        overflow: hidden;
+        gap: 2rem;
+        mask: linear-gradient(90deg, transparent, white 20%, white 80%, transparent);
+    }
+
+    .carousel > article {
+        grid-row: 1 / 2;
+        width: var(--width);
+        height: var(--height);
+        background: #1e2e1e;
+        border: 2px solid #3a5a40;
+        box-shadow: 4px 4px #3a5a40;
+        border-radius: 12px;
+        display: flex;
+        flex-direction: column;
+        justify-content: space-between;
+        align-items: center;
+        padding: 1rem;
+        color: #f1f1f1;
+        animation: move var(--duration) linear infinite;
+        animation-delay: calc(var(--delay) * (var(--index, 0)));
+        transition: transform 0.3s ease;
+    }
+
+    .carousel > article:hover {
+        transform: translateY(-5px);
+    }
+
+    .carousel > article img {
+        width: 100%;
+        height: 160px;
+        object-fit: cover;
+        border-radius: 8px;
+    }
+
+    .carousel > article h2 {
+        font-size: 1.1rem;
+        margin: 0.5rem 0;
+        color: #a8d5ba;
+    }
+
+    .carousel > article p {
+        font-size: 0.9rem;
+        text-align: center;
+        flex-grow: 1;
+        margin: 0.5rem 0;
+    }
+
+    .carousel > article a {
+        background: #3a5a40;
+        color: #fff;
+        border-radius: 20px;
+        padding: 0.3rem 1rem;
+        text-decoration: none;
+        transition: background 0.3s;
+    }
+
+    .carousel > article a:hover {
+        background: #588157;
+    }
+
+    @@keyframes move {
+        from { transform: translateX(100%); }
+        to { transform: translateX(calc(-100% * var(--items))); }
+    }
+</style>
+
+
+    <!-- Productos Veterinarios -->
+    <h2 id="productos" class="section-title">🛒 Productos Veterinarios</h2>
+    <div id="productosCarouselDark" class="carousel carousel-dark slide mb-5" data-bs-ride="carousel">
         <div class="carousel-indicators">
             @if (productos != null && productos.Any())
             {
@@ -113,7 +656,6 @@
                 }
             }
         </div>
-
         <div class="carousel-inner">
             @if (productos != null && productos.Any())
             {
@@ -122,13 +664,10 @@
                 {
                     <div class="carousel-item @(first ? "active" : "")">
                         <div class="d-flex justify-content-center mb-3">
-                            <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(producto.FotoUrl) ? "default-producto.jpg" : producto.FotoUrl)}")"
-                                 class="d-block w-50 rounded shadow"
-                                 style="max-height: 350px; object-fit: cover;"
-                                 alt="@producto.Nombre" />
+                            <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(producto.FotoUrl) ? "default-producto.jpg" : producto.FotoUrl)}")" class="d-block w-50 rounded shadow" alt="@producto.Nombre" />
                         </div>
-                        <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
-                            <h5 class="fw-bold text-white outli">@producto.Nombre</h5>
+                        <div class="carousel-caption d-none d-md-block">
+                            <h5 class="fw-bold text-white">@producto.Nombre</h5>
                             <h5 class="fw-bold text-white">S/. @(producto.Precio.ToString("F2"))</h5>
                             <p class="text-white">@producto.Descripcion</p>
                             <a href="#" class="btn btn-primary rounded-pill px-4">Comprar</a>
@@ -141,34 +680,24 @@
             {
                 <div class="carousel-item active">
                     <div class="d-flex justify-content-center mb-3">
-                        <img src="https://via.placeholder.com/600x400?text=Sin+productos"
-                             class="d-block w-50 rounded shadow"
-                             style="max-height: 350px; object-fit: cover;"
-                             alt="Sin productos" />
+                        <img src="https://via.placeholder.com/600x400?text=Sin+productos" class="d-block w-50 rounded shadow" alt="Sin productos" />
                     </div>
-                    <div class="carousel-caption d-none d-md-block bg-dark bg-opacity-50 rounded p-3">
+                    <div class="carousel-caption d-none d-md-block">
                         <h5 class="fw-bold">No hay productos disponibles</h5>
                         <p>Vuelve más tarde para ver nuevas ofertas.</p>
                     </div>
                 </div>
             }
         </div>
-
         <button class="carousel-control-prev" type="button" data-bs-target="#productosCarouselDark" data-bs-slide="prev">
-            <span class="carousel-control-prev-icon" aria-hidden="true"></span>
+            <i class="fas fa-paw fa-2x text-dark"></i>
             <span class="visually-hidden">Previous</span>
         </button>
         <button class="carousel-control-next" type="button" data-bs-target="#productosCarouselDark" data-bs-slide="next">
-            <span class="carousel-control-next-icon" aria-hidden="true"></span>
+            <i class="fas fa-paw fa-2x text-dark"></i>
             <span class="visually-hidden">Next</span>
         </button>
     </div>
-
-</div>
-
-
-<div id="contenedorAnimales" class="container mt-5">
-    @Html.Partial("~/Views/Animal/_AnimalFiltro.cshtml", Model)
 </div>
 
 @section Scripts {
@@ -176,7 +705,7 @@
         $(document).on('submit', '#formFiltro', function (e) {
             e.preventDefault();
             $.ajax({
-                url: '@Url.Action("~/Views/Animal/_AnimalFiltro.cshtml", "Cliente")',
+                url: '@Url.Action("_AnimalFiltro", "Cliente")',
                 type: 'GET',
                 data: $(this).serialize(),
                 success: function (resultado) {
@@ -189,10 +718,8 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
-            new bootstrap.Carousel(document.querySelector('#adopcionCarousel'), {
-                interval: 3000,
-                ride: 'carousel'
-            });
+            new bootstrap.Carousel(document.querySelector('#adopcionCarouselDark'), { interval: 3000, ride: 'carousel' });
+            new bootstrap.Carousel(document.querySelector('#productosCarouselDark'), { interval: 4000, ride: 'carousel' });
         });
     </script>
 }
