@@ -1,4 +1,6 @@
-﻿namespace EntrePatasWEB.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EntrePatasWEB.Models
 {
     public class ProductoDTO
     {
@@ -16,7 +18,7 @@
         public int Stock { get; set; }
 
 
-
+        [NotMapped] public IFormFile? FotoFile { get; set; }
 
 
     }

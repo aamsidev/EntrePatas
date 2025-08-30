@@ -1,7 +1,9 @@
 ﻿using EntrePatasAPI.Data.Contrato;
+using EntrePatasAPI.Models;
 using EntrePatasAPI.Models.DTO;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Newtonsoft.Json;
 
 namespace EntrePatasAPI.Controllers
 {
@@ -54,12 +56,18 @@ namespace EntrePatasAPI.Controllers
         {
             try
             {
+                Console.WriteLine($"[API] Editando producto {id} con datos: {JsonConvert.SerializeObject(c)}");
+
                 var producto = productoDATA.Editar(id, c);
+
+                if (producto == null)
+                    return NotFound();
+
                 return Ok(producto);
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"[API] Error: {ex.Message}");
                 return BadRequest();
             }
         }

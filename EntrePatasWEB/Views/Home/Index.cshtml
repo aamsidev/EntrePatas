@@ -222,7 +222,7 @@
     </div>
 
     <!-- Texto y botón -->
-    <<div class="donacion-text text-center text-md-start animate__animated animate__fadeInRight">
+    <div class="donacion-text text-center text-md-start animate__animated animate__fadeInRight">
         <h3>💖 Tu ex puede esperar, ¡estos peludos no!</h3>
         <p class="mb-4">Tu donación ayuda a dar alimento, cuidados y amor a los animales que esperan un hogar. ¡Cada aporte cuenta!</p>
 
@@ -644,62 +644,116 @@
 </style>
 
 
-    <!-- Productos Veterinarios -->
-    <h2 id="productos" class="section-title">🛒 Productos Veterinarios</h2>
-    <div id="productosCarouselDark" class="carousel carousel-dark slide mb-5" data-bs-ride="carousel">
-        <div class="carousel-indicators">
-            @if (productos != null && productos.Any())
+<!-- Productos  -->
+<div class="container mt-5" id="productos">
+    <h2 class="section-title text-center mb-4">🛒 Productos Para las Mascotas</h2>
+
+    <!-- Carrusel tipo marquee para productos -->
+    <div class="carousel productos-carousel" mask style="--items:@(productos?.Count > 0 ? productos.Count : 1)">
+        @if (productos != null && productos.Any())
+        {
+            foreach (var producto in productos)
             {
-                for (int i = 0; i < productos.Count; i++)
-                {
-                    <button type="button" data-bs-target="#productosCarouselDark" data-bs-slide-to="@i" class="@(i == 0 ? "active" : "")" aria-current="@(i == 0 ? "true" : "false")" aria-label="Slide @(i + 1)"></button>
-                }
+                <article>
+                    <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(producto.FotoUrl) ? "default-producto.jpg" : producto.FotoUrl)}")"
+                         alt="@producto.Nombre" />
+
+                    <h2>@producto.Nombre</h2>
+                    <div class="producto-content">
+                        <p class="descripcion-producto">@producto.Descripcion</p>
+                        <div class="price">S/. @(producto.Precio.ToString("F2"))</div>
+                        <a asp-controller="Producto" asp-action="Details" asp-route-id="@producto.IdProducto"
+                           class="btn btn-primary btn-sm">Ver más</a>
+                    </div>
+                </article>
             }
-        </div>
-        <div class="carousel-inner">
-            @if (productos != null && productos.Any())
-            {
-                var first = true;
-                foreach (var producto in productos)
-                {
-                    <div class="carousel-item @(first ? "active" : "")">
-                        <div class="d-flex justify-content-center mb-3">
-                            <img src="@Url.Content($"~/imagenes/producto/{(string.IsNullOrEmpty(producto.FotoUrl) ? "default-producto.jpg" : producto.FotoUrl)}")" class="d-block w-50 rounded shadow" alt="@producto.Nombre" />
-                        </div>
-                        <div class="carousel-caption d-none d-md-block">
-                            <h5 class="fw-bold text-white">@producto.Nombre</h5>
-                            <h5 class="fw-bold text-white">S/. @(producto.Precio.ToString("F2"))</h5>
-                            <p class="text-white">@producto.Descripcion</p>
-                            <a href="#" class="btn btn-primary rounded-pill px-4">Comprar</a>
-                        </div>
-                    </div>
-                    first = false;
-                }
-            }
-            else
-            {
-                <div class="carousel-item active">
-                    <div class="d-flex justify-content-center mb-3">
-                        <img src="https://via.placeholder.com/600x400?text=Sin+productos" class="d-block w-50 rounded shadow" alt="Sin productos" />
-                    </div>
-                    <div class="carousel-caption d-none d-md-block">
-                        <h5 class="fw-bold">No hay productos disponibles</h5>
-                        <p>Vuelve más tarde para ver nuevas ofertas.</p>
-                    </div>
+        }
+        else
+        {
+            <article>
+                <img src="https://via.placeholder.com/300x200?text=Sin+productos" alt="Sin productos" />
+                <h2>No hay productos</h2>
+                <div class="producto-content">
+                    <p>Vuelve más tarde.</p>
                 </div>
-            }
-        </div>
-        <button class="carousel-control-prev" type="button" data-bs-target="#productosCarouselDark" data-bs-slide="prev">
-            <i class="fas fa-paw fa-2x text-dark"></i>
-            <span class="visually-hidden">Previous</span>
-        </button>
-        <button class="carousel-control-next" type="button" data-bs-target="#productosCarouselDark" data-bs-slide="next">
-            <i class="fas fa-paw fa-2x text-dark"></i>
-            <span class="visually-hidden">Next</span>
-        </button>
+            </article>
+        }
     </div>
 </div>
 
+<style>
+    /* Estilos específicos SOLO para el carrusel de productos */
+    .productos-carousel {
+        --height: 380px; /* Altura aumentada específicamente para productos */
+    }
+
+        .productos-carousel > article {
+            height: var(--height) !important;
+            display: flex;
+            flex-direction: column;
+        }
+
+            .productos-carousel > article img {
+                height: 140px;
+                object-fit: cover;
+                flex-shrink: 0;
+            }
+
+            .productos-carousel > article h2 {
+                font-size: 1.1rem;
+                margin: 0.5rem 0;
+                color: #a8d5ba;
+                text-align: center;
+                flex-shrink: 0;
+            }
+
+        .productos-carousel .producto-content {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            padding: 0 0.5rem;
+        }
+
+        .productos-carousel .descripcion-producto {
+            flex: 1;
+            overflow: hidden;
+            margin: 0;
+            font-size: 0.9rem;
+            max-height: 4.5em; /* Limitar a aproximadamente 3 líneas */
+            line-height: 1.5em;
+            display: -webkit-box;
+            -webkit-line-clamp: 3;
+            -webkit-box-orient: vertical;
+            text-overflow: ellipsis;
+        }
+
+        .productos-carousel .price {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #ffd166;
+            margin: 0.5rem 0;
+            text-align: center;
+            flex-shrink: 0;
+        }
+
+        .productos-carousel .btn-comprar {
+            background: #5a3a5a;
+            color: #fff;
+            border-radius: 20px;
+            padding: 0.5rem 1.2rem;
+            text-decoration: none;
+            transition: background 0.3s;
+            font-size: 0.9rem;
+            text-align: center;
+            margin-top: auto; /* Esto empuja el botón hacia abajo */
+            flex-shrink: 0;
+            margin-bottom: 0.5rem;
+        }
+
+            .productos-carousel .btn-comprar:hover {
+                background: #815781;
+            }
+</style>
 @section Scripts {
     <script>
         $(document).on('submit', '#formFiltro', function (e) {
@@ -718,8 +772,7 @@
         });
 
         document.addEventListener('DOMContentLoaded', function () {
-            new bootstrap.Carousel(document.querySelector('#adopcionCarouselDark'), { interval: 3000, ride: 'carousel' });
-            new bootstrap.Carousel(document.querySelector('#productosCarouselDark'), { interval: 4000, ride: 'carousel' });
+           
         });
     </script>
 }

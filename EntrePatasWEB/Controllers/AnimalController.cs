@@ -172,13 +172,61 @@ namespace EntrePatasWEB.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(AnimalDTO animal)
+        public async Task<IActionResult> Create(AnimalDTO animal)
         {
-            AnimalDTO nuevoAnimal = RegistrarAnimal(animal).Result;
+            // 👉 Validar sesión de usuario
+            var idUsuario = HttpContext.Session.GetInt32("IdUsuario");
+            if (idUsuario == null)
+                return RedirectToAction("Login", "Usuario");
 
-           
-            return RedirectToAction("Details", new { id = nuevoAnimal.IdAnimal});
+            animal.IdUsuario = idUsuario.Value;
+
+            // 👉 Procesar la foto
+            if (animal.FotoFile != null && animal.FotoFile.Length > 0)
+            {
+                // Tomar el nombre original del archivo
+                var fileName = Path.GetFileName(animal.FotoFile.FileName);
+
+                // Ruta absoluta de la carpeta donde quieres guardar
+                var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "animal");
+
+                // 👉 Crear la carpeta si no existe
+                if (!Directory.Exists(folderPath))
+                {
+                    Directory.CreateDirectory(folderPath);
+                }
+
+                // Ruta completa donde se guardará la foto
+                var filePath = Path.Combine(folderPath, fileName);
+
+                // ❗ Si ya existe un archivo con ese nombre, lo sobrescribe
+                using (var stream = new FileStream(filePath, FileMode.Create))
+                {
+                    await animal.FotoFile.CopyToAsync(stream);
+                }
+
+                // ✅ Guardar solo el nombre en la BD
+                animal.Foto = fileName;
+            }
+
+            // 👉 Llamar a tu API/servicio para registrar
+            var nuevo = await RegistrarAnimal(animal);
+
+            if (nuevo != null)
+            {
+                TempData["Mensaje"] = "Animal registrado correctamente";
+                return RedirectToAction("Index");
+            }
+
+            ModelState.AddModelError("", "No se pudo registrar el animal.");
+            return View(animal);
         }
+
+
+
+
+
+
 
 
 

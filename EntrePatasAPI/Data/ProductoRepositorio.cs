@@ -188,9 +188,8 @@ namespace EntrePatasAPI.Data
 
         public Producto Editar(int id, ProductoDTO producto)
         {
-
             Producto editarProducto = null;
-            int newId = 0;
+
             try
             {
                 using (var cnx = new SqlConnection(cadenaConexion))
@@ -198,30 +197,45 @@ namespace EntrePatasAPI.Data
                     cnx.Open();
                     using (var command = new SqlCommand("sp_ActualizarProducto", cnx))
                     {
-                        command.CommandType = System.Data.CommandType.StoredProcedure;
+                        command.CommandType = CommandType.StoredProcedure;
+
                         command.Parameters.AddWithValue("@IdProducto", id);
                         command.Parameters.AddWithValue("@Nombre", producto.Nombre);
                         command.Parameters.AddWithValue("@Descripcion", producto.Descripcion);
                         command.Parameters.AddWithValue("@Precio", producto.Precio);
-                        command.Parameters.AddWithValue("@FotoUrl", (object?)producto.FotoUrl ?? DBNull.Value);
+
+                        // Si FotoUrl es null o vacío, mandamos DBNull
+                        if (string.IsNullOrEmpty(producto.FotoUrl))
+                            command.Parameters.AddWithValue("@FotoUrl", DBNull.Value);
+                        else
+                            command.Parameters.AddWithValue("@FotoUrl", producto.FotoUrl);
+
                         command.Parameters.AddWithValue("@Stock", producto.Stock);
-                       
-                        var result = Convert.ToInt32(command.ExecuteScalar());                        if (result == 1)
+
+                        // Ejecutamos y obtenemos el valor de "Resultado" (0 o 1)
+                        var result = Convert.ToInt32(command.ExecuteScalar());
+
+                        if (result == 1)
                         {
-                                                       editarProducto = ObtenerProductoPorId(id);
+                            // Traemos el producto ya actualizado desde la BD
+                            editarProducto = ObtenerProductoPorId(id);
+                        }
+                        else
+                        {
+                            Console.WriteLine("⚠️ No se actualizó ningún registro (ID no encontrado o datos inválidos).");
                         }
                     }
                 }
             }
             catch (Exception ex)
             {
-                Console.WriteLine(ex.Message);
+                Console.WriteLine($"❌ Error en Editar: {ex.Message}");
             }
+
             return editarProducto;
-
-
-
         }
+
+
 
 
 

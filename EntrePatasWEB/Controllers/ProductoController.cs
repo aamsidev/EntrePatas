@@ -1,4 +1,5 @@
-﻿using EntrePatasWEB.Models;
+﻿using System.Text;
+using EntrePatasWEB.Models;
 using Microsoft.AspNetCore.Mvc;
 using Newtonsoft.Json;
 
@@ -54,7 +55,7 @@ namespace EntrePatasWEB.Controllers
             {
                 using (var httpCliente = new HttpClient())
                 {
-                    httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
+                    httpCliente.BaseAddress = new Uri(_config["Services:URL_API"]);
                     StringContent contenido = new StringContent(JsonConvert.SerializeObject(producto), System.Text.Encoding.UTF8, "application/json");
                     var respuesta = await httpCliente.PostAsync("Producto/registrar", contenido);
                     var data = await respuesta.Content.ReadAsStringAsync();
@@ -70,33 +71,19 @@ namespace EntrePatasWEB.Controllers
 
         private async Task<ProductoDTO> UpdateProducto(int id, ProductoDTO producto)
         {
-            try
+            using (var client = new HttpClient())
             {
-                using (var httpCliente = new HttpClient())
+                client.BaseAddress = new Uri(_config["Services:URL_API"]);
+                var response = await client.PutAsJsonAsync($"Producto/update/{id}", producto);
+
+                if (response.IsSuccessStatusCode)
                 {
-                    httpCliente.BaseAddress = new Uri(_config["Services:Url_API"]);
-
-                    var contenido = new StringContent(
-                        JsonConvert.SerializeObject(producto),
-                        System.Text.Encoding.UTF8,
-                        "application/json"
-                    );
-
-                    var respuesta = await httpCliente.PutAsync($"Producto/update/{id}", contenido);
-
-                    if (!respuesta.IsSuccessStatusCode)
-                        return null;
-
-                    var data = await respuesta.Content.ReadAsStringAsync();
-                    return JsonConvert.DeserializeObject<ProductoDTO>(data);
+                    return await response.Content.ReadFromJsonAsync<ProductoDTO>();
                 }
             }
-            catch (Exception ex)
-            {
-                Console.WriteLine(ex.Message);
-                return null;
-            }
+            return null;
         }
+
         private async Task<bool> EliminarProductoAsync(int id)
         {
             using (var clienteHttp = new HttpClient())
@@ -142,13 +129,63 @@ namespace EntrePatasWEB.Controllers
         }
 
         [HttpPost]
-        public IActionResult Create(ProductoDTO producto)
+        public async Task<IActionResult> Create(ProductoDTO producto)
         {
-            ProductoDTO nuevoProducto = RegistrarProducto(producto).Result;
+            try
+            {
+                // 👉 Procesar la foto si se sube
+                if (producto.FotoFile != null && producto.FotoFile.Length > 0)
+                {
+                    // Tomar el nombre original del archivo
+                    var originalFileName = Path.GetFileName(producto.FotoFile.FileName);
 
+                    // Crear un nombre único (evita duplicados y bloqueos)
+                    var uniqueFileName = $"{Path.GetFileNameWithoutExtension(originalFileName)}_{Guid.NewGuid()}{Path.GetExtension(originalFileName)}";
 
-            return RedirectToAction("Details", new { id = nuevoProducto.IdProducto});
+                    // Ruta absoluta de la carpeta donde quieres guardar
+                    var folderPath = Path.Combine(Directory.GetCurrentDirectory(), "wwwroot", "imagenes", "producto");
+
+                    // Crear la carpeta si no existe
+                    if (!Directory.Exists(folderPath))
+                    {
+                        Directory.CreateDirectory(folderPath);
+                    }
+
+                    // Ruta completa del archivo
+                    var filePath = Path.Combine(folderPath, uniqueFileName);
+
+                    // Guardar la foto en disco
+                    using (var stream = new FileStream(filePath, FileMode.Create, FileAccess.Write))
+                    {
+                        await producto.FotoFile.CopyToAsync(stream);
+                    }
+
+                    // Guardar el nombre único en la BD
+                    producto.FotoUrl = uniqueFileName;
+                }
+
+                // 👉 Llamar a tu API/servicio para registrar el producto
+                var nuevoProducto = await RegistrarProducto(producto);
+
+                if (nuevoProducto != null)
+                {
+                    TempData["Mensaje"] = "Producto registrado correctamente";
+                    return RedirectToAction("Index");
+                }
+
+                ModelState.AddModelError("", "No se pudo registrar el producto.");
+                return View(producto);
+            }
+            catch (Exception ex)
+            {
+                ModelState.AddModelError("", "Ocurrió un error al registrar el producto.");
+                Console.WriteLine("❌ ERROR EN CREATE: " + ex.ToString()); // log completo en consola
+                return View(producto);
+            }
         }
+
+
+
 
 
         public IActionResult Edit(int id)
@@ -162,23 +199,96 @@ namespace EntrePatasWEB.Controllers
             return View(Producto);
 
         }
-
         [HttpPost]
-        public IActionResult Edit(int id, ProductoDTO producto)
+        public async Task<IActionResult> Edit(int id, ProductoDTO producto)
         {
             if (!ModelState.IsValid)
                 return View(producto);
 
-            var productoEditado = UpdateProducto(id, producto).Result;
-
-            if (productoEditado == null)
+            // Obtener producto existente
+            var productoExistente = await ObtenerProductoId(id);
+            if (productoExistente == null)
             {
-                ModelState.AddModelError("", "No se pudo actualizar el usuario");
+                ModelState.AddModelError("", "Producto no encontrado");
                 return View(producto);
             }
 
-            return RedirectToAction("Index", new { id = productoEditado.IdProducto });
+            // --- Manejo de la foto ---
+            if (producto.FotoFile != null && producto.FotoFile.Length > 0)
+            {
+                var extension = Path.GetExtension(producto.FotoFile.FileName).ToLower();
+                var extensionesPermitidas = new[] { ".jpg", ".jpeg", ".png", ".gif" };
+
+                if (!extensionesPermitidas.Contains(extension))
+                {
+                    ModelState.AddModelError("", "Formato de imagen no válido.");
+                    return View(producto);
+                }
+
+                // Eliminar foto anterior si existía
+                if (!string.IsNullOrEmpty(productoExistente.FotoUrl))
+                {
+                    var rutaAnterior = Path.Combine(
+                        Directory.GetCurrentDirectory(),
+                        "wwwroot/imagenes/producto",
+                        productoExistente.FotoUrl
+                    );
+
+                    if (System.IO.File.Exists(rutaAnterior))
+                        System.IO.File.Delete(rutaAnterior);
+                }
+
+                // Guardar nueva foto (se genera nombre único con GUID)
+                var nombreArchivo = $"{Guid.NewGuid()}{extension}";
+                var ruta = Path.Combine(
+                    Directory.GetCurrentDirectory(),
+                    "wwwroot/imagenes/producto",
+                    nombreArchivo
+                );
+
+                using (var stream = new FileStream(ruta, FileMode.Create))
+                {
+                    await producto.FotoFile.CopyToAsync(stream);
+                }
+
+                producto.FotoUrl = nombreArchivo;
+            }
+            else
+            {
+                // Mantener la foto existente si no se sube nueva
+                producto.FotoUrl = productoExistente.FotoUrl;
+            }
+
+            // --- Preparar datos para actualizar ---
+            var productoParaActualizar = new ProductoDTO
+            {
+                IdProducto = productoExistente.IdProducto,
+                Nombre = !string.IsNullOrWhiteSpace(producto.Nombre)
+                            ? producto.Nombre
+                            : productoExistente.Nombre,
+                Descripcion = !string.IsNullOrWhiteSpace(producto.Descripcion)
+                            ? producto.Descripcion
+                            : productoExistente.Descripcion,
+                Precio = producto.Precio != 0
+                            ? producto.Precio
+                            : productoExistente.Precio,
+                Stock = producto.Stock,
+                FotoUrl = producto.FotoUrl
+            };
+
+            // --- Llamar al API ---
+            var resultado = await UpdateProducto(id, productoParaActualizar);
+            if (resultado == null)
+            {
+                ModelState.AddModelError("", "No se pudo actualizar el producto.");
+                return View(producto);
+            }
+
+            TempData["Mensaje"] = "Producto actualizado correctamente";
+            return RedirectToAction("Index");
         }
+
+
 
 
         public IActionResult Delete(int id)

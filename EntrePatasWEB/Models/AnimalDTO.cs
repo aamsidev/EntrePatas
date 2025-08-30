@@ -1,4 +1,6 @@
-﻿namespace EntrePatasWEB.Models
+﻿using System.ComponentModel.DataAnnotations.Schema;
+
+namespace EntrePatasWEB.Models
 {
     public class AnimalDTO
     {
@@ -12,6 +14,11 @@
         public DateTime FechaRegistro { get; set; }
         public string Foto { get; set; }
         public string Descripcion { get; set; }
+
+        [NotMapped]
+        public IFormFile? FotoFile { get; set; }
+
+
 
     }
 }

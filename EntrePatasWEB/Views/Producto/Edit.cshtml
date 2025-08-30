@@ -1,58 +1,40 @@
 ﻿@model EntrePatasWEB.Models.ProductoDTO
 
-@{
-    ViewData["Title"] = "Edit";
-}
+<form asp-action="Edit" asp-route-id="@Model.IdProducto" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="IdProducto" />
+    <input type="hidden" asp-for="FotoUrl" /> <!-- Mantener la foto actual si no subes nueva -->
 
-<h1>Edit</h1>
-
-<h4>ProductoDTO</h4>
-<hr />
-<div class="row">
-    <div class="col-md-4">
-        <form asp-action="Edit">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="IdProducto" class="control-label"></label>
-                <input asp-for="IdProducto" class="form-control" />
-                <span asp-validation-for="IdProducto" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Precio" class="control-label"></label>
-                <input asp-for="Precio" class="form-control" />
-                <span asp-validation-for="Precio" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="FotoUrl" class="control-label"></label>
-                <input asp-for="FotoUrl" class="form-control" />
-                <span asp-validation-for="FotoUrl" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="Stock" class="control-label"></label>
-                <input asp-for="Stock" class="form-control" />
-                <span asp-validation-for="Stock" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <input type="submit" value="Save" class="btn btn-primary" />
-            </div>
-        </form>
+    <div class="form-group">
+        <label asp-for="Nombre"></label>
+        <input asp-for="Nombre" class="form-control" />
     </div>
-</div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
+    <div class="form-group">
+        <label asp-for="Descripcion"></label>
+        <input asp-for="Descripcion" class="form-control" />
+    </div>
 
-@section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
-}
+    <div class="form-group">
+        <label asp-for="Precio"></label>
+        <input asp-for="Precio" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Stock"></label>
+        <input asp-for="Stock" class="form-control" />
+    </div>
+
+    <div class="form-group">
+        <label>Nueva Foto (opcional)</label>
+        <input asp-for="FotoFile" type="file" class="form-control" />
+        @if (!string.IsNullOrEmpty(Model.FotoUrl))
+        {
+            <div class="mt-2">
+                <span>Foto actual:</span><br />
+                <img src="@Url.Content("~/imagenes/producto/" + Model.FotoUrl)" width="150" class="img-thumbnail" />
+            </div>
+        }
+    </div>
+
+    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+</form>

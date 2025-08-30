@@ -1,78 +1,89 @@
 ﻿@model EntrePatasWEB.Models.AnimalDTO
 
 @{
-    ViewData["Title"] = "Create";
+    ViewData["Title"] = "Registrar Animal";
+    var mensaje = TempData["Mensaje"] as string;
 }
 
-<h1>Create</h1>
-
-<h4>AnimalDTO</h4>
+<h1>Registrar Animal</h1>
 <hr />
+@if (!string.IsNullOrEmpty(mensaje))
+{
+    <div class="alert alert-success alert-dismissible fade show" role="alert">
+        @mensaje
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
 <div class="row">
-    <div class="col-md-4">
-        <form asp-action="Create">
+    <div class="col-md-6">
+        <form asp-action="Create" enctype="multipart/form-data">
             <div asp-validation-summary="ModelOnly" class="text-danger"></div>
-            <div class="form-group">
-                <label asp-for="IdAnimal" class="control-label"></label>
-                <input asp-for="IdAnimal" class="form-control" />
-                <span asp-validation-for="IdAnimal" class="text-danger"></span>
-            </div>
-            <div class="form-group">
-                <label asp-for="IdUsuario" class="control-label"></label>
-                <input asp-for="IdUsuario" class="form-control" />
-                <span asp-validation-for="IdUsuario" class="text-danger"></span>
-            </div>
-            <div class="form-group">
+
+            @* ID del animal (se genera automáticamente, no se muestra) *@
+            <input type="hidden" asp-for="IdAnimal" />
+
+            @* ID del usuario logueado (se completa en el controller, no se muestra) *@
+            <input type="hidden" asp-for="IdUsuario" />
+
+            <div class="form-group mb-2">
                 <label asp-for="Nombre" class="control-label"></label>
                 <input asp-for="Nombre" class="form-control" />
                 <span asp-validation-for="Nombre" class="text-danger"></span>
             </div>
-            <div class="form-group">
+
+            <div class="form-group mb-2">
                 <label asp-for="Especie" class="control-label"></label>
                 <input asp-for="Especie" class="form-control" />
                 <span asp-validation-for="Especie" class="text-danger"></span>
             </div>
-            <div class="form-group">
+
+            <div class="form-group mb-2">
                 <label asp-for="Raza" class="control-label"></label>
                 <input asp-for="Raza" class="form-control" />
                 <span asp-validation-for="Raza" class="text-danger"></span>
             </div>
-            <div class="form-group">
+
+            <div class="form-group mb-2">
                 <label asp-for="Edad" class="control-label"></label>
-                <input asp-for="Edad" class="form-control" />
+                <input asp-for="Edad" type="number" class="form-control" />
                 <span asp-validation-for="Edad" class="text-danger"></span>
             </div>
-            <div class="form-group">
+
+            <div class="form-group mb-2">
                 <label asp-for="Estado" class="control-label"></label>
-                <input asp-for="Estado" class="form-control" />
+                <select asp-for="Estado" class="form-control">
+                    <option value="Disponible">Disponible</option>
+                    <option value="Adoptado">Adoptado</option>
+                    <option value="Reservado">Reservado</option>
+                </select>
                 <span asp-validation-for="Estado" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <label asp-for="FechaRegistro" class="control-label"></label>
-                <input asp-for="FechaRegistro" class="form-control" />
-                <span asp-validation-for="FechaRegistro" class="text-danger"></span>
-            </div>
-            <div class="form-group">
+
+           
+
+            <div class="form-group mb-2">
                 <label asp-for="Foto" class="control-label"></label>
-                <input asp-for="Foto" class="form-control" />
+                <input asp-for="FotoFile" type="file" class="form-control" />
                 <span asp-validation-for="Foto" class="text-danger"></span>
             </div>
-            <div class="form-group">
+
+            <div class="form-group mb-2">
                 <label asp-for="Descripcion" class="control-label"></label>
-                <input asp-for="Descripcion" class="form-control" />
+                <textarea asp-for="Descripcion" class="form-control"></textarea>
                 <span asp-validation-for="Descripcion" class="text-danger"></span>
             </div>
-            <div class="form-group">
-                <input type="submit" value="Create" class="btn btn-primary" />
+
+            <div class="form-group mt-3">
+                <input type="submit" value="Registrar" class="btn btn-primary" />
+                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
             </div>
         </form>
     </div>
 </div>
 
-<div>
-    <a asp-action="Index">Back to List</a>
-</div>
-
 @section Scripts {
-    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
 }
