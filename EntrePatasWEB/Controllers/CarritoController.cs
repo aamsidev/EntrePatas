@@ -9,9 +9,6 @@ namespace EntrePatasWEB.Controllers
     public class CarritoController : Controller
     {
         private const string SessionKey = "Carrito";
-
-
-
         private readonly IConfiguration _config;
 
         public CarritoController(IConfiguration config)
@@ -19,8 +16,7 @@ namespace EntrePatasWEB.Controllers
             _config = config;
         }
 
-
-
+        // ================== MÉTODOS DE SESIÓN ==================
         private List<CarritoItem> GetCarrito()
         {
             var carrito = HttpContext.Session.GetString(SessionKey);
@@ -34,6 +30,7 @@ namespace EntrePatasWEB.Controllers
             HttpContext.Session.SetString(SessionKey, JsonConvert.SerializeObject(carrito));
         }
 
+        // ================== ACCIONES ==================
         public IActionResult Index()
         {
             var carrito = GetCarrito();
@@ -90,28 +87,29 @@ namespace EntrePatasWEB.Controllers
             return PartialView("_MiniCarrito", carrito);
         }
 
+        // ✅ NUEVA ACCIÓN VACIAR
+        [HttpPost]
+        [ValidateAntiForgeryToken]
+        public IActionResult Vaciar()
+        {
+            HttpContext.Session.Remove(SessionKey); // limpia todo el carrito
+            TempData["Mensaje"] = "El carrito fue vaciado correctamente.";
+            return RedirectToAction("Index");
+        }
 
-
+        // ================== CHECKOUT ==================
         public IActionResult Checkout()
         {
-            // 1. Verificar si está logueado
             var usuarioId = HttpContext.Session.GetInt32("IdUsuario");
             if (usuarioId == null)
-            {
                 return RedirectToAction("Login", "PaginaPrincipal");
-            }
 
-            // 2. Recuperar carrito desde sesión
             var carrito = GetCarrito();
             if (carrito == null || !carrito.Any())
-            {
                 return RedirectToAction("Index", "Carrito");
-            }
 
-            // 3. Calcular total
             var total = carrito.Sum(x => (decimal)x.Precio * x.Cantidad);
 
-            // 4. Armar el ViewModel para la vista Checkout
             var viewModel = new CheckoutViewModel
             {
                 Pedido = new PedidoDTO
@@ -121,18 +119,14 @@ namespace EntrePatasWEB.Controllers
                     Estado = "Pendiente",
                     Total = total
                 },
-                Envio = new EnvioDTO
-                {
-                    // aquí podrías inicializar con valores por defecto si quieres
-                },
+                Envio = new EnvioDTO(),
                 Pago = new PagoDTO
                 {
-                    Monto = total,           // ✅ ahora el monto ya se pasa al SP
-                    EstadoPago = "Pendiente" // opcional, inicializa estado
+                    Monto = total,
+                    EstadoPago = "Pendiente"
                 },
                 Detalles = carrito.Select(x => new DetallePedidoDTO
                 {
-
                     IdProducto = x.IdProducto,
                     Producto = new ProductoDTO
                     {
@@ -141,16 +135,13 @@ namespace EntrePatasWEB.Controllers
                         Precio = x.Precio,
                         FotoUrl = x.FotoUrl
                     },
-
                     Cantidad = x.Cantidad,
                     PrecioUnitario = (decimal)x.Precio
                 }).ToList()
             };
 
-            // 5. Enviar a la vista
             return View(viewModel);
         }
-
 
         [HttpPost]
         public async Task<IActionResult> Checkout(CheckoutViewModel viewModel)
@@ -165,7 +156,6 @@ namespace EntrePatasWEB.Controllers
 
             var total = carrito.Sum(x => (decimal)x.Precio * x.Cantidad);
 
-            // Forzar valores de Pedido y Pago
             viewModel.Pedido.IdUsuario = usuarioId.Value;
             viewModel.Pedido.FechaPedido = DateTime.Now;
             viewModel.Pedido.Estado = "Pendiente";
@@ -174,14 +164,12 @@ namespace EntrePatasWEB.Controllers
             viewModel.Pago.Monto = total;
             viewModel.Pago.EstadoPago = "Pendiente";
 
-            // Validar Envio
             if (string.IsNullOrEmpty(viewModel.Envio.DireccionEnvio))
             {
                 ModelState.AddModelError("Envio.DireccionEnvio", "La dirección de envío es obligatoria.");
                 return View(viewModel);
             }
 
-            // Forzar EstadoEnvio para que nunca sea null
             viewModel.Envio.EstadoEnvio = "Pendiente";
 
             using (var httpCliente = new HttpClient())
@@ -236,34 +224,10 @@ namespace EntrePatasWEB.Controllers
                     new StringContent(pagoJson, Encoding.UTF8, "application/json"));
             }
 
-            // Vaciar carrito
-            HttpContext.Session.Remove("Carrito");
+            // ✅ Vaciar carrito después de comprar
+            HttpContext.Session.Remove(SessionKey);
 
             return RedirectToAction("Index", "Home");
         }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-       
-
-
     }
 }
-
-

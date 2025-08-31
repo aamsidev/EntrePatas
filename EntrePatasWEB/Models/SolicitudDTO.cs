@@ -9,5 +9,14 @@
         public string Estado { get; set; } = "Pendiente";
 
         public AnimalDTO? Animal { get; set; }
+
+
+        // Relaciones
+        public UsuarioDTO Usu{ get; set; }
+        public AnimalDTO Ani{ get; set; }
+
+
+
+
     }
 }
