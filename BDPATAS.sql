@@ -1,6 +1,6 @@
 ﻿use master
 
-CREATE DATABASE EntrePatas 
+Create DATABASE EntrePatas 
 GO
 
 use EntrePatas
@@ -18,10 +18,10 @@ CREATE TABLE Usuario(
     Telefono NVARCHAR(20),
     Direccion NVARCHAR(255) NOT NULL,
     Contrasena NVARCHAR(255) NOT NULL,
-    TipoUsuario NVARCHAR(50) NOT NULL CHECK (TipoUsuario IN ('Administrador','Cliente','Veterinario')),
+    TipoUsuario NVARCHAR(50) NOT NULL CHECK (TipoUsuario IN ('Administrador','Cliente')),
     FechaRegistro DATETIME DEFAULT GETDATE() NOT NULL
 );
-
+GO
 CREATE TABLE Animal(
     IdAnimal INT PRIMARY KEY IDENTITY(1,1),
     IdUsuario INT NOT NULL,
@@ -36,12 +36,7 @@ CREATE TABLE Animal(
     FOREIGN KEY (IdUsuario) REFERENCES Usuario(IdUsuario)
 );
 
-CREATE TABLE Vacuna(
-    IdVacuna INT PRIMARY KEY IDENTITY(1,1),
-    Nombre NVARCHAR(100) NOT NULL,
-    Descripcion NVARCHAR(255),
-    Precio MONEY NOT NULL
-);
+
 
 create TABLE Solicitud(
     IdSolicitud INT PRIMARY KEY IDENTITY(1,1),
@@ -53,14 +48,6 @@ create TABLE Solicitud(
     FOREIGN KEY (IdAnimal) REFERENCES Animal(IdAnimal)
 );
 
-CREATE TABLE SolicitudVacuna(
-    IdSolicitudVacuna INT PRIMARY KEY IDENTITY(1,1),
-    IdSolicitud INT NOT NULL,
-    IdVacuna INT NOT NULL,
-    Cantidad INT NOT NULL,
-    FOREIGN KEY (IdSolicitud) REFERENCES Solicitud(IdSolicitud),
-    FOREIGN KEY (IdVacuna) REFERENCES Vacuna(IdVacuna)
-);
 
  Create TABLE Producto(
     IdProducto INT PRIMARY KEY IDENTITY(1,1),
@@ -115,7 +102,7 @@ go
 INSERT INTO Usuario (Nombre, Apellido, Correo, Telefono, Direccion, Contrasena, TipoUsuario)
 VALUES 
 ('Juan', 'Pérez', 'juan.perez@mail.com', '987654321', 'Av. Siempre Viva 123', 'HASH123', 'Cliente'),
-('María', 'García', 'maria.garcia@mail.com', '999888777', 'Calle Falsa 456', 'HASH456', 'Veterinario'),
+('María', 'García', 'maria.garcia@mail.com', '999888777', 'Calle Falsa 456', 'HASH456', 'Cliente'),
 ('Carlos', 'López', 'carlos.lopez@mail.com', '955666444', 'Jr. Las Flores 789', 'HASH789', 'Administrador');
 -- ========================================
 -- INSERTS DE MASCOTA
@@ -133,15 +120,6 @@ VALUES
 (2, 'Pelusa', 'Gato', 'Angora', 4, 'Disponible', 'perro9.jpg', 'Peludo y muy cariñoso'),
 (3, 'Bruno', 'Perro', 'Dálmata', 3, 'Disponible', 'perro10.jpg', 'Activo y con mucha personalidad');
 -- ========================================
--- INSERTS DE VACUNA
--- ========================================
-INSERT INTO Vacuna (Nombre, Descripcion, Precio)
-VALUES
-('Antirrábica', 'Protección contra la rabia', 50.00),
-('Triple Felina', 'Protección contra rinotraqueítis, calicivirus y panleucopenia', 80.00),
-('Parvovirus', 'Prevención de parvovirosis canina', 60.00);
-
--- ========================================
 -- INSERTS DE SOLICITUD
 -- ========================================
 INSERT INTO Solicitud (IdUsuario, IdAnimal, Estado)
@@ -149,15 +127,6 @@ VALUES
 (1, 1, 'Pendiente'),
 (1, 2, 'Pendiente'),
 (2, 3, 'Aprobada');
-
--- ========================================
--- INSERTS DE SOLICITUDVACUNA
--- ========================================
-INSERT INTO SolicitudVacuna (IdSolicitud, IdVacuna, Cantidad)
-VALUES
-(1, 1, 1), -- Firulais → Antirrábica
-(2, 2, 1), -- Michi → Triple Felina
-(3, 3, 2); -- Rocky → 2 dosis Parvovirus
 
 -- ========================================
 -- INSERTS DE PRODUCTO
@@ -377,58 +346,6 @@ BEGIN
 END;
 GO
 
-
--- VACUNA
-CREATE  PROCEDURE sp_InsertarVacuna
-    @Nombre NVARCHAR(100),
-    @Descripcion NVARCHAR(255),
-    @Precio MONEY
-AS
-BEGIN
-    INSERT INTO Vacuna(Nombre,Descripcion,Precio)
-    VALUES(@Nombre,@Descripcion,@Precio);
-    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
-END;
-GO
-
-CREATE  PROCEDURE sp_ListarVacunas
-AS
-BEGIN
-    SELECT * FROM Vacuna;
-END;
-GO
-
-CREATE PROCEDURE sp_ObtenerVacunaPorId
-    @IdVacuna INT
-AS
-BEGIN
-    SELECT * FROM Vacuna WHERE IdVacuna=@IdVacuna;
-END;
-GO
-
-CREATE PROCEDURE sp_ActualizarVacuna
-    @IdVacuna INT,
-    @Nombre NVARCHAR(100),
-    @Descripcion NVARCHAR(255),
-    @Precio MONEY
-AS
-BEGIN
-    UPDATE Vacuna
-    SET Nombre=@Nombre,Descripcion=@Descripcion,Precio=@Precio
-    WHERE IdVacuna=@IdVacuna;
-	SELECT CASE WHEN @@ROWCOUNT > 0 THEN 1 ELSE 0 END AS Resultado;
-END;
-GO
-
-CREATE PROCEDURE sp_EliminarVacuna
-    @IdVacuna INT
-AS
-BEGIN
-    DELETE FROM Vacuna WHERE IdVacuna=@IdVacuna;
-	SELECT @@ROWCOUNT AS Resultado;
-END;
-GO
-
 -- SOLICITUD
 CREATE PROCEDURE sp_InsertarSolicitud
     @IdUsuario INT,
@@ -477,67 +394,6 @@ BEGIN
 END;
 GO
 
--- SOLICITUD VACUNA
-CREATE PROCEDURE sp_InsertarSolicitudVacuna
-    @IdSolicitud INT,
-    @IdVacuna INT,
-    @Cantidad INT
-AS
-BEGIN
-    IF (@IdSolicitud IS NULL OR @IdVacuna IS NULL OR @Cantidad <= 0)
-    BEGIN
-        SELECT -1 AS Resultado;
-        RETURN;
-    END
-    INSERT INTO SolicitudVacuna(IdSolicitud,IdVacuna,Cantidad)
-    VALUES(@IdSolicitud,@IdVacuna,@Cantidad);
-    SELECT CAST(SCOPE_IDENTITY() AS INT) AS Resultado;
-END;
-GO
-
-CREATE PROCEDURE sp_ActualizarSolicitudVacuna
-    @IdSolicitudVacuna INT,
-    @IdSolicitud INT,
-    @IdVacuna INT,
-    @Cantidad INT
-AS
-BEGIN
-    UPDATE SolicitudVacuna
-    SET IdSolicitud = @IdSolicitud,
-        IdVacuna   = @IdVacuna,
-        Cantidad   = @Cantidad
-    WHERE IdSolicitudVacuna = @IdSolicitudVacuna;
-
-    -- Retornar 1 si se actualizó, 0 si no se encontró
-    SELECT CASE WHEN @@ROWCOUNT > 0 THEN 1 ELSE 0 END AS Resultado;
-END;
-GO
-
-
-
-CREATE  PROCEDURE sp_ListarSolicitudVacunas
-AS
-BEGIN
-    SELECT * FROM SolicitudVacuna;
-END;
-GO
-
-CREATE  PROCEDURE sp_ObtenerSolicitudVacunaPorId
-    @IdSolicitudVacuna INT
-AS
-BEGIN
-    SELECT * FROM SolicitudVacuna WHERE IdSolicitudVacuna=@IdSolicitudVacuna;
-END;
-GO
-
-CREATE PROCEDURE sp_EliminarSolicitudVacuna
-    @IdSolicitudVacuna INT
-AS
-BEGIN
-    DELETE FROM SolicitudVacuna WHERE IdSolicitudVacuna=@IdSolicitudVacuna;
-	SELECT @@ROWCOUNT AS Resultado;
-END;
-GO
 
 -- PRODUCTO
 CREATE PROCEDURE sp_InsertarProducto
