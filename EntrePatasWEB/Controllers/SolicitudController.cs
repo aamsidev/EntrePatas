@@ -21,16 +21,41 @@ namespace EntrePatasWEB.Controllers
 
             using (var clienteHttp = new HttpClient())
             {
-
                 clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
 
                 var mensaje = await clienteHttp.GetAsync("Solicitud");
-
                 var data = await mensaje.Content.ReadAsStringAsync();
-
 
                 listado = JsonConvert.DeserializeObject<List<SolicitudDTO>>(data);
             }
+
+            // 🔹 Obtener usuarios
+            var usuarios = new List<UsuarioDTO>();
+            using (var clienteHttp = new HttpClient())
+            {
+                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
+                var mensaje = await clienteHttp.GetAsync("Usuario");
+                var data = await mensaje.Content.ReadAsStringAsync();
+                usuarios = JsonConvert.DeserializeObject<List<UsuarioDTO>>(data);
+            }
+
+            // 🔹 Obtener animales
+            var animales = new List<AnimalDTO>();
+            using (var clienteHttp = new HttpClient())
+            {
+                clienteHttp.BaseAddress = new Uri(_config["Services:URL_API"]);
+                var mensaje = await clienteHttp.GetAsync("Animal");
+                var data = await mensaje.Content.ReadAsStringAsync();
+                animales = JsonConvert.DeserializeObject<List<AnimalDTO>>(data);
+            }
+
+            // 🔹 Mapear relaciones
+            foreach (var s in listado)
+            {
+                s.Usu = usuarios.FirstOrDefault(u => u.IdUsuario == s.IdUsuario);
+                s.Ani = animales.FirstOrDefault(a => a.IdAnimal == s.IdAnimal);
+            }
+
             return listado;
         }
 
@@ -293,5 +318,54 @@ namespace EntrePatasWEB.Controllers
 
             return RedirectToAction("Index");
         }
+
+
+
+        // 📌 Listar solicitudes con opción de modificar estado
+        public async Task<IActionResult> ModificarEstado()
+        {
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
+            var listado = await ObtenerListadoSolicitudAsync();
+
+            // 📌 Filtrar: excluir Adoptado, Aprobado y Rechazado
+            var filtrado = listado
+                .Where(s => s.Estado != "Aprobada"
+                         && s.Estado != "Rechazado")
+                .ToList();
+
+            return View(filtrado);
+        
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> ModificarEstado(int id, string nuevoEstado)
+        {
+            var solicitud = await ObtenerSolicitudId(id);
+
+            if (solicitud == null)
+                return NotFound();
+
+            solicitud.Estado = nuevoEstado;
+
+            var solicitudEditada = await UpdateSolicitud(solicitud.IdSolicitud, solicitud);
+
+            if (solicitudEditada == null)
+            {
+                TempData["Error"] = "No se pudo actualizar la solicitud";
+            }
+            else
+            {
+                TempData["Mensaje"] = "Estado actualizado correctamente";
+            }
+
+            return RedirectToAction("ModificarEstado");
+        }
+
+
+
     }
 }

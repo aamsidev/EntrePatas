@@ -1,0 +1,75 @@
+﻿@model List<EntrePatasWEB.Models.SolicitudDTO>
+
+@{
+    ViewData["Title"] = "Modificar Estado de Solicitudes";
+}
+
+<h2>Solicitudes</h2>
+<hr />
+
+@if (TempData["Mensaje"] != null)
+{
+    <div class="alert alert-success">@TempData["Mensaje"]</div>
+}
+@if (TempData["Error"] != null)
+{
+    <div class="alert alert-danger">@TempData["Error"]</div>
+}
+
+@if (Model != null && Model.Any())
+{
+    <table class="table table-bordered table-striped">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Usuario</th>
+                <th>Animal</th>
+                <th>Estado</th>
+                <th>Cambiar Estado</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var solicitud in Model)
+            {
+                <tr>
+                    <td>@solicitud.IdSolicitud</td>
+                    <td>@solicitud.Usu?.Nombre</td>
+                    <td>@solicitud.Ani?.Nombre</td>
+                    <td>
+                        @if (solicitud.Estado == "Pendiente")
+                        {
+                            <span class="badge bg-warning text-dark">Pendiente</span>
+                        }
+                        else if (solicitud.Estado == "Aprobada")
+                        {
+                            <span class="badge bg-success">Aprobada</span>
+                        }
+                        else if (solicitud.Estado == "Rechazada")
+                        {
+                            <span class="badge bg-danger">Rechazada</span>
+                        }
+                        else
+                        {
+                            <span class="badge bg-secondary">@solicitud.Estado</span>
+                        }
+                    </td>
+                    <td>
+                        <form asp-action="ModificarEstado" method="post" class="d-flex">
+                            <input type="hidden" name="id" value="@solicitud.IdSolicitud" />
+                            <select name="nuevoEstado" class="form-select form-select-sm me-2">
+                                <option value="Pendiente" selected="@(solicitud.Estado=="Pendiente")">Pendiente</option>
+                                <option value="Aprobada" selected="@(solicitud.Estado=="Aprobada")">Aprobada</option>
+                                <option value="Rechazada" selected="@(solicitud.Estado=="Rechazada")">Rechazada</option>
+                            </select>
+                            <button type="submit" class="btn btn-sm btn-primary">Guardar</button>
+                        </form>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p class="text-muted">No hay solicitudes registradas.</p>
+}
