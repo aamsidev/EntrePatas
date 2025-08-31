@@ -151,10 +151,6 @@ namespace EntrePatasWEB.Controllers
 
         public IActionResult Details(int id)
         {
-            var rol = HttpContext.Session.GetString("TipoUsuario");
-
-            if (rol != "Administrador")
-                return RedirectToAction("Error", "Home");
 
             SolicitudDTO solicitud = ObtenerSolicitudId(id).Result;
             return View(solicitud);
@@ -164,10 +160,7 @@ namespace EntrePatasWEB.Controllers
 
         public async Task<IActionResult> Create(int idAnimal)
         {
-            var rol = HttpContext.Session.GetString("TipoUsuario");
-
-            if (rol != "Administrador")
-                return RedirectToAction("Error", "Home");
+            
 
             int? idUsuario = HttpContext.Session.GetInt32("IdUsuario");
             if (idUsuario == null)
@@ -201,10 +194,7 @@ namespace EntrePatasWEB.Controllers
         [HttpPost]
         public IActionResult Create(SolicitudDTO solicitud)
         {
-            var rol = HttpContext.Session.GetString("TipoUsuario");
-
-            if (rol != "Administrador")
-                return RedirectToAction("Error", "Home");
+            
 
             int? idUsuario = HttpContext.Session.GetInt32("IdUsuario");
             if (idUsuario == null)

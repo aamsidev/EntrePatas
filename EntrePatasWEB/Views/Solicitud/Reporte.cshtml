@@ -1,43 +1,65 @@
 ﻿@model List<EntrePatasWEB.Models.SolicitudDTO>
 
-<h2>Reporte de Solicitud</h2>
+<div class="container mt-4">
+    <h2 class="mb-4">Reporte de Solicitudes</h2>
 
-<form method="get" asp-action="Reporte">
-    <div class="form-group">
-        <label for="fechaInicio">Fecha Inicio:</label>
-        <input type="date" id="fechaInicio" name="fechaInicio" class="form-control" />
-    </div>
-    <div class="form-group">
-        <label for="fechaFin">Fecha Fin:</label>
-        <input type="date" id="fechaFin" name="fechaFin" class="form-control" />
-    </div>
-    <button type="submit" class="btn btn-primary">Filtrar</button>
-    <button type="button" class="btn btn-success" onclick="window.print()">Imprimir</button>
-</form>
+    <form method="get" asp-action="Reporte" class="mb-4">
+        <div class="row g-3">
+            <div class="col-md-4">
+                <label for="fechaInicio" class="form-label">📅 Fecha Inicio:</label>
+                <input type="date" id="fechaInicio" name="fechaInicio" class="form-control" />
+            </div>
+            <div class="col-md-4">
+                <label for="fechaFin" class="form-label">📅 Fecha Fin:</label>
+                <input type="date" id="fechaFin" name="fechaFin" class="form-control" />
+            </div>
+            <div class="col-md-4 d-flex align-items-end">
+                <div class="btn-group w-100">
+                    <button type="submit" class="btn btn-primary w-50">
+                        <i class="bi bi-funnel-fill"></i> Filtrar
+                    </button>
+                    <button type="button" class="btn btn-success w-50" onclick="window.print()">
+                        <i class="bi bi-printer-fill"></i> Imprimir
+                    </button>
+                </div>
+            </div>
+        </div>
+    </form>
 
-<hr />
+    <hr />
 
-<table class="table table-striped">
-    <thead>
-        <tr>
-            <th>IDSolicitud</th>
-            <th>Usuario</th>
-            <th>Animal</th>
-            <th>Fecha Registrada</th>
-            <th>Estado </th>
-        </tr>
-    </thead>
-    <tbody>
-        @foreach (var usuario in Model)
-        {
-            <tr>
-                <td>@usuario.IdSolicitud</td>
-                <td>@usuario.IdUsuario</td>
-                <td>@usuario.IdAnimal</td>
-                <td>@usuario.FechaSolicitud.ToString("dd/MM/yyyy")</td>
-                <td>@usuario.Estado</td>
-            </tr>
-        }
-    </tbody>
-</table>
-
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th scope="col">ID Solicitud</th>
+                        <th scope="col">Usuario</th>
+                        <th scope="col">Animal</th>
+                        <th scope="col">Fecha Registrada</th>
+                        <th scope="col">Estado</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var solicitud in Model)
+                    {
+                        <tr>
+                            <td>@solicitud.IdSolicitud</td>
+                            <td>@solicitud.IdUsuario</td>
+                            <td>@solicitud.IdAnimal</td>
+                            <td>@solicitud.FechaSolicitud.ToString("dd/MM/yyyy")</td>
+                            <td>@solicitud.Estado</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-warning text-center">
+            No se encontraron solicitudes registradas en el rango de fechas seleccionado.
+        </div>
+    }
+</div>

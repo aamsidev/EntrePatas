@@ -37,10 +37,6 @@
                 <a asp-controller="Producto" asp-action="Catalogo" class="btn btn-outline-secondary me-2">
                     ← Volver al catálogo
                 </a>
-                <a asp-controller="Producto" asp-action="Edit" asp-route-id="@Model.IdProducto"
-                   class="btn btn-outline-primary me-2">
-                    ✏️ Editar
-                </a>
 
                 @if (Model.Stock > 0)
                 {

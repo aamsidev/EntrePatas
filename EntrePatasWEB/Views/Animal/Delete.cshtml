@@ -1,80 +1,49 @@
 ﻿@model EntrePatasWEB.Models.AnimalDTO
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Eliminar Animal";
 }
 
-<h1>Delete</h1>
+<div class="container mt-4">
+    <h1 class="text-danger mb-3">Eliminar Animal</h1>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>AnimalDTO</h4>
+    <h4 class="text-muted">¿Estás seguro de que deseas eliminar este registro?</h4>
     <hr />
+
     <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IdAnimal)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdAnimal)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IdUsuario)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdUsuario)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Nombre)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Nombre)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Especie)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Especie)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Raza)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Raza)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Edad)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Edad)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Estado)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Estado)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaRegistro)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaRegistro)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Foto)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Foto)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Descripcion)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Descripcion)
-        </dd>
+        <dt class="col-sm-3">ID Animal</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.IdAnimal)</dd>
+
+        <dt class="col-sm-3">ID Usuario</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.IdUsuario)</dd>
+
+        <dt class="col-sm-3">Nombre</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Nombre)</dd>
+
+        <dt class="col-sm-3">Especie</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Especie)</dd>
+
+        <dt class="col-sm-3">Raza</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Raza)</dd>
+
+        <dt class="col-sm-3">Edad</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Edad)</dd>
+
+        <dt class="col-sm-3">Estado</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Estado)</dd>
+
+        <dt class="col-sm-3">Fecha de Registro</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.FechaRegistro)</dd>
+
+        <dt class="col-sm-3">Foto</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Foto)</dd>
+
+        <dt class="col-sm-3">Descripción</dt>
+        <dd class="col-sm-9">@Html.DisplayFor(model => model.Descripcion)</dd>
     </dl>
-    
-    <form asp-action="Delete">
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
+
+    <form asp-action="Delete" class="mt-4">
+        <input type="submit" value="Eliminar" class="btn btn-danger me-2" />
+        <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
     </form>
 </div>

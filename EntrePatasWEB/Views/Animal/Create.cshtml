@@ -5,80 +5,85 @@
     var mensaje = TempData["Mensaje"] as string;
 }
 
-<h1>Registrar Animal</h1>
-<hr />
-@if (!string.IsNullOrEmpty(mensaje))
-{
-    <div class="alert alert-success alert-dismissible fade show" role="alert">
-        @mensaje
-        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
-    </div>
-}
+<div class="container mt-4">
+    <h2 class="mb-3">@ViewData["Title"]</h2>
+    <hr />
 
-<div class="row">
-    <div class="col-md-6">
-        <form asp-action="Create" enctype="multipart/form-data">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+    @* Mensaje temporal (éxito) *@
+    @if (!string.IsNullOrEmpty(mensaje))
+    {
+        <div class="alert alert-success alert-dismissible fade show" role="alert">
+            @mensaje
+            <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Cerrar"></button>
+        </div>
+    }
 
-            @* ID del animal (se genera automáticamente, no se muestra) *@
-            <input type="hidden" asp-for="IdAnimal" />
+    <div class="row">
+        <div class="col-md-8">
+            <form asp-action="Create" enctype="multipart/form-data" class="needs-validation" novalidate>
+                @* Validación general *@
+                <div asp-validation-summary="ModelOnly" class="text-danger mb-3"></div>
 
-            @* ID del usuario logueado (se completa en el controller, no se muestra) *@
-            <input type="hidden" asp-for="IdUsuario" />
+                @* Campos ocultos *@
+                <input type="hidden" asp-for="IdAnimal" />
+                <input type="hidden" asp-for="IdUsuario" />
 
-            <div class="form-group mb-2">
-                <label asp-for="Nombre" class="control-label"></label>
-                <input asp-for="Nombre" class="form-control" />
-                <span asp-validation-for="Nombre" class="text-danger"></span>
-            </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Nombre" class="form-control" placeholder="Nombre del animal" />
+                    <label asp-for="Nombre"></label>
+                    <span asp-validation-for="Nombre" class="text-danger"></span>
+                </div>
 
-            <div class="form-group mb-2">
-                <label asp-for="Especie" class="control-label"></label>
-                <input asp-for="Especie" class="form-control" />
-                <span asp-validation-for="Especie" class="text-danger"></span>
-            </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Especie" class="form-control" placeholder="Especie del animal" />
+                    <label asp-for="Especie"></label>
+                    <span asp-validation-for="Especie" class="text-danger"></span>
+                </div>
 
-            <div class="form-group mb-2">
-                <label asp-for="Raza" class="control-label"></label>
-                <input asp-for="Raza" class="form-control" />
-                <span asp-validation-for="Raza" class="text-danger"></span>
-            </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Raza" class="form-control" placeholder="Raza del animal" />
+                    <label asp-for="Raza"></label>
+                    <span asp-validation-for="Raza" class="text-danger"></span>
+                </div>
 
-            <div class="form-group mb-2">
-                <label asp-for="Edad" class="control-label"></label>
-                <input asp-for="Edad" type="number" class="form-control" />
-                <span asp-validation-for="Edad" class="text-danger"></span>
-            </div>
+                <div class="form-floating mb-3">
+                    <input asp-for="Edad" type="number" class="form-control" placeholder="Edad del animal" />
+                    <label asp-for="Edad"></label>
+                    <span asp-validation-for="Edad" class="text-danger"></span>
+                </div>
 
-            <div class="form-group mb-2">
-                <label asp-for="Estado" class="control-label"></label>
-                <select asp-for="Estado" class="form-control">
-                    <option value="Disponible">Disponible</option>
-                    <option value="Adoptado">Adoptado</option>
-                    <option value="Reservado">Reservado</option>
-                </select>
-                <span asp-validation-for="Estado" class="text-danger"></span>
-            </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Estado" class="form-label"></label>
+                    <select asp-for="Estado" class="form-select">
+                        <option value="Disponible">Disponible</option>
+                        <option value="Adoptado">Adoptado</option>
+                        <option value="Reservado">Reservado</option>
+                    </select>
+                    <span asp-validation-for="Estado" class="text-danger"></span>
+                </div>
 
-           
+                <div class="form-group mb-3">
+                    <label asp-for="FotoFile" class="form-label">Foto del animal</label>
+                    <input asp-for="FotoFile" type="file" class="form-control" />
+                    <span asp-validation-for="Foto" class="text-danger"></span>
+                </div>
 
-            <div class="form-group mb-2">
-                <label asp-for="Foto" class="control-label"></label>
-                <input asp-for="FotoFile" type="file" class="form-control" />
-                <span asp-validation-for="Foto" class="text-danger"></span>
-            </div>
+                <div class="form-group mb-3">
+                    <label asp-for="Descripcion" class="form-label"></label>
+                    <textarea asp-for="Descripcion" class="form-control" rows="4" placeholder="Descripción del animal"></textarea>
+                    <span asp-validation-for="Descripcion" class="text-danger"></span>
+                </div>
 
-            <div class="form-group mb-2">
-                <label asp-for="Descripcion" class="control-label"></label>
-                <textarea asp-for="Descripcion" class="form-control"></textarea>
-                <span asp-validation-for="Descripcion" class="text-danger"></span>
-            </div>
-
-            <div class="form-group mt-3">
-                <input type="submit" value="Registrar" class="btn btn-primary" />
-                <a asp-action="Index" class="btn btn-secondary">Cancelar</a>
-            </div>
-        </form>
+                <div class="d-flex gap-2 mt-4">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle"></i> Registrar
+                    </button>
+                    <a asp-action="Index" class="btn btn-secondary">
+                        <i class="bi bi-x-circle"></i> Cancelar
+                    </a>
+                </div>
+            </form>
+        </div>
     </div>
 </div>
 

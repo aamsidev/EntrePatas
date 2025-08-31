@@ -1,65 +1,62 @@
 ﻿@model IEnumerable<EntrePatasWEB.Models.ProductoDTO>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Productos";
 }
 
-<h1>Index</h1>
+<div class="container mt-4">
+    <h1 class="mb-4">@ViewData["Title"]</h1>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IdProducto)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Nombre)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Descripcion)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Precio)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FotoUrl)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Stock)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdProducto)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Nombre)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Descripcion)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Precio)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FotoUrl)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Stock)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new {  id=item.IdProducto  }) |
-                @Html.ActionLink("Details", "Details", new {  id=item.IdProducto  }) |
-                @Html.ActionLink("Delete", "Delete", new {  id=item.IdProducto  })
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+    <p>
+        <a asp-action="Create" class="btn btn-success">
+            <i class="bi bi-plus-circle"></i> Crear Nuevo
+        </a>
+    </p>
+
+    <table class="table table-striped table-hover align-middle">
+        <thead class="table-dark">
+            <tr>
+                <th>@Html.DisplayNameFor(model => model.IdProducto)</th>
+                <th>@Html.DisplayNameFor(model => model.Nombre)</th>
+                <th>@Html.DisplayNameFor(model => model.Descripcion)</th>
+                <th>@Html.DisplayNameFor(model => model.Precio)</th>
+                <th>@Html.DisplayNameFor(model => model.FotoUrl)</th>
+                <th>@Html.DisplayNameFor(model => model.Stock)</th>
+                <th>Acciones</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var item in Model)
+            {
+                <tr>
+                    <td>@Html.DisplayFor(modelItem => item.IdProducto)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Nombre)</td>
+                    <td>@Html.DisplayFor(modelItem => item.Descripcion)</td>
+                    <td>@String.Format("{0:C}", item.Precio)</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(item.FotoUrl))
+                        {
+                            <img src="@item.FotoUrl" alt="Foto de @item.Nombre" style="max-height: 50px;" class="img-thumbnail" />
+                        }
+                        else
+                        {
+                            <span class="text-muted">Sin foto</span>
+                        }
+                    </td>
+                    <td>@Html.DisplayFor(modelItem => item.Stock)</td>
+                    <td>
+                        <a asp-action="Edit" asp-route-id="@item.IdProducto" class="btn btn-sm btn-primary me-1">
+                            <i class="bi bi-pencil"></i> Editar
+                        </a>
+                        <a asp-action="Details" asp-route-id="@item.IdProducto" class="btn btn-sm btn-info text-white me-1">
+                            <i class="bi bi-info-circle"></i> Detalles
+                        </a>
+                        <a asp-action="Delete" asp-route-id="@item.IdProducto" class="btn btn-sm btn-danger">
+                            <i class="bi bi-trash"></i> Eliminar
+                        </a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>

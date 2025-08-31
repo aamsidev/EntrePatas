@@ -191,6 +191,11 @@ namespace EntrePatasWEB.Controllers
         public IActionResult Edit(int id)
         {
 
+            var rol = HttpContext.Session.GetString("TipoUsuario");
+
+            if (rol != "Administrador")
+                return RedirectToAction("Error", "Home");
+
             var Producto = ObtenerProductoId(id).Result;
 
             if (Producto == null)

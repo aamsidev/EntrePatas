@@ -139,18 +139,42 @@ namespace EntrePatasWEB.Controllers
             return View(listado);
         }
 
-        public async Task<IActionResult> Adopcion()
+        public async Task<IActionResult> Adopcion(string estado, int? edad, string raza, int page = 1, int pageSize = 6)
         {
             var nombre = HttpContext.Session.GetString("NombreUsuario");
             var listado = await ObtenerListadoAnimalAsync();
 
+            // Filtros
+            if (!string.IsNullOrEmpty(estado))
+                listado = listado.Where(a => a.Estado == estado).ToList();
+
+            if (edad.HasValue)
+                listado = listado.Where(a => a.Edad == edad.Value).ToList();
+
+            if (!string.IsNullOrEmpty(raza))
+                listado = listado.Where(a => a.Raza == raza).ToList();
+
+            // Total y paginar
+            int totalItems = listado.Count;
+            int totalPages = (int)Math.Ceiling((double)totalItems / pageSize);
+            var itemsPagina = listado.Skip((page - 1) * pageSize).Take(pageSize).ToList();
+
+            // ViewBag
             ViewBag.NombreUsuario = nombre;
             ViewBag.Estados = new List<string> { "Disponible", "Adoptado", "Reservado" };
             ViewBag.Edades = listado.Select(a => a.Edad).Distinct().OrderBy(e => e).ToList();
             ViewBag.Razas = listado.Select(a => a.Raza).Where(r => !string.IsNullOrEmpty(r)).Distinct().OrderBy(r => r).ToList();
 
-            return View(listado);
+            ViewBag.EstadoSeleccionado = estado;
+            ViewBag.EdadSeleccionada = edad;
+            ViewBag.RazaSeleccionada = raza;
+
+            ViewBag.CurrentPage = page;
+            ViewBag.TotalPages = totalPages;
+
+            return View(itemsPagina);
         }
+
 
         public IActionResult Details(int id)
         {

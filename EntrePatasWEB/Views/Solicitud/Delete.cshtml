@@ -1,50 +1,50 @@
 ﻿@model EntrePatasWEB.Models.SolicitudDTO
 
 @{
-    ViewData["Title"] = "Delete";
+    ViewData["Title"] = "Eliminar Solicitud";
 }
 
-<h1>Delete</h1>
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-7 col-lg-6">
+            <div class="card shadow-sm border-danger">
+                <div class="card-header bg-danger text-white">
+                    <h3 class="mb-0">Confirmar eliminación</h3>
+                </div>
+                <div class="card-body">
+                    <p class="lead">¿Está seguro que desea eliminar esta solicitud?</p>
 
-<h3>Are you sure you want to delete this?</h3>
-<div>
-    <h4>SolicitudDTO</h4>
-    <hr />
-    <dl class="row">
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IdSolicitud)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdSolicitud)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IdUsuario)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdUsuario)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.IdAnimal)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.IdAnimal)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.FechaSolicitud)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.FechaSolicitud)
-        </dd>
-        <dt class = "col-sm-2">
-            @Html.DisplayNameFor(model => model.Estado)
-        </dt>
-        <dd class = "col-sm-10">
-            @Html.DisplayFor(model => model.Estado)
-        </dd>
-    </dl>
-    
-    <form asp-action="Delete">
-        <input type="submit" value="Delete" class="btn btn-danger" /> |
-        <a asp-action="Index">Back to List</a>
-    </form>
+                    <dl class="row">
+                        <dt class="col-sm-4 fw-semibold">ID Solicitud:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.IdSolicitud)</dd>
+
+                        <dt class="col-sm-4 fw-semibold">ID Usuario:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.IdUsuario)</dd>
+
+                        <dt class="col-sm-4 fw-semibold">ID Animal:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.IdAnimal)</dd>
+
+                        <dt class="col-sm-4 fw-semibold">Fecha Solicitud:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.FechaSolicitud)</dd>
+
+                        <dt class="col-sm-4 fw-semibold">Estado:</dt>
+                        <dd class="col-sm-8">@Html.DisplayFor(model => model.Estado)</dd>
+                    </dl>
+
+                    <form asp-action="Delete" method="post" onsubmit="return confirm('¿Realmente desea eliminar esta solicitud? Esta acción no se puede deshacer.')">
+                        <button type="submit" class="btn btn-danger px-4 me-2">
+                            <i class="bi bi-trash-fill"></i> Eliminar
+                        </button>
+                        <a asp-action="Index" class="btn btn-secondary px-4">Cancelar</a>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
+
+@section Scripts {
+    @{
+        await Html.RenderPartialAsync("_ValidationScriptsPartial");
+    }
+}

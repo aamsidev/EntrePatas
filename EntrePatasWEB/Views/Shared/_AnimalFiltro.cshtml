@@ -209,6 +209,50 @@
                     </div>
                 </span>
             </div>
+
         </div>
     }
 </div>
+@if (ViewBag.TotalPages > 1)
+{
+    <nav aria-label="Paginación" class="mt-4">
+        <ul class="pagination justify-content-center">
+            @if (ViewBag.CurrentPage > 1)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Adopcion", new {
+                        page = ViewBag.CurrentPage - 1,
+                        estado = estadoSel,
+                        edad = edadSel,
+                        raza = razaSel
+                    })">Anterior</a>
+                </li>
+            }
+
+            @for (int i = 1; i <= ViewBag.TotalPages; i++)
+            {
+                <li class="page-item @(i == ViewBag.CurrentPage ? "active" : "")">
+                    <a class="page-link" href="@Url.Action("Adopcion", new {
+                        page = i,
+                        estado = estadoSel,
+                        edad = edadSel,
+                        raza = razaSel
+                    })">@i</a>
+                </li>
+            }
+
+            @if (ViewBag.CurrentPage < ViewBag.TotalPages)
+            {
+                <li class="page-item">
+                    <a class="page-link" href="@Url.Action("Adopcion", new {
+                        page = ViewBag.CurrentPage + 1,
+                        estado = estadoSel,
+                        edad = edadSel,
+                        raza = razaSel
+                    })">Siguiente</a>
+                </li>
+            }
+        </ul>
+    </nav>
+}
+

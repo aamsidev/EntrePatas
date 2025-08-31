@@ -156,11 +156,13 @@ namespace EntrePatasWEB.Controllers
             using (var clienteHttp = new HttpClient())
             {
                 clienteHttp.BaseAddress = new Uri(_config["Services:Url_API"]);
-                var response = await clienteHttp.DeleteAsync($"Usuario/{id}");
+                var response = await clienteHttp.DeleteAsync($"api/Usuario/{id}");
 
                 return response.IsSuccessStatusCode;
             }
         }
+
+
 
         public async Task<IActionResult> Reporte(DateTime? fechaInicio, DateTime? fechaFin)
         {
@@ -270,21 +272,18 @@ namespace EntrePatasWEB.Controllers
         }
 
         [HttpPost, ActionName("Delete")]
-        public IActionResult DeleteConfirmed(int id)
+        public async Task<IActionResult> DeleteConfirmed(int id)
         {
-            bool eliminado = EliminarUsuarioAsync(id).Result;
+            bool eliminado = await EliminarUsuarioAsync(id);
 
             if (eliminado)
-            {
                 TempData["Mensaje"] = "Usuario eliminado correctamente";
-            }
             else
-            {
                 TempData["Error"] = "No se pudo eliminar el usuario";
-            }
 
             return RedirectToAction("Index");
         }
+
 
         public IActionResult Perfil()
         {

@@ -1,59 +1,60 @@
 ﻿@model IEnumerable<EntrePatasWEB.Models.SolicitudDTO>
 
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Solicitudes";
 }
 
-<h1>Index</h1>
+<div class="container mt-4">
+    <h2 class="mb-4">📄 Solicitudes Registradas</h2>
 
-<p>
-    <a asp-action="Create">Create New</a>
-</p>
-<table class="table">
-    <thead>
-        <tr>
-            <th>
-                @Html.DisplayNameFor(model => model.IdSolicitud)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdUsuario)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.IdAnimal)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.FechaSolicitud)
-            </th>
-            <th>
-                @Html.DisplayNameFor(model => model.Estado)
-            </th>
-            <th></th>
-        </tr>
-    </thead>
-    <tbody>
-@foreach (var item in Model) {
-        <tr>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdSolicitud)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdUsuario)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.IdAnimal)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.FechaSolicitud)
-            </td>
-            <td>
-                @Html.DisplayFor(modelItem => item.Estado)
-            </td>
-            <td>
-                @Html.ActionLink("Edit", "Edit", new {  id=item.IdSolicitud }) |
-                @Html.ActionLink("Details", "Details", new {  id=item.IdSolicitud }) |
-                @Html.ActionLink("Delete", "Delete", new { id=item.IdSolicitud })
-            </td>
-        </tr>
-}
-    </tbody>
-</table>
+
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="table-responsive">
+            <table class="table table-bordered table-striped table-hover align-middle">
+                <thead class="table-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Usuario</th>
+                        <th>Animal</th>
+                        <th>Fecha</th>
+                        <th>Estado</th>
+                        <th>Acciones</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var item in Model)
+                    {
+                        <tr>
+                            <td>@item.IdSolicitud</td>
+                            <td>@item.IdUsuario</td>
+                            <td>@item.IdAnimal</td>
+                            <td>@item.FechaSolicitud.ToString("dd/MM/yyyy")</td>
+                            <td>@item.Estado</td>
+                            <td>
+                                <div class="btn-group btn-group-sm">
+                                    <a asp-action="Edit" asp-route-id="@item.IdSolicitud" class="btn btn-primary">
+                                        <i class="bi bi-pencil-fill"></i> Editar
+                                    </a>
+                                    <a asp-action="Details" asp-route-id="@item.IdSolicitud" class="btn btn-info text-white">
+                                        <i class="bi bi-eye-fill"></i> Detalles
+                                    </a>
+                                    <a asp-action="Delete" asp-route-id="@item.IdSolicitud" class="btn btn-danger">
+                                        <i class="bi bi-trash-fill"></i> Eliminar
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+    else
+    {
+        <div class="alert alert-info text-center">
+            No hay solicitudes registradas.
+        </div>
+    }
+</div>
